@@ -42,7 +42,7 @@ const start = async () => {
       {execute, subscribe, schema},
       {server, path: '/subscriptions'},
     );
-    console.log(`Bodhi API GraphQL server running on port ${PORT}.`)
+    console.log(`Bodhi API GraphQL server running on http://localhost:${PORT}.`)
   });
 };
 

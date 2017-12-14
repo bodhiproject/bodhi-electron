@@ -40,11 +40,18 @@ type Vote {
   blockNum: Int!
 }
 
+type Block {
+  hash: String!
+  blockNum: Int!
+  transactionHashes: [String!]
+}
+
 type Query {
   allTopics(filter: TopicFilter, skip: Int, first: Int, orderBy:String): [Topic]!
   allOracles(filter: OracleFilter, skip: Int, first: Int, orderBy:String): [Oracle]!
   searchOracles(searchPhrase: String, skip: Int, first: Int, orderBy:String): [Oracle]!
   allVotes(filter: VoteFilter, skip: Int, first: Int, orderBy:String): [Vote]!
+  allBlocks(filter: VoteFilter, skip: Int, first: Int, orderBy:String): [Block]!
 }
 
 input TopicFilter {
@@ -97,6 +104,12 @@ type Mutation {
     amount: Int!
     blockNum: Int!
   ): Vote
+
+  createBlock(
+    hash: String!
+    blockNum: Int!
+    transactionHash: String
+  ): Block
 }
 
 type Subscription {
