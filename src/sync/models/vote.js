@@ -12,28 +12,15 @@ class Vote {
   }
 
   decode() {
-    let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
-      let valStr = value;
-      if (valStr.indexOf('0x') === 0) {
-          valStr = valStr.slice(2);
-        }
-        return hexStr += valStr;
-      }, '');
-    this.name = _.trimEnd(utils.toAscii(nameHex), '\u0000');
-
-    let intermedia = _.map(this.rawLog['_eventResultNames'], (item) => _.trimEnd(utils.toAscii(item), '\u0000'));
-    this.eventResultNames = _.filter(intermedia, item => !!item);
-
     this.oracleAddress = this.rawLog['_oracleAddress'];
     this.participant = this.rawLog['_participant'];
     this.resultIndex = this.rawLog['_resultIndex'].toNumber();
     this.votedAmount = this.rawLog['_votedAmount'].toNumber();
-
   }
 
   translate() {
     return {
-      voterAddress: this.creavoterAddresstor,
+      voterAddress: this.participant,
       oracleAddress: this.oracleAddress,
       optionIdx: this.resultIndex,
       amount: this.votedAmount,

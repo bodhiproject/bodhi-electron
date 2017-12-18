@@ -15,10 +15,10 @@ class Topic {
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       let valStr = value;
       if (valStr.indexOf('0x') === 0) {
-          valStr = valStr.slice(2);
-        }
-        return hexStr += valStr;
-      }, '');
+        valStr = valStr.slice(2);
+      }
+      return hexStr += valStr;
+    }, '');
     this.name = _.trimEnd(utils.toAscii(nameHex), '\u0000');
     let intermedia = _.map(this.rawLog['_resultNames'], (item) => _.trimEnd(utils.toAscii(item), '\u0000'));
     this.resultNames = _.filter(intermedia, item => !!item);
@@ -35,7 +35,7 @@ class Topic {
     return {
       address: this.topicAddress,
       creatorAddress: this.creator,
-      status: 'Voting',
+      status: 'VOTING',
       name: this.name,
       options: this.resultNames,
       resultIdx: null,

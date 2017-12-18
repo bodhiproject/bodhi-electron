@@ -41,9 +41,7 @@ type Vote {
 }
 
 type Block {
-  hash: String!
   blockNum: Int!
-  transactionHashes: [String!]
 }
 
 type Query {
@@ -104,12 +102,6 @@ type Mutation {
     amount: Int!
     blockNum: Int!
   ): Vote
-
-  createBlock(
-    hash: String!
-    blockNum: Int!
-    transactionHash: String
-  ): Block
 }
 
 type Subscription {

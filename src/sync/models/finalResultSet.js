@@ -12,13 +12,13 @@ class FinalResultSet {
   }
 
   decode() {
-    this.address = this.rawLog['_address']
+    this.eventAddress = this.rawLog['_eventAddress']
     this.finalResultIndex = this.rawLog['_finalResultIndex'].toNumber();
   }
 
   translate() {
     return {
-      topicAddress: this.address,
+      topicAddress: this.eventAddress,
       resultIdx: this.finalResultIndex,
     }
   }

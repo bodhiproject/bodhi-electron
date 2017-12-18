@@ -12,17 +12,17 @@ class DecentralizedOracle {
   }
 
   decode() {
-    let nameHex = _.reduce(this.rawLog['_eventName'], (hexStr, value) => {
+    let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       let valStr = value;
       if (valStr.indexOf('0x') === 0) {
-          valStr = valStr.slice(2);
-        }
-        return hexStr += valStr;
-      }, '');
-    this.evetName = _.trimEnd(utils.toAscii(nameHex), '\u0000');
+        valStr = valStr.slice(2);
+      }
+      return hexStr += valStr;
+    }, '');
+    this.name = _.trimEnd(utils.toAscii(nameHex), '\u0000');
 
-    let intermedia = _.map(this.rawLog['_eventResultNames'], (item) => _.trimEnd(utils.toAscii(item), '\u0000'));
-    this.eventResultNames = _.filter(intermedia, item => !!item);
+    let intermedia = _.map(this.rawLog['_resultNames'], (item) => _.trimEnd(utils.toAscii(item), '\u0000'));
+    this.resultNames = _.filter(intermedia, item => !!item);
 
     this.contractAddress = this.rawLog['_contractAddress'];
     this.eventAddress = this.rawLog['_eventAddress'];
@@ -34,20 +34,22 @@ class DecentralizedOracle {
   }
 
   translate() {
-    let optionIdxs = _.times()
+    var optionIdxs = Array.from(Array(this.numOfResults).keys());
+    optionIdxs.splice(this.lastResultIndex, 1);
+
     return {
-      address: this.eventAddress,
+      address: this.contractAddress,
       creatorAddress: this.creator,
       topicAddress:this.eventAddress,
-      status: 'Voting',
+      status: 'VOTING',
       token: 'bot',
-      name: this.eventName,
-      options: this.eventResultNames,
-      optionIdxs: new Array(this.numOfResults).map(function (x, i) {return i}),
-      amounts: _.fill(Array(this.numOfResults), 0),
+      name: this.name,
+      options: this.resultNames,
+      optionIdxs: optionIdxs,
+      amounts: _.fill(Array(this.numOfResults-1), 0),
       resultIdx: null,
       blockNum: this.blockNum,
-      endBlock: this.bettingEndBlock
+      endBlock: this.arbitrationEndBlock
     }
   }
 }
