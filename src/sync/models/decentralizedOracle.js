@@ -30,7 +30,6 @@ class DecentralizedOracle {
     this.lastResultIndex = this.rawLog['_lastResultIndex'].toNumber();
     this.arbitrationEndBlock = this.rawLog['_arbitrationEndBlock'].toNumber();
     this.consensusThreshold = this.rawLog['_consensusThreshold'].toNumber();
-
   }
 
   translate() {

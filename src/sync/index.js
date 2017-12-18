@@ -5,7 +5,6 @@ const connectDB = require('../db')
 const Qweb3 = require('../qweb3.js/src/qweb3');
 const qclient = new Qweb3('http://bodhi:bodhi@localhost:13889');
 
-
 const Topic = require('./models/topic');
 const CentralizedOracle = require('./models/centralizedOracle');
 const DecentralizedOracle = require('./models/decentralizedOracle');
@@ -16,13 +15,13 @@ const FinalResultSet = require('./models/finalResultSet');
 const Contracts = require('./contracts');
 const contractEventFactory = qclient.Contract(Contracts.EventFactory.address, Contracts.EventFactory.abi);
 const contractOracleFactory = qclient.Contract(Contracts.OracleFactory.address, Contracts.OracleFactory.abi);
-const constractTopicEvent = qclient.Contract(null, Contracts.TopicEvent.abi);
-const constractCentralizedOracle = qclient.Contract(null, Contracts.CentralizedOracle.abi);
-const constractDecentralizedOracle = qclient.Contract(null, Contracts.DecentralizedOracle.abi);
+const contractTopicEvent = qclient.Contract(null, Contracts.TopicEvent.abi);
+const contractCentralizedOracle = qclient.Contract(null, Contracts.CentralizedOracle.abi);
+const contractDecentralizedOracle = qclient.Contract(null, Contracts.DecentralizedOracle.abi);
 
-const batch_size=100;
+const batchSize=100;
 
-const contract_deployed_block_num = 48000;
+const contractDeployedBlockNum = 48000;
 
 var currentBlockChainHeight = 0
 
@@ -73,13 +72,13 @@ function sync(db){
         }
 
         db.Blocks.find({}, options).toArray(function(err, blocks){
-          var start_block = contract_deployed_block_num;
+          var start_block = contractDeployedBlockNum;
           if(blocks.length > 0){
             start_block = Math.max(blocks[0].blockNum + 1, start_block);
           }
 
-          var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-start_block)/batch_size), function(loop){
-            var end_block = Math.min(start_block + batch_size, currentBlockChainHeight);
+          var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-start_block)/batchSize), function(loop){
+            var end_block = Math.min(start_block + batchSize, currentBlockChainHeight);
             var syncTopic = false, syncCOracle = false, syncDOracle = false, syncVote = false,
                 syncOracleResult = false, syncFinalResult = false;
 
@@ -199,7 +198,7 @@ function sync(db){
             });
 
             // sync OracleResultVoted
-            constractCentralizedOracle.searchLogs(start_block, end_block, [], Contracts.CentralizedOracle.OracleResultVoted)
+            contractCentralizedOracle.searchLogs(start_block, end_block, [], Contracts.CentralizedOracle.OracleResultVoted)
             .then(
               (result) => {
                 console.log(`${start_block} - ${end_block}: Retrieved ${result.length} entries from OracleResultVoted`);
@@ -238,7 +237,7 @@ function sync(db){
             });
 
             // sync OracleResultSet
-            constractCentralizedOracle.searchLogs(start_block, end_block, [], Contracts.CentralizedOracle.OracleResultSet)
+            contractCentralizedOracle.searchLogs(start_block, end_block, [], Contracts.CentralizedOracle.OracleResultSet)
             .then(
               (result) => {
                 console.log(`${start_block} - ${end_block}: Retrieved ${result.length} entries from OracleResultSet`);
@@ -276,7 +275,7 @@ function sync(db){
             });
 
             // sync FinalResultSet
-            constractTopicEvent.searchLogs(start_block, end_block, [], Contracts.TopicEvent.FinalResultSet)
+            contractTopicEvent.searchLogs(start_block, end_block, [], Contracts.TopicEvent.FinalResultSet)
             .then(
               (result) => {
                 console.log(`${start_block} - ${end_block}: Retrieved ${result.length} entries from FinalResultSet`);

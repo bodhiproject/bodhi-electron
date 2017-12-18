@@ -28,7 +28,6 @@ class Topic {
     this.oracle = this.rawLog['_oracle'];
     this.bettingEndBlock = this.rawLog['_bettingEndBlock'].toNumber();
     this.resultSettingEndBlock = this.rawLog['_resultSettingEndBlock'].toNumber();
-
   }
 
   translate() {
