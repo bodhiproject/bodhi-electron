@@ -87,7 +87,7 @@ function sync(db){
                 syncOracleResult = false, syncFinalResult = false;
 
             // sync TopicCreated
-            contractEventFactory.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.EventFactory.TopicCreated])
+            qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.EventFactory.TopicCreated])
               .then(
                 (result) => {
                   console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
@@ -126,7 +126,7 @@ function sync(db){
               });
 
             // sync CentralizedOracleCreatedEvent
-            contractOracleFactory.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.OracleFactory.CentralizedOracleCreated])
+            qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.OracleFactory.CentralizedOracleCreated])
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreatedEvent`);
@@ -165,7 +165,7 @@ function sync(db){
             });
 
             // sync DecentralizedOracleCreatedEvent
-            contractOracleFactory.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreatedEvent`);
@@ -205,7 +205,7 @@ function sync(db){
             });
 
             // sync OracleResultVoted
-            contractCentralizedOracle.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
@@ -246,7 +246,7 @@ function sync(db){
             });
 
             // sync OracleResultSet
-            contractCentralizedOracle.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
@@ -285,7 +285,7 @@ function sync(db){
             });
 
             // sync FinalResultSet
-            contractTopicEvent.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
