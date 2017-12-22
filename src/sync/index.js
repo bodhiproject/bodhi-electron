@@ -13,11 +13,6 @@ const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
 
 const Contracts = require('./contracts');
-const contractEventFactory = qclient.Contract(Contracts.EventFactory.address, Contracts.EventFactory.abi);
-const contractOracleFactory = qclient.Contract(Contracts.OracleFactory.address, Contracts.OracleFactory.abi);
-const contractTopicEvent = qclient.Contract(null, Contracts.TopicEvent.abi);
-const contractCentralizedOracle = qclient.Contract(null, Contracts.CentralizedOracle.abi);
-const contractDecentralizedOracle = qclient.Contract(null, Contracts.DecentralizedOracle.abi);
 
 const batchSize=500;
 
