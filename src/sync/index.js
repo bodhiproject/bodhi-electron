@@ -59,6 +59,7 @@ function sequentialLoop(iterations, process, exit){
 }
 
 function sync(db){
+  const removeHexPrefix = true;
   var topicsNeedBalanceUpdate = new Set(), oraclesNeedBalanceUpdate = new Set();
 
   qclient.getBlockCount()
@@ -82,7 +83,7 @@ function sync(db){
                 syncOracleResult = false, syncFinalResult = false;
 
             // sync TopicCreated
-            qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.EventFactory.TopicCreated])
+            qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.EventFactory.TopicCreated], Contracts, removeHexPrefix)
               .then(
                 (result) => {
                   console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
@@ -121,7 +122,7 @@ function sync(db){
               });
 
             // sync CentralizedOracleCreatedEvent
-            qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.OracleFactory.CentralizedOracleCreated])
+            qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.OracleFactory.CentralizedOracleCreated], Contracts, removeHexPrefix)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreatedEvent`);
@@ -160,7 +161,7 @@ function sync(db){
             });
 
             // sync DecentralizedOracleCreatedEvent
-            qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated, Contracts, removeHexPrefix)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreatedEvent`);
@@ -200,7 +201,7 @@ function sync(db){
             });
 
             // sync OracleResultVoted
-            qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted, Contracts, removeHexPrefix)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
@@ -241,7 +242,7 @@ function sync(db){
             });
 
             // sync OracleResultSet
-            qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts, removeHexPrefix)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
@@ -280,7 +281,7 @@ function sync(db){
             });
 
             // sync FinalResultSet
-            qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet)
+            qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts, removeHexPrefix)
             .then(
               (result) => {
                 console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
