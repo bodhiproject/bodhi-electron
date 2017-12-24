@@ -446,7 +446,7 @@ function updateTopicBalance(topicAddress, db, resolve){
       resolve();
       return;
     }
-    const contract = qclient.Contract(topicAddress.slice(2), Contracts.TopicEvent.abi);
+    const contract = qclient.Contract(topicAddress, Contracts.TopicEvent.abi);
     contract.call('getTotalBets', { methodArgs: [], senderAddress: senderAddress})
       .then(
         (value)=>{

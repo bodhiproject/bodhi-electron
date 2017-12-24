@@ -14,7 +14,7 @@ class Topic {
 
   decode() {
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
-      return hexStr += valStr;
+      return hexStr += value;
     }, '');
     this.name = utils.toUtf8(nameHex)
     let intermedia = _.map(this.rawLog['_resultNames'], (item) => utils.toUtf8(item));
