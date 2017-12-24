@@ -404,7 +404,7 @@ function updateOracleBalance(oracleAddress, topicSet, db, resolve){
     topicSet.add(oracle.topicAddress);
     if(oracle.token === 'QTUM'){
       // centrailized
-      const contract = qclient.Contract(oracleAddress.slice(2), Contracts.CentralizedOracle.abi);
+      const contract = qclient.Contract(oracleAddress, Contracts.CentralizedOracle.abi);
       contract.call('getTotalBets',{ methodArgs: [], senderAddress: senderAddress})
         .then(
           (value)=>{
@@ -421,7 +421,7 @@ function updateOracleBalance(oracleAddress, topicSet, db, resolve){
         );
     }else{
       // decentralized
-      const contract = qclient.Contract(oracleAddress.slice(2), Contracts.DecentralizedOracle.abi);
+      const contract = qclient.Contract(oracleAddress, Contracts.DecentralizedOracle.abi);
       contract.call('getTotalVotes', { methodArgs: [], senderAddress: senderAddress})
       .then(
         (value)=>{
