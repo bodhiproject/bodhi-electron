@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const qDecoder = require('../../qweb3.js/src/decoder');
 const utils = require('../../qweb3.js/src/utils');
 
 class CentralizedOracle {
@@ -36,6 +37,7 @@ class CentralizedOracle {
       txid: this.txid,
       topicAddress:this.eventAddress,
       resultSetterAddress:this.oracle,
+      resultSetterQAddress: qDecoder.toQtumAddress(this.oracle),
       status: 'VOTING',
       token: 'QTUM',
       name: this.name,

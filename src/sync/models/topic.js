@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const qDecoder = require('../../qweb3.js/src/decoder');
 const utils = require('../../qweb3.js/src/utils');
 
 class Topic {
@@ -32,6 +33,7 @@ class Topic {
       address: this.topicAddress,
       txid: this.txid,
       creatorAddress: this.creator,
+      creatorQAddress:qDecoder.toQtumAddress(this.creator),
       status: 'VOTING',
       name: this.name,
       options: this.resultNames,
