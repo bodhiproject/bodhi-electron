@@ -339,7 +339,6 @@ async function sync(db){
     updatePromises.push(syncOracleResultSetPromise);
     updatePromises.push(syncFinalResultSetPromise);
 
-
     Promise.all(syncPromises).then(() => {
       console.log('synced');
       // sync first and then update in case update object in current batch
