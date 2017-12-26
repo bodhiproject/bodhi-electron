@@ -3,9 +3,13 @@ const config = require('../config');
 const connectDB = require('../db')
 
 const Qweb3 = require('qweb3');
+<<<<<<< HEAD
 const Qweb3Contract = require('qweb3/src/contract');
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
+=======
+const qclient = new Qweb3('http://bodhi:bodhi@qtumd:13889');
+>>>>>>> docker config
 
 const Topic = require('./models/topic');
 const CentralizedOracle = require('./models/centralizedOracle');
