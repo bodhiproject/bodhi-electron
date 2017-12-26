@@ -65,13 +65,12 @@ input TopicFilter {
   address: String
   status: _OracleStatusType
   creatorQAddress: String
-  name: String
 }
 
 input OracleFilter {
   OR: [OracleFilter!]
   address: String
-  token: String
+  token: _TokenType
   topicAddress: String
   resultSetterAddress: String
   resultSetterQAddress: String
