@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const utils = require('qweb3/src/utils');
+const utils = require('qweb3/dist/utils');
 
 class FinalResultSet {
   constructor(rawLog) {

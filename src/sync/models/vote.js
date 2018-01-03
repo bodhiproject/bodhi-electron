@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const qDecoder = require('qweb3/src/decoder');
+const qDecoder = require('qweb3/dist/decoder');
 
 
 class Vote {

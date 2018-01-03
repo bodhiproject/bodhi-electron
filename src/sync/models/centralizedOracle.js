@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const qDecoder = require('qweb3/src/decoder');
-const utils = require('qweb3/src/utils');
+const qDecoder = require('qweb3/dist/decoder');
+const utils = require('qweb3/dist/utils');
 
 class CentralizedOracle {
   constructor(blockNum, txid, rawLog) {

@@ -3,7 +3,7 @@ const config = require('../config');
 const connectDB = require('../db')
 
 const Qweb3 = require('qweb3');
-const Qweb3Contract = require('qweb3/src/contract');
+const Qweb3Contract = require('qweb3/dist/contract');
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
 
