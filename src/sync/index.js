@@ -2,10 +2,8 @@ const _ = require('lodash');
 const config = require('../config');
 const connectDB = require('../db')
 
-const Qweb3 = require('qweb3');
-const Qweb3Contract = require('qweb3/dist/contract');
+import { Qweb3, Contract } from 'qweb3';
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
-
 
 const Topic = require('./models/topic');
 const CentralizedOracle = require('./models/centralizedOracle');
@@ -449,7 +447,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
   var value;
   if(oracle.token === 'QTUM'){
     // centrailized
-    const contract = new Qweb3Contract(config.QTUM_RPC_ADDRESS, oracleAddress, Contracts.CentralizedOracle.abi);
+    const contract = new Contract(config.QTUM_RPC_ADDRESS, oracleAddress, Contracts.CentralizedOracle.abi);
     try {
       value = await contract.call('getTotalBets',{ methodArgs: [], senderAddress: senderAddress});
     } catch(err){
@@ -458,7 +456,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
     }
   }else{
     // decentralized
-    const contract = new Qweb3Contract(config.QTUM_RPC_ADDRESS, oracleAddress, Contracts.DecentralizedOracle.abi);
+    const contract = new Contract(config.QTUM_RPC_ADDRESS, oracleAddress, Contracts.DecentralizedOracle.abi);
     try {
       value = await contract.call('getTotalVotes', { methodArgs: [], senderAddress: senderAddress});
     } catch(err){
@@ -492,7 +490,7 @@ async function updateTopicBalance(topicAddress, db){
     return;
   }
 
-  const contract = new Qweb3Contract(config.QTUM_RPC_ADDRESS, topicAddress, Contracts.TopicEvent.abi);
+  const contract = new Contract(config.QTUM_RPC_ADDRESS, topicAddress, Contracts.TopicEvent.abi);
   var totalBetsValue, totalVotesValue;
   try{
     // TODO(frankobe): mk this two async
