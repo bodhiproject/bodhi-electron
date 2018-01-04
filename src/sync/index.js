@@ -1,8 +1,9 @@
-const _ = require('lodash');
+import _ from 'lodash';
+import { Qweb3, Contract } from 'qweb3';
+
 const config = require('../config');
 const connectDB = require('../db')
 
-import { Qweb3, Contract } from 'qweb3';
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
 const Topic = require('./models/topic');
@@ -14,7 +15,7 @@ const FinalResultSet = require('./models/finalResultSet');
 
 const Contracts = require('./contracts');
 
-const batchSize=200;
+const batchSize = 200;
 
 const contractDeployedBlockNum = 56958;
 

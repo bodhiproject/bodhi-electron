@@ -1,5 +1,4 @@
-const _ = require('lodash');
-const utils = require('qweb3/dist/utils');
+import _ from 'lodash';
 
 class FinalResultSet {
   constructor(rawLog) {

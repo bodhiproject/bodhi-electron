@@ -1,6 +1,5 @@
-const _ = require('lodash');
-const qDecoder = require('qweb3/dist/decoder');
-
+import _ from 'lodash';
+import { Decoder } from 'qweb3';
 
 class Vote {
   constructor(blockNum, txid, rawLog) {
@@ -24,7 +23,7 @@ class Vote {
     return {
       txid: this.txid,
       voterAddress: this.participant,
-      voterQAddress: qDecoder.toQtumAddress(this.participant),
+      voterQAddress: Decoder.toQtumAddress(this.participant),
       oracleAddress: this.oracleAddress,
       optionIdx: this.resultIndex,
       amount: this.votedAmount,
