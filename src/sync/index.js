@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Qweb3, Contract } from 'qweb3';
+import Qweb3, { Contract } from 'qweb3';
 
 const config = require('../config');
 const connectDB = require('../db')
