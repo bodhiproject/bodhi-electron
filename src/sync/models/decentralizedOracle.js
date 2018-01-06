@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { Utils } from 'qweb3';
+const _ = require('lodash');
+const Utils = require('qweb3').Utils;
 
 class DecentralizedOracle {
   constructor(blockNum, txid, rawLog) {

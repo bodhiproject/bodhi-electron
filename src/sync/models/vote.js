@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import { Decoder } from 'qweb3';
+const _ = require('lodash');
+const Decoder = require('qweb3').Decoder;
 
 class Vote {
   constructor(blockNum, txid, rawLog) {

@@ -1,5 +1,6 @@
-import _ from 'lodash';
-import { Decoder, Utils } from 'qweb3';
+const _ = require('lodash');
+const Decoder = require('qweb3').Decoder;
+const Utils = require('qweb3').Utils;
 
 class Topic {
   constructor(blockNum, txid, rawLog) {
