@@ -57,8 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
-*.db
-
+# .DS_Store is a file that stores custom attributes of its containing folder
 .DS_Store
 
+*.db
 bin/
