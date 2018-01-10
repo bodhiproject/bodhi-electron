@@ -1,7 +1,7 @@
 const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
 
-function buildTopicFilters({OR = [], address, status}) {
+function buildTopicFilters({ OR = [], address, status }) {
   const filter = (address || status) ? {} : null;
   if (address) {
     filter.address = address;
@@ -36,8 +36,8 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
     filter.status = status;
   }
 
-  let filters = filter ? [filter]:[]
-  for(let i = 0; i < OR.length; i++) {
+  let filters = filter ? [filter] : []
+  for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildOracleFilters(OR[i]));
   }
   return filters;
@@ -45,21 +45,21 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
 
 function buildSearchOracleFilter(searchPhrase) {
   const filterFields = ["name", "address", "topicAddress", "resultSetterAddress", "resultSetterQAddress"];
-  if(!searchPhrase) {
+  if (!searchPhrase) {
     return [];
   }
 
   filters = [];
-  for (let i=0; i < filterFields.length; i++){
+  for (let i = 0; i < filterFields.length; i++) {
     const filter = {};
-    filter[filterFields[i]] = {$regex: `.*${searchPhrase}.*`};
+    filter[filterFields[i]] = { $regex: `.*${searchPhrase}.*` };
     filters.push(filter)
   }
 
   return filters;
 }
 
-function buildVoteFilters({OR = [], address, oracleAddress, voterAddress, voterQAddress, optionIdx}) {
+function buildVoteFilters({ OR = [], address, oracleAddress, voterAddress, voterQAddress, optionIdx }) {
   const filter = (address || oracleAddress || voterAddress || optionIdx) ? {} : null;
   if (address) {
     filter.address = address;
@@ -81,13 +81,12 @@ function buildVoteFilters({OR = [], address, oracleAddress, voterAddress, voterQ
     filter.optionIdx = optionIdx;
   }
 
-  let filters = filter ? [filter]: [];
+  let filters = filter ? [filter] : [];
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildVoteFilters(OR[i]));
   }
   return filters;
 }
-
 
 module.exports = {
   Query: {
@@ -166,20 +165,20 @@ module.exports = {
         console.error(`Error query latest block from db: ${err.message}`);
       }
 
-      if(blocks.length > 0){
+      if (blocks.length > 0) {
         syncBlockNum = blocks[0].blockNum;
       }
 
       let chainBlockNum = null;
       try {
-       let resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
-       let json = await resp.json();
-       chainBlockNum = json['info']['blocks'];
-      } catch(err) {
+        let resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
+        let json = await resp.json();
+        chainBlockNum = json['info']['blocks'];
+      } catch (err) {
         console.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
       }
 
-      return {'syncBlockNum': syncBlockNum, 'chainBlockNum': chainBlockNum }
+      return { 'syncBlockNum': syncBlockNum, 'chainBlockNum': chainBlockNum }
     }
   },
 
@@ -190,9 +189,9 @@ module.exports = {
       data.botAmount = Array(data.options.length).fill(0);
 
       const response = await Topics.insert(data);
-      const newTopic = Object.assign({id: response.insertedIds[0]}, data);
+      const newTopic = Object.assign({ id: response.insertedIds[0] }, data);
 
-      pubsub.publish('Topic', {Topic:{mutation: 'CREATED', node:newTopic}});
+      pubsub.publish('Topic', { Topic: { mutation: 'CREATED', node: newTopic } });
       return newTopic;
     },
 
@@ -201,14 +200,14 @@ module.exports = {
       data.amounts = Array(data.options.length).fill(0);
 
       const response = await Oracles.insert(data);
-      const newOracle = Object.assign({id: response.insertedIds[0]}, data);
+      const newOracle = Object.assign({ id: response.insertedIds[0] }, data);
 
       return newOracle;
     },
 
     createVote: async (root, data, {db: {Votes}}) => {
       const response = await Votes.insert(data);
-      return Object.assign({id: response.insertedIds[0]}, data);
+      return Object.assign({ id: response.insertedIds[0] }, data);
     }
   },
 
