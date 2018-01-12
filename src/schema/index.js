@@ -3,6 +3,7 @@ const resolvers = require('./resolvers');
 
 // Define your types here.
 const typeDefs = `
+
 type Topic {
   address: String!
   txid: String!
@@ -59,7 +60,7 @@ type syncInfo {
 
 type Query {
   allTopics(filter: TopicFilter, skip: Int, first: Int, orderBy:String): [Topic]!
-  allOracles(filter: OracleFilter, skip: Int, first: Int, orderBy:String): [Oracle]!
+  allOracles(filter: OracleFilter, skip: Int, first: Int, orderBy: [Order]): [Oracle]!
   searchOracles(searchPhrase: String, skip: Int, first: Int, orderBy:String): [Oracle]!
   allVotes(filter: VoteFilter, skip: Int, first: Int, orderBy:String): [Vote]!
   allBlocks(filter: VoteFilter, skip: Int, first: Int, orderBy:String): [Block]!
@@ -79,6 +80,7 @@ input OracleFilter {
   resultSetterAddress: String
   resultSetterQAddress: String
   status: _OracleStatusType
+  token: _TokenType
 }
 
 input VoteFilter {
@@ -129,6 +131,11 @@ input topicSubscriptionFilter {
   mutation_in: [_ModelMutationType!]
 }
 
+input Order {
+  field: String!
+  direction: _OrderDirection
+}
+
 type TopicSubscriptionPayload {
   mutation: _ModelMutationType!
   node: Topic
@@ -152,6 +159,11 @@ enum _OracleStatusType {
 enum _TokenType {
   QTUM
   BOT
+}
+
+enum _OrderDirection {
+  DESC
+  ASC
 }
 `;
 

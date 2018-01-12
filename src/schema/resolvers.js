@@ -1,4 +1,5 @@
-const pubsub = require('../pubsub');
+const _ = require('lodash');
+const { PubSub } = require('graphql-subscriptions');
 const fetch = require('node-fetch');
 
 function buildTopicFilters({ OR = [], address, status }) {
@@ -36,10 +37,16 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
     filter.status = status;
   }
 
-  let filters = filter ? [filter] : []
+  if (token) {
+    filter.token = { $eq: `${token}` };
+  }
+
+  let filters = filter ? [filter] : [];
+
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildOracleFilters(OR[i]));
   }
+
   return filters;
 }
 
@@ -112,7 +119,7 @@ module.exports = {
       }
 
       if (skip) {
-        cursor.skip(skip);
+        options.skip(skip);
       }
       return await cursor.exec();
     },
