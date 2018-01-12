@@ -1,4 +1,5 @@
-const pubsub = require('../pubsub');
+const _ = require('lodash');
+const { PubSub } = require('graphql-subscriptions');
 const fetch = require('node-fetch');
 
 function buildTopicFilters({ OR = [], address, status }) {
@@ -18,8 +19,8 @@ function buildTopicFilters({ OR = [], address, status }) {
   return filters;
 }
 
-function buildOracleFilters({ OR = [], address, topicAddress, resultSetterQAddress, status }) {
-  const filter = (address || topicAddress || status) ? {} : null;
+function buildOracleFilters({ OR = [], address, topicAddress, resultSetterQAddress, status, token }) {
+  const filter = (address || topicAddress || status || token) ? {} : null;
   if (address) {
     filter.address = { $eq: `${address}` };
   }
@@ -36,10 +37,16 @@ function buildOracleFilters({ OR = [], address, topicAddress, resultSetterQAddre
     filter.status = { $eq: `${status}` };
   }
 
-  let filters = filter ? [filter] : []
+  if (token) {
+    filter.token = { $eq: `${token}` };
+  }
+
+  let filters = filter ? [filter] : [];
+
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildOracleFilters(OR[i]));
   }
+
   return filters;
 }
 
@@ -122,16 +129,28 @@ module.exports = {
       return await cursor.toArray();
     },
 
-    allOracles: async(root, { filter, first, skip, orderBy }, { mongo: { Oracles } }) => {
+    allOracles: async(root, { filter, orderBy, limit, skip }, { mongo: { Oracles } }) => {
       let query = filter ? { $or: buildOracleFilters(filter) } : {};
-      if (first) {
-        cursor.limit(first);
+
+      const options = {};
+
+      if (limit) {
+        options.limit(limit);
       }
 
       if (skip) {
-        cursor.skip(skip);
+        options.skip(skip);
       }
-      return await cursor.toArray();
+
+      if (!_.isEmpty(orderBy)) {
+        options.sort = [];
+
+        _.each(orderBy, (order) => {
+          options.sort.push([order.field, (order.direction === "ASC" ? 'asc' : 'desc')]);
+        });
+      }
+
+      return await Oracles.find(query, options).toArray();
     },
 
     searchOracles: async(root, { searchPhrase, first, skip, orderBy }, { mongo: { Oracles } }) => {
