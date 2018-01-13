@@ -1,8 +1,9 @@
-const {makeExecutableSchema} = require('graphql-tools');
+const { makeExecutableSchema } = require('graphql-tools');
 const resolvers = require('./resolvers');
 
 // Define your types here.
 const typeDefs = `
+
 type Topic {
   address: String!
   txid: String!
@@ -58,11 +59,11 @@ type syncInfo {
 }
 
 type Query {
-  allTopics(filter: TopicFilter, skip: Int, first: Int, orderBy:String): [Topic]!
-  allOracles(filter: OracleFilter, skip: Int, first: Int, orderBy:String): [Oracle]!
-  searchOracles(searchPhrase: String, skip: Int, first: Int, orderBy:String): [Oracle]!
-  allVotes(filter: VoteFilter, skip: Int, first: Int, orderBy:String): [Vote]!
-  allBlocks(filter: VoteFilter, skip: Int, first: Int, orderBy:String): [Block]!
+  allTopics(filter: TopicFilter, orderBy: [Order], limit: Int, skip: Int): [Topic]!
+  allOracles(filter: OracleFilter, orderBy: [Order], limit: Int, skip: Int ): [Oracle]!
+  searchOracles(searchPhrase: String, orderBy: [Order], limit: Int, skip: Int): [Oracle]!
+  allVotes(filter: VoteFilter, orderBy: [Order], limit: Int, skip: Int): [Vote]!
+  allBlocks(filter: VoteFilter, orderBy: [Order], limit: Int, skip: Int): [Block]!
   syncInfo: syncInfo!
 }
 
@@ -79,6 +80,7 @@ input OracleFilter {
   resultSetterAddress: String
   resultSetterQAddress: String
   status: _OracleStatusType
+  token: _TokenType
 }
 
 input VoteFilter {
@@ -129,6 +131,11 @@ input topicSubscriptionFilter {
   mutation_in: [_ModelMutationType!]
 }
 
+input Order {
+  field: String!
+  direction: _OrderDirection
+}
+
 type TopicSubscriptionPayload {
   mutation: _ModelMutationType!
   node: Topic
@@ -153,7 +160,12 @@ enum _TokenType {
   QTUM
   BOT
 }
+
+enum _OrderDirection {
+  DESC
+  ASC
+}
 `;
 
 // Generate the schema object from your types definition.
-module.exports = makeExecutableSchema({typeDefs, resolvers});
+module.exports = makeExecutableSchema({ typeDefs, resolvers });

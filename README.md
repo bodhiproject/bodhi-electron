@@ -17,13 +17,24 @@
 
 play with graphiql on `localhost:5555/graphiql`
 
-6. check example react app, detail in `src/example/README.md`
+6. In the left editing column, run a query such as
 
-`cd src/example`
+   ``` 
+   query{
+     allOracles {
+         address,
+         topicAddress,
+         status,
+         token,
+         name,
+         options,
+      optionIdxs,
+         amounts,
+         resultIdx,
+         blockNum,
+         endBlock
+       },
+   }
+   ```
 
-`npm install && npm start`
-
-app running at `localhost:3000`
-
-
-I will setup everything in docker compose after synchronizer logic
+   If qtumd is synced, the query should return Oracle objects on the right column; otherwise an empty array.
