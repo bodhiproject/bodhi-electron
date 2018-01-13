@@ -1,9 +1,38 @@
 const _ = require('lodash');
-const { PubSub } = require('graphql-subscriptions');
+const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
 
-function buildTopicFilters({ OR = [], address, status }) {
-  const filter = (address || status) ? {} : null;
+/* Default limit number for query page */
+const DEFAULT_LIMIT_NUM = 50;
+const DEFAULT_SKIP_NUM = 0;
+
+/**
+ * Returns an options object to pass in database query
+ * @param  {Array} orderBy Array of Order type defined in schema
+ * @param  {Number} limit   limit number in paging; default value DEFAULT_LIMIT_NUM
+ * @param  {Number} skip    skip number in paging; default value DEFAULT_SKIP_NUM
+ * @return {Object}         
+ */
+function buildQueryOptions(orderBy, limit, skip) {
+  const options = {};
+
+  if (!_.isEmpty(orderBy)) {
+    options.sort = [];
+
+    _.each(orderBy, (order) => {
+      options.sort.push([order.field, (order.direction === "ASC" ? 'asc' : 'desc')]);
+    });
+  }
+
+  options.limit = limit || DEFAULT_LIMIT_NUM;
+  options.skip = skip || DEFAULT_SKIP_NUM;
+
+  return options;
+}
+
+function buildTopicFilters({ OR = [], orderBy, limit, skip }) {
+  const filter = (order || status) ? {} : null;
+
   if (address) {
     filter.address = address;
   }
@@ -16,6 +45,7 @@ function buildTopicFilters({ OR = [], address, status }) {
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildTopicFilters(OR[i]));
   }
+
   return filters;
 }
 
@@ -104,10 +134,6 @@ module.exports = {
         cursor.limit(first);
       }
 
-      if (skip) {
-        cursor.skip(skip);
-      }
-
       return await cursor.exec();
     },
 
@@ -172,14 +198,16 @@ module.exports = {
         console.error(`Error query latest block from db: ${err.message}`);
       }
 
-      if (blocks.length > 0) {
-        syncBlockNum = blocks[0].blockNum;
-      }
+      const blocks = await Blocks.find({}, options).toArray();
+
+      const syncBlockNum = (!_.isEmpty(blocks) && blocks[0].blockNum) || null;
 
       let chainBlockNum = null;
+
       try {
         let resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
         let json = await resp.json();
+
         chainBlockNum = json['info']['blocks'];
       } catch (err) {
         console.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
