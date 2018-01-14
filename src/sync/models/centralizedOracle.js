@@ -38,6 +38,7 @@ class CentralizedOracle {
   translate() {
     return {
       _id : this.contractAddress,
+      version: this.version,
       address: this.contractAddress,
       txid: this.txid,
       topicAddress:this.eventAddress,

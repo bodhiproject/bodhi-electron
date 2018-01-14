@@ -14,7 +14,7 @@ class DecentralizedOracle {
 
   decode() {
     this.version = this.rawLog['_version'].toNumber();
-    
+
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       return hexStr += value;
     }, '');
@@ -36,6 +36,7 @@ class DecentralizedOracle {
 
     return {
       _id: this.contractAddress,
+      version: this.version,
       address: this.contractAddress,
       txid: this.txid,
       topicAddress:this.eventAddress,

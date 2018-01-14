@@ -17,6 +17,7 @@ class OracleResultSet {
 
   translate() {
     return {
+      version: this.version,
       oracleAddress: this.oracleAddress,
       resultIdx: this.resultIndex
     }

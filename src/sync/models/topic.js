@@ -15,7 +15,7 @@ class Topic {
 
   decode() {
     this.version = this.rawLog['_version'].toNumber();
-    
+
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       return hexStr += value;
     }, '');
@@ -35,6 +35,7 @@ class Topic {
   translate() {
     return {
       _id: this.topicAddress,
+      version: this.version,
       address: this.topicAddress,
       txid: this.txid,
       creatorAddress: this.creator,

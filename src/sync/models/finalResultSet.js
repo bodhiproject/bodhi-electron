@@ -17,6 +17,7 @@ class FinalResultSet {
 
   translate() {
     return {
+      version: this.version,
       topicAddress: this.eventAddress,
       resultIdx: this.finalResultIndex,
     }

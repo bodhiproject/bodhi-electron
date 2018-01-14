@@ -5,6 +5,7 @@ const resolvers = require('./resolvers');
 const typeDefs = `
 
 type Topic {
+  version: Int!
   address: String!
   txid: String!
   creatorAddress: String!
@@ -20,6 +21,7 @@ type Topic {
 }
 
 type Oracle {
+  version: Int!
   address: String!
   txid: String!
   topicAddress: String!
@@ -39,6 +41,7 @@ type Oracle {
 }
 
 type Vote {
+  version: Int!
   txid: String!
   address: String!
   voterAddress: String!
@@ -94,6 +97,7 @@ input VoteFilter {
 
 type Mutation {
   createTopic(
+    version: Int!
     address: String!
     creatorAddress: String!
     name: String!
@@ -102,6 +106,7 @@ type Mutation {
   ): Topic
 
   createOracle(
+    version: Int!
     address: String!
     topicAddress: String!
     creatorAddress: String!
@@ -114,6 +119,7 @@ type Mutation {
   ): Oracle
 
   createVote(
+    version: Int!
     address: String!
     voterAddress: String!
     oracleAddress: String!
