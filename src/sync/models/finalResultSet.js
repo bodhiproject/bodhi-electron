@@ -10,6 +10,7 @@ class FinalResultSet {
   }
 
   decode() {
+    this.version = this.rawLog['_version'].toNumber();
     this.eventAddress = this.rawLog['_eventAddress']
     this.finalResultIndex = this.rawLog['_finalResultIndex'].toNumber();
   }

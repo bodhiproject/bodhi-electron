@@ -13,6 +13,7 @@ class Vote {
   }
 
   decode() {
+    this.version = this.rawLog['_version'].toNumber();
     this.oracleAddress = this.rawLog['_oracleAddress'];
     this.participant = this.rawLog['_participant'];
     this.resultIndex = this.rawLog['_resultIndex'].toNumber();

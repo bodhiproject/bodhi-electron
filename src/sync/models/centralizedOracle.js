@@ -14,6 +14,8 @@ class CentralizedOracle {
   }
 
   decode() {
+    this.version = this.rawLog['_version'].toNumber();
+
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       return hexStr += value;
     }, '');
@@ -26,7 +28,9 @@ class CentralizedOracle {
     this.oracle = this.rawLog['_oracle'];
     this.eventAddress = this.rawLog['_eventAddress'];
     this.numOfResults = this.rawLog['_numOfResults'].toNumber();
+    this.bettingStartBlock = this.rawLog['_bettingStartBlock'].toNumber();
     this.bettingEndBlock = this.rawLog['_bettingEndBlock'].toNumber();
+    this.resultSettingStartBlock = this.rawLog['_resultSettingStartBlock'].toNumber();
     this.resultSettingEndBlock = this.rawLog['_resultSettingEndBlock'].toNumber();
     this.consensusThreshold = this.rawLog['_consensusThreshold'].toJSON();
   }

@@ -14,6 +14,8 @@ class Topic {
   }
 
   decode() {
+    this.version = this.rawLog['_version'].toNumber();
+    
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       return hexStr += value;
     }, '');
