@@ -14,14 +14,6 @@ class DecentralizedOracle {
 
   decode() {
     this.version = this.rawLog['_version'].toNumber();
-
-    let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
-      return hexStr += value;
-    }, '');
-    this.name = Utils.toUtf8(nameHex);
-    let intermedia = _.map(this.rawLog['_resultNames'], (item) => Utils.toUtf8(item));
-    this.resultNames = _.filter(intermedia, item => !!item);
-
     this.contractAddress = this.rawLog['_contractAddress'];
     this.eventAddress = this.rawLog['_eventAddress'];
     this.numOfResults = this.rawLog['_numOfResults'].toNumber();
@@ -42,8 +34,6 @@ class DecentralizedOracle {
       topicAddress:this.eventAddress,
       status: 'VOTING',
       token: 'BOT',
-      name: this.name,
-      options: this.resultNames,
       optionIdxs: optionIdxs,
       amounts: _.fill(Array(this.numOfResults), '0'),
       resultIdx: null,

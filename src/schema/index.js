@@ -29,14 +29,14 @@ type Oracle {
   resultSetterQAddress: String
   status: _OracleStatusType!
   token: String!
-  name: String!
-  options: [String!]!
   optionIdxs: [Int!]!
   amounts: [String!]!
   resultIdx: Int
   blockNum: Int!
+  betStartBlock: Int
   endBlock: Int!
-  resultSetEndBlock: Int,
+  resultSetStartBlock: Int
+  resultSetEndBlock: Int
   consensusThreshold: String
 }
 

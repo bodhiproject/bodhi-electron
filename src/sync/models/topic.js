@@ -20,16 +20,13 @@ class Topic {
       return hexStr += value;
     }, '');
     this.name = Utils.toUtf8(nameHex)
+
     let intermedia = _.map(this.rawLog['_resultNames'], (item) => Utils.toUtf8(item));
     this.resultNames = _.filter(intermedia, item => !!item);
 
     this.topicAddress = this.rawLog['_topicAddress'];
     this.creator = this.rawLog['_creator'];
     this.oracle = this.rawLog['_oracle'];
-    this.bettingStartBlock = this.rawLog['_bettingStartBlock'].toNumber();
-    this.bettingEndBlock = this.rawLog['_bettingEndBlock'].toNumber();
-    this.resultSettingStartBlock = this.rawLog['_resultSettingStartBlock'].toNumber();
-    this.resultSettingEndBlock = this.rawLog['_resultSettingEndBlock'].toNumber();
   }
 
   translate() {
