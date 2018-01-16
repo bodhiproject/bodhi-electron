@@ -15,6 +15,7 @@ class Topic {
 
   decode() {
     this.version = this.rawLog['_version'].toNumber();
+    this.topicAddress = this.rawLog['_topicAddress'];
 
     let nameHex = _.reduce(this.rawLog['_name'], (hexStr, value) => {
       return hexStr += value;
@@ -23,10 +24,6 @@ class Topic {
 
     let intermedia = _.map(this.rawLog['_resultNames'], (item) => Utils.toUtf8(item));
     this.resultNames = _.filter(intermedia, item => !!item);
-
-    this.topicAddress = this.rawLog['_topicAddress'];
-    this.creator = this.rawLog['_creator'];
-    this.oracle = this.rawLog['_oracle'];
   }
 
   translate() {
@@ -35,8 +32,6 @@ class Topic {
       version: this.version,
       address: this.topicAddress,
       txid: this.txid,
-      creatorAddress: this.creator,
-      creatorQAddress: Decoder.toQtumAddress(this.creator),
       status: 'VOTING',
       name: this.name,
       options: this.resultNames,

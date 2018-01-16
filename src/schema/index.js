@@ -8,8 +8,6 @@ type Topic {
   version: Int!
   address: String!
   txid: String!
-  creatorAddress: String!
-  creatorQAddress: String!
   status: _OracleStatusType!
   name: String!
   options: [String!]!
