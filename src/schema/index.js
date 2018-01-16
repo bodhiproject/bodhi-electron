@@ -97,7 +97,6 @@ type Mutation {
   createTopic(
     version: Int!
     address: String!
-    creatorAddress: String!
     name: String!
     options: [String!]!
     blockNum: Int
@@ -107,10 +106,7 @@ type Mutation {
     version: Int!
     address: String!
     topicAddress: String!
-    creatorAddress: String!
     token: _TokenType!
-    name: String!
-    options: [String!]!
     optionIdxs: [Int!]!
     blockNum: Int!
     endBlock: Int!
