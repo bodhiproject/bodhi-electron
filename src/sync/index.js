@@ -18,7 +18,7 @@ const Contracts = require('./contracts');
 
 const batchSize = 200;
 
-const contractDeployedBlockNum = 56958;
+const contractDeployedBlockNum = 65749;
 
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
@@ -84,22 +84,22 @@ async function sync(db){
     var syncTopic = false, syncCOracle = false, syncDOracle = false, syncVote = false, syncOracleResult = false, syncFinalResult = false;
 
     var syncTopicCreatedPromise = new Promise(async (resolve) => { 
-      syncTopicCreated(resolve, startBlock, endBlock, removeHexPrefix); 
+      syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPrefix); 
     });
     var syncCentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
-      syncCentralizedOracleCreated(resolve, startBlock, endBlock, removeHexPrefix);
+      syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix);
     });
     var syncDecentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
-      syncDecentralizedOracleCreated(resolve, startBlock, endBlock, removeHexPrefix);
+      syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix);
     });
     var syncOracleResultVotedPromise = new Promise(async (resolve) => { 
-      syncOracleResultVoted(resolve, startBlock, endBlock, removeHexPrefix); 
+      syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate); 
     });
     var syncOracleResultSetPromise = new Promise(async (resolve) => { 
-      syncOracleResultSet(resolve, startBlock, endBlock, removeHexPrefix);
+      syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate);
     });
     var syncFinalResultSetPromise = new Promise(async (resolve) => { 
-      syncFinalResultSet(resolve, startBlock, endBlock, removeHexPrefix);
+      syncFinalResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate);
     });
 
     var syncPromises = [];
@@ -176,14 +176,14 @@ async function sync(db){
   });
 }
 
-async function syncTopicCreated(resolve, startBlock, endBlock, removeHexPrefix) {
+async function syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, 
       [Contracts.EventFactory.TopicCreated], Contracts, removeHexPrefix);
     console.log('searchlog TopicCreated')
   } catch(err) {
-    console.error(`Error: ${err.message}`);
+    console.error(`Error -1: ${err.message}`);
     resolve();
     return;
   }
@@ -202,7 +202,7 @@ async function syncTopicCreated(resolve, startBlock, endBlock, removeHexPrefix) 
             await db.Topics.insert(topic);
             resolve();
           } catch(err) {
-            console.error(`Error: ${err.message}`);
+            console.error(`Error 0: ${err.message}`);
             resolve();
             return;
           }
@@ -218,14 +218,14 @@ async function syncTopicCreated(resolve, startBlock, endBlock, removeHexPrefix) 
   });
 }
 
-async function syncCentralizedOracleCreated(resolve, startBlock, endBlock, removeHexPrefix) {
+async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, 
       [Contracts.OracleFactory.CentralizedOracleCreated], Contracts, removeHexPrefix);
     console.log('searchlog CentralizedOracleCreated')
   } catch(err) {
-    console.error(`Error: ${err.message}`);
+    console.error(`Error 1: ${err.message}`);
     resolve();
     return;
   }
@@ -244,7 +244,7 @@ async function syncCentralizedOracleCreated(resolve, startBlock, endBlock, remov
             await db.Oracles.insert(centralOracle);
             resolve();
           } catch(err) {
-            console.error(`Error: ${err.message}`);
+            console.error(`Error 2: ${err.message}`);
             resolve();
             return;
           }
@@ -260,14 +260,14 @@ async function syncCentralizedOracleCreated(resolve, startBlock, endBlock, remov
   });
 }
 
-async function syncDecentralizedOracleCreated(resolve, startBlock, endBlock, removeHexPrefix) {
+async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated, 
       Contracts, removeHexPrefix)
     console.log('searchlog DecentralizedOracleCreated')
   } catch(err) {
-    console.error(`Error: ${err.message}`);
+    console.error(`Error 3: ${err.message}`);
     resolve();
     return;
   }
@@ -286,7 +286,7 @@ async function syncDecentralizedOracleCreated(resolve, startBlock, endBlock, rem
             await db.Oracles.insert(decentralOracle);
             resolve();
           } catch(err) {
-            console.error(`Error: ${err.message}`);
+            console.error(`Error 4: ${err.message}`);
             resolve();
             return;
           }
@@ -301,14 +301,14 @@ async function syncDecentralizedOracleCreated(resolve, startBlock, endBlock, rem
   });
 }
 
-async function syncOracleResultVoted(resolve, startBlock, endBlock, removeHexPrefix) {
+async function syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted, 
       Contracts, removeHexPrefix)
     console.log('searchlog OracleResultVoted')
   } catch(err) {
-    console.error(`Error: ${err.message}`);
+    console.error(`Error 5: ${err.message}`);
     resolve();
     return;
   }
@@ -329,7 +329,7 @@ async function syncOracleResultVoted(resolve, startBlock, endBlock, removeHexPre
             await db.Votes.insert(vote);
             resolve();
           } catch(err){
-            console.error(`Error: ${err.message}`);
+            console.error(`Error 6: ${err.message}`);
             resolve();
             return;
           }
@@ -345,14 +345,14 @@ async function syncOracleResultVoted(resolve, startBlock, endBlock, removeHexPre
   });
 }
 
-async function syncOracleResultSet(resolve, startBlock, endBlock, removeHexPrefix) {
+async function syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts, 
       removeHexPrefix)
     console.log('searchlog OracleResultSet')
   } catch(err) {
-    console.error(`Error: ${err.message}`);
+    console.error(`Error 7: ${err.message}`);
     resolve();
     return;
   }
@@ -373,7 +373,7 @@ async function syncOracleResultSet(resolve, startBlock, endBlock, removeHexPrefi
               {$set: {resultIdx: oracleResult.resultIdx, status:'PENDING'}}, {});
             resolve();
           } catch(err) {
-            console.error(`Error: ${err.message}`);
+            console.error(`Error 8: ${err.message}`);
             resolve();
             return;
           }
@@ -382,21 +382,21 @@ async function syncOracleResultSet(resolve, startBlock, endBlock, removeHexPrefi
         updateOracleResultSetPromises.push(updateOracleResult);
       }
     });
-  });
+  })
 
   Promise.all(updateOracleResultSetPromises).then(()=>{
     resolve()
   });
 }
 
-async function syncFinalResultSet(resolve, startBlock, endBlock, removeHexPrefix) {
+async function syncFinalResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts, 
       removeHexPrefix)
     console.log('searchlog FinalResultSet')
   } catch(err) {
-    console.error(`Error: ${err.message}`);
+    console.error(`Error 9: ${err.message}`);
     resolve();
     return;
   }
@@ -417,7 +417,7 @@ async function syncFinalResultSet(resolve, startBlock, endBlock, removeHexPrefix
               {$set: {resultIdx: topicResult.resultIdx, status:'WITHDRAW'}}, {});
             resolve();
           } catch(err) {
-            console.error(`Error: ${err.message}`);
+            console.error(`Error 10: ${err.message}`);
             resolve();
             return;
           }
@@ -490,7 +490,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
     }
   }
 
-  let balances = _.map(value[0].slice(0, oracle.options.length), (balance_BN) => {
+  let balances = _.map(value[0].slice(0, oracle.numOfResults), (balance_BN) => {
     return balance_BN.toJSON();
   });
 
