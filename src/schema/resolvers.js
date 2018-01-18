@@ -49,8 +49,8 @@ function buildTopicFilters({ OR = [], orderBy, limit, skip }) {
   return filters;
 }
 
-function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddress, status}) {
-  const filter = (address || topicAddress || status) ? {}: null;
+function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddress, status, token}) {
+  const filter = (address || topicAddress || status || token) ? {}: null;
   if(address) {
     filter.address = address;
   }
@@ -68,7 +68,7 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
   }
 
   if (token) {
-    filter.token = { $eq: `${token}` };
+    filter.token = token;
   }
 
   let filters = filter ? [filter] : [];

@@ -23,8 +23,8 @@ class DecentralizedOracle {
   }
 
   translate() {
-    var optionIdxs = Array.from(Array(this.numOfResults).keys());
-    optionIdxs.splice(this.lastResultIndex, 1);
+    const optionIdxs = Array.from(Array(this.numOfResults).keys());
+    _.remove(optionIdxs, this.lastResultIndex);
 
     return {
       _id: this.contractAddress,
