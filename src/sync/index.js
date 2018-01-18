@@ -215,7 +215,6 @@ async function syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPref
 
   Promise.all(createTopicPromises).then(()=>{
     resolve();
-    console.log('');
   });
 }
 
@@ -258,7 +257,6 @@ async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, r
 
   Promise.all(createCentralizedOraclePromises).then(()=>{
     resolve();
-    console.log('');
   });
 }
 
@@ -300,7 +298,6 @@ async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock,
 
   Promise.all(createDecentralizedOraclePromises).then(()=>{
     resolve();
-    console.log('');
   });
 }
 
@@ -345,7 +342,6 @@ async function syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHe
 
   Promise.all(createOracleResultVotedPromises).then(()=>{
     resolve();
-    console.log('');
   });
 }
 
@@ -373,7 +369,7 @@ async function syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexP
             // safeguard to update balance, can be removed in the future
             oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
 
-            await db.Oracles.findAndModify({address: oracleResult.oracleAddress}, [['_id','desc']], 
+            await db.Oracles.update({address: oracleResult.oracleAddress}, 
               {$set: {resultIdx: oracleResult.resultIdx, status:'PENDING'}}, {});
             resolve();
           } catch(err) {
@@ -390,7 +386,6 @@ async function syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexP
 
   Promise.all(updateOracleResultSetPromises).then(()=>{
     resolve();
-    console.log('');
   });
 }
 
@@ -418,7 +413,7 @@ async function syncFinalResultSet(resolve, db, startBlock, endBlock, removeHexPr
             // safeguard to update balance, can be removed in the future
             topicsNeedBalanceUpdate.add(topicResult.topicAddress);
 
-            await db.Topics.findAndModify({address: topicResult.topicAddress}, [['_id','desc']], 
+            await db.Topics.update({address: topicResult.topicAddress}, 
               {$set: {resultIdx: topicResult.resultIdx, status:'WITHDRAW'}}, {});
             resolve();
           } catch(err) {
@@ -435,7 +430,6 @@ async function syncFinalResultSet(resolve, db, startBlock, endBlock, removeHexPr
 
   Promise.all(updateFinalResultSetPromises).then(()=>{
     resolve();
-    console.log('');
   });
 }
 

@@ -198,22 +198,20 @@ module.exports = {
         console.error(`Error query latest block from db: ${err.message}`);
       }
 
-      const blocks = await Blocks.find({}, options).toArray();
-
-      const syncBlockNum = (!_.isEmpty(blocks) && blocks[0].blockNum) || null;
+      if(blocks.length > 0){
+        syncBlockNum = blocks[0].blockNum;
+      }
 
       let chainBlockNum = null;
-
       try {
-        let resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
-        let json = await resp.json();
-
-        chainBlockNum = json['info']['blocks'];
-      } catch (err) {
+       let resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
+       let json = await resp.json();
+       chainBlockNum = json['info']['blocks'];
+      } catch(err) {
         console.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
       }
 
-      return { 'syncBlockNum': syncBlockNum, 'chainBlockNum': chainBlockNum }
+      return {'syncBlockNum': syncBlockNum, 'chainBlockNum': chainBlockNum }
     }
   },
 
