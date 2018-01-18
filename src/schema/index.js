@@ -27,6 +27,8 @@ type Oracle {
   resultSetterQAddress: String
   status: _OracleStatusType!
   token: String!
+  name: String
+  options: [String!]
   optionIdxs: [Int!]!
   amounts: [String!]!
   resultIdx: Int

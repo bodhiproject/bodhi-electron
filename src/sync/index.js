@@ -65,6 +65,7 @@ function sequentialLoop(iterations, process, exit){
 async function sync(db){
   const removeHexPrefix = true;
   var topicsNeedBalanceUpdate = new Set(), oraclesNeedBalanceUpdate = new Set();
+  let oraclesNeedInfoUpdate = [];
 
   let currentBlockChainHeight = await qclient.getBlockCount();
   currentBlockChainHeight = currentBlockChainHeight - 1;
@@ -87,10 +88,10 @@ async function sync(db){
       syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPrefix); 
     });
     var syncCentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
-      syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix);
+      syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedInfoUpdate);
     });
     var syncDecentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
-      syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix);
+      syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedInfoUpdate);
     });
     var syncOracleResultVotedPromise = new Promise(async (resolve) => { 
       syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate); 
@@ -133,7 +134,10 @@ async function sync(db){
       });
     });
   },
-  async function(){
+  async function() {
+    // Insert Oracle names and options
+    await updateOracleInfo(db, oraclesNeedInfoUpdate);
+
     var oracle_address_batches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
     // execute rpc batch by batch
     sequentialLoop(oracle_address_batches.length, async function(loop) {
@@ -218,7 +222,7 @@ async function syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPref
   });
 }
 
-async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
+async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedInfoUpdate) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, 
@@ -242,6 +246,7 @@ async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, r
           try {
             var centralOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
             await db.Oracles.insert(centralOracle);
+            oraclesNeedInfoUpdate.push(centralOracle.address);
             resolve();
           } catch(err) {
             console.error(`ERROR: ${err.message}`);
@@ -260,7 +265,7 @@ async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, r
   });
 }
 
-async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
+async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedInfoUpdate) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated, 
@@ -284,6 +289,7 @@ async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock,
           try {
             var decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
             await db.Oracles.insert(decentralOracle);
+            oraclesNeedInfoUpdate.push(decentralOracle.address);
             resolve();
           } catch(err) {
             console.error(`ERROR: ${err.message}`);
@@ -452,6 +458,53 @@ async function updateCentralizedOraclesPassedResultSetEndBlock(currentBlockChain
   }catch(err){
     console.error(`ERROR: updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
   }
+}
+
+async function updateOracleInfo(db, oraclesNeedInfoUpdate) {
+  _.forEach(oraclesNeedInfoUpdate, async (oracleAddress, index) => {
+    let oracle;
+    try {
+      oracle = await db.Oracles.findOne({ 
+        address: oracleAddress 
+      });
+
+      if (!oracle) {
+        console.error(`ERROR: could not find Oracle ${oracleAddress} in db`);
+        return false;
+      }
+    } catch(err) {
+      console.error(`ERROR: find Oracle ${oracleAddress} in db, ${err.message}`);
+      return false;
+    }
+
+    let topic;
+    try {
+      topic = await db.Topics.findOne({
+        address: oracle.topicAddress
+      });
+
+      if (!topic) {
+        console.error(`ERROR: could not find Topic ${oracle.topicAddress} in db`);
+        return false;
+      }
+    } catch(err){
+      console.error(`ERROR: find Topic ${oracle.topicAddress} in db, ${err.message}`);
+      return false;
+    }
+
+    try {
+      await db.Oracles.update(
+        { address: oracleAddress }, 
+        { $set: { 
+          name: topic.name, 
+          options: topic.options }
+        }
+      );
+      console.log(`Update Oracle ${oracleAddress} name and options`);
+    } catch(err){
+      console.error(`ERROR: update Oracle ${oracleAddress} in db, ${err.message}`);
+    }
+  });
 }
 
 async function updateOracleBalance(oracleAddress, topicSet, db){
