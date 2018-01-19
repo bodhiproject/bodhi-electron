@@ -156,7 +156,7 @@ async function fetchTopic(db, address) {
   let topic;
   try {
     topic = await db.Topics.findOne({
-      address: address
+      _id: address
     });
 
     if (!topic) {

@@ -22,7 +22,7 @@ function buildCursorOptions(cursor, orderBy, limit, skip) {
 }
 
 function buildTopicFilters({OR = [], address, status}) {
-  const filter = (address || status) ? {} : null;
+  var filter = (address || status) ? {} : null;
   if (address) {
     filter._id = address;
   }
@@ -39,7 +39,7 @@ function buildTopicFilters({OR = [], address, status}) {
 }
 
 function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddress, status, token}) {
-  const filter = (address || topicAddress || status || token) ? {}: null;
+  var filter = (address || topicAddress || resultSetterQAddress || status || token) ? {}: null;
   if (address) {
     filter._id = address;
   }
@@ -85,7 +85,7 @@ function buildSearchOracleFilter(searchPhrase) {
 }
 
 function buildVoteFilters({ OR = [], oracleAddress, voterAddress, voterQAddress, optionIdx }) {
-  const filter = ( oracleAddress || voterAddress || optionIdx) ? {} : null;
+  var filter = ( oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
 
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
@@ -116,7 +116,6 @@ module.exports = {
       let query = filter ? {$or: buildTopicFilters(filter)}: {};
       var cursor = Topics.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-      console.log(cursor);
 
       return await cursor.exec();
     },
