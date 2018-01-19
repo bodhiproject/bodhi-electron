@@ -80,13 +80,12 @@ async function sync(db){
     startBlock = Math.max(block.blockNum + 1, startBlock);
   }
 
-  var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-startBlock)/batchSize), function(loop){
+  var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-startBlock)/batchSize), async function(loop) {
     var endBlock = Math.min(startBlock + batchSize - 1, currentBlockChainHeight);
     var syncTopic = false, syncCOracle = false, syncDOracle = false, syncVote = false, syncOracleResult = false, syncFinalResult = false;
 
-    var syncTopicCreatedPromise = new Promise(async (resolve) => { 
-      syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPrefix); 
-    });
+    await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
+
     var syncCentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
       syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedInfoUpdate);
     });
@@ -105,7 +104,6 @@ async function sync(db){
 
     var syncPromises = [];
     var updatePromises = [];
-    syncPromises.push(syncTopicCreatedPromise);
     syncPromises.push(syncCentralizedOracleCreatedPromise);
     syncPromises.push(syncDecentralizedOracleCreatedPromise);
     syncPromises.push(syncOracleResultVotedPromise);
@@ -180,7 +178,7 @@ async function sync(db){
   });
 }
 
-async function syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
+async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, 
@@ -188,7 +186,6 @@ async function syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPref
     console.log('searchlog TopicCreated')
   } catch(err) {
     console.error(`ERROR: ${err.message}`);
-    resolve();
     return;
   }
 
@@ -217,9 +214,7 @@ async function syncTopicCreated(resolve, db, startBlock, endBlock, removeHexPref
     });
   });
 
-  Promise.all(createTopicPromises).then(()=>{
-    resolve();
-  });
+  Promise.all(createTopicPromises);
 }
 
 async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedInfoUpdate) {
