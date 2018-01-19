@@ -2,10 +2,29 @@ const _ = require('lodash');
 const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
 
+const DEFAULT_LIMIT_NUM = 50;
+const DEFAULT_SKIP_NUM = 0;
+
+function buildCursorOptions(cursor, orderBy, limit, skip) {
+  if (!_.isEmpty(orderBy)) {
+    sort_dict = {};
+    _.forEach(orderBy, (order) => {
+      sort_dict[order.field] = order.direction === "ASC" ? 1:-1;
+    })
+
+    cursor.sort(sort_dict);
+  }
+
+  cursor.limit(limit || DEFAULT_LIMIT_NUM);
+  cursor.skip(skip || DEFAULT_SKIP_NUM);
+
+  return cursor
+}
+
 function buildTopicFilters({OR = [], address, status}) {
   const filter = (address || status) ? {} : null;
   if (address) {
-    filter.address = address;
+    filter._id = address;
   }
 
   if (status) {
@@ -21,8 +40,8 @@ function buildTopicFilters({OR = [], address, status}) {
 
 function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddress, status, token}) {
   const filter = (address || topicAddress || status || token) ? {}: null;
-  if(address) {
-    filter.address = address;
+  if (address) {
+    filter._id = address;
   }
 
   if (topicAddress) {
@@ -33,7 +52,7 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
     filter.resultSetterQAddress = resultSetterQAddress;
   }
 
-  if(status) {
+  if (status) {
     filter.status = status;
   }
 
@@ -50,7 +69,7 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
 }
 
 function buildSearchOracleFilter(searchPhrase) {
-  const filterFields = ["name", "address", "topicAddress", "resultSetterAddress", "resultSetterQAddress"];
+  const filterFields = ["name", "_id", "topicAddress", "resultSetterAddress", "resultSetterQAddress"];
   if (!searchPhrase) {
     return [];
   }
@@ -65,11 +84,8 @@ function buildSearchOracleFilter(searchPhrase) {
   return filters;
 }
 
-function buildVoteFilters({ OR = [], address, oracleAddress, voterAddress, voterQAddress, optionIdx }) {
-  const filter = (address || oracleAddress || voterAddress || optionIdx) ? {} : null;
-  if (address) {
-    filter.address = address;
-  }
+function buildVoteFilters({ OR = [], oracleAddress, voterAddress, voterQAddress, optionIdx }) {
+  const filter = ( oracleAddress || voterAddress || optionIdx) ? {} : null;
 
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
@@ -96,65 +112,33 @@ function buildVoteFilters({ OR = [], address, oracleAddress, voterAddress, voter
 
 module.exports = {
   Query: {
-    allTopics: async (root, {filter, first, skip, orderBy}, {db: {Topics}}) => {
+    allTopics: async (root, { filter, orderBy, limit, skip }, {db: {Topics}}) => {
       let query = filter ? {$or: buildTopicFilters(filter)}: {};
-      const cursor = Topics.cfind(query);
-      if (first) {
-        cursor.limit(first);
-      }
+      var cursor = Topics.cfind(query);
+      cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+      console.log(cursor);
 
       return await cursor.exec();
     },
 
-    allOracles: async (root, {filter, first, skip, orderBy}, {db: {Oracles}}) => {
+    allOracles: async (root, { filter, orderBy, limit, skip }, {db: {Oracles}}) => {
       let query = filter ? {$or: buildOracleFilters(filter)}: {};
-      const cursor = Oracles.cfind(query);
-      if (first) {
-        cursor.limit(first);
-      }
-
-      if (skip) {
-        cursor.skip(skip);
-      }
+      var cursor = Oracles.cfind(query);
+      cursor = buildCursorOptions(cursor, orderBy, limit, skip);
       return await cursor.exec();
     },
 
-    searchOracles: async (root, {searchPhrase, first, skip, orderBy}, {db: {Oracles}}) => {
+    searchOracles: async (root, { searchPhrase, orderBy, limit, skip }, {db: {Oracles}}) => {
       let query = searchPhrase ? {$or: buildSearchOracleFilter(searchPhrase)}: {};
-      const cursor = Oracles.cfind(query);
-      if (first) {
-        cursor.limit(first);
-      }
-
-      if (skip) {
-        cursor.skip(skip);
-      }
+      var cursor = Oracles.cfind(query);
+      cursor = buildCursorOptions(cursor, orderBy, limit, skip);
       return await cursor.exec();
     },
 
-    allVotes: async (root, {filter, first, skip, orderBy}, {db: {Votes}}) => {
+    allVotes: async (root, { filter, orderBy, limit, skip }, {db: {Votes}}) => {
       let query = filter ? {$or: buildVoteFilters(filter)}: {};
-      const cursor = Votes.cfind(query);
-      if (first) {
-        cursor.limit(first);
-      }
-
-      if (skip) {
-        cursor.skip(skip);
-      }
-      return await cursor.exec();
-    },
-
-    allBlocks: async (root, {filter, first, skip, orderBy}, {db: {Blocks}}) => {
-      let query = filter ? {$or: buildBlockFilters(filter)}: {};
-      const cursor = Blocks.cfind(query);
-      if (first) {
-        cursor.limit(first);
-      }
-
-      if (skip) {
-        cursor.skip(skip);
-      }
+      var cursor = Votes.cfind(query);
+      cursor = buildCursorOptions(cursor, orderBy, limit, skip);
       return await cursor.exec();
     },
 

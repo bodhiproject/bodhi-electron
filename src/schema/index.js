@@ -62,11 +62,10 @@ type syncInfo {
 }
 
 type Query {
-  allTopics(filter: TopicFilter, orderBy: [Order], limit: Int, skip: Int): [Topic]!
-  allOracles(filter: OracleFilter, orderBy: [Order], limit: Int, skip: Int ): [Oracle]!
-  searchOracles(searchPhrase: String, orderBy: [Order], limit: Int, skip: Int): [Oracle]!
-  allVotes(filter: VoteFilter, orderBy: [Order], limit: Int, skip: Int): [Vote]!
-  allBlocks(filter: VoteFilter, orderBy: [Order], limit: Int, skip: Int): [Block]!
+  allTopics(filter: TopicFilter, orderBy: [Order!], limit: Int, skip: Int): [Topic]!
+  allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
+  searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
+  allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
   syncInfo: syncInfo!
 }
 
@@ -132,7 +131,7 @@ input topicSubscriptionFilter {
 
 input Order {
   field: String!
-  direction: _OrderDirection
+  direction: _OrderDirection!
 }
 
 type TopicSubscriptionPayload {
