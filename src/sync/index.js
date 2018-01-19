@@ -184,6 +184,8 @@ async function fetchTopic(db, address) {
     if (!topic) {
       console.error(`ERROR: could not find Topic ${address} in db`);
       return null;
+    } else {
+      return topic;
     }
   } catch(err) {
     console.error(`ERROR: find Topic ${address} in db, ${err.message}`);
@@ -253,7 +255,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
         var insertOracleDB = new Promise(async (resolve) =>{
           try {
             let centralOracle = new CentralizedOracle(blockNum, txid, rawLog);
-            centralOracle.setTopicInfo(fetchTopic(db, centralOracle.eventAddress));
+            centralOracle.setTopicInfo(await fetchTopic(db, centralOracle.eventAddress));
             centralOracle = centralOracle.translate();
             
             await db.Oracles.insert(centralOracle);
@@ -298,7 +300,7 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
         var insertOracleDB = new Promise(async (resolve) =>{
           try {
             let decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog);
-            decentralOracle.setTopicInfo(fetchTopic(db, decentralOracle.eventAddress));
+            decentralOracle.setTopicInfo(await fetchTopic(db, decentralOracle.eventAddress));
             decentralOracle = decentralOracle.translate();
 
             await db.Oracles.insert(decentralOracle);
