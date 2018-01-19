@@ -255,7 +255,9 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
         var insertOracleDB = new Promise(async (resolve) =>{
           try {
             let centralOracle = new CentralizedOracle(blockNum, txid, rawLog);
-            centralOracle.setTopicInfo(await fetchTopic(db, centralOracle.eventAddress));
+            const topic = await fetchTopic(db, centralOracle.eventAddress);
+            centralOracle.name = topic.name;
+            centralOracle.options = topic.options;
             centralOracle = centralOracle.translate();
             
             await db.Oracles.insert(centralOracle);
@@ -300,7 +302,9 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
         var insertOracleDB = new Promise(async (resolve) =>{
           try {
             let decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog);
-            decentralOracle.setTopicInfo(await fetchTopic(db, decentralOracle.eventAddress));
+            const topic = await fetchTopic(db, decentralOracle.eventAddress);
+            decentralOracle.name = topic.name;
+            decentralOracle.options = topic.options;
             decentralOracle = decentralOracle.translate();
 
             await db.Oracles.insert(decentralOracle);

@@ -33,7 +33,7 @@ type Oracle {
   amounts: [String!]!
   resultIdx: Int
   blockNum: Int!
-  startBlock: Int
+  startBlock: Int!
   endBlock: Int!
   resultSetStartBlock: Int
   resultSetEndBlock: Int

@@ -26,11 +26,6 @@ class CentralizedOracle {
     this.consensusThreshold = this.rawLog['_consensusThreshold'].toJSON();
   }
 
-  setTopicInfo(topic) {
-    this.name = topic.name;
-    this.options = topic.options;
-  }
-
   translate() {
     return {
       _id : this.contractAddress,
