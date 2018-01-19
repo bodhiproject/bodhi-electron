@@ -18,7 +18,7 @@ const Contracts = require('./contracts');
 
 const batchSize = 200;
 
-const contractDeployedBlockNum = 56958;
+const contractDeployedBlockNum = 70653;
 
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
@@ -68,308 +68,48 @@ async function sync(db){
 
   let currentBlockChainHeight = await qclient.getBlockCount();
   currentBlockChainHeight = currentBlockChainHeight - 1;
-  let options = {
-    "limit": 1,
-    "sort": [["blockNum", 'desc']]
-  }
 
   var startBlock = contractDeployedBlockNum;
   let blocks = await db.Blocks.cfind({}).sort({blockNum:-1}).limit(1).exec();
-  if(blocks.length > 0){
+  if (blocks.length > 0){
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
-  var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-startBlock)/batchSize), function(loop){
+  var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-startBlock)/batchSize), async function(loop) {
     var endBlock = Math.min(startBlock + batchSize - 1, currentBlockChainHeight);
     var syncTopic = false, syncCOracle = false, syncDOracle = false, syncVote = false, syncOracleResult = false, syncFinalResult = false;
 
-    // sync TopicCreated
-    var syncTopicCreatedPromise = new Promise(async (resolve) => {
-      let result;
-      try {
-        result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.EventFactory.TopicCreated], Contracts, removeHexPrefix);
-        console.log('searchlog TopicCreated')
-      } catch(err) {
-        console.error(`Error: ${err.message}`);
+    await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
+    console.log('Synced Topics\n');
+
+    await Promise.all([
+      syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
+      syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
+      syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
+    ]);
+    console.log('Synced Oracles\n');
+
+    await Promise.all([
+      syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
+      syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate),
+    ]);
+    console.log('Synced Result Set\n');
+
+    const updateBlockPromises = [];
+    for (let i = startBlock; i <= endBlock; i++) {
+      let updateBlockPromise = new Promise(async (resolve) => {
+        let resp = await db.Blocks.insert({'blockNum': i});
         resolve();
-        return;
-      }
-
-      console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
-      var createTopicPromises = [];
-
-      _.forEach(result, (event, index) => {
-        let blockNum = event.blockNumber;
-        let txid = event.transactionHash;
-        _.forEachRight(event.log, (rawLog) => {
-          if(rawLog['_eventName'] === 'TopicCreated'){
-            var insertTopicDB = new Promise(async (resolve) =>{
-              try {
-                var topic = new Topic(blockNum, txid, rawLog).translate();
-                await db.Topics.insert(topic);
-                resolve();
-              } catch(err) {
-                console.error(`Error: ${err.message}`);
-                resolve();
-                return;
-              }
-            });
-
-            createTopicPromises.push(insertTopicDB);
-          }
-        });
       });
+      updateBlockPromises.push(updateBlockPromise);
+    }
+    await Promise.all(updateBlockPromises);
+    console.log('Inserted Blocks\n');
 
-      Promise.all(createTopicPromises).then(()=>{
-        resolve()
-      });
-    });
-
-    // sync CentralizedOracleCreated
-    var syncCentralizedOracleCreatedPromise = new Promise(async (resolve) => {
-      let result;
-      try {
-        result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, [Contracts.OracleFactory.CentralizedOracleCreated], Contracts, removeHexPrefix);
-        console.log('searchlog CentralizedOracleCreated')
-      } catch(err) {
-        console.error(`Error: ${err.message}`);
-        resolve();
-        return;
-      }
-
-      console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreated`);
-      var createCentralizedOraclePromises = [];
-
-      _.forEach(result, (event, index) => {
-        let blockNum = event.blockNumber;
-        let txid = event.transactionHash;
-        _.forEachRight(event.log, (rawLog) => {
-          if(rawLog['_eventName'] === 'CentralizedOracleCreated'){
-            var insertOracleDB = new Promise(async (resolve) =>{
-              try {
-                var centralOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
-                await db.Oracles.insert(centralOracle);
-                resolve();
-              } catch(err) {
-                console.error(`Error: ${err.message}`);
-                resolve();
-                return;
-              }
-            });
-
-            createCentralizedOraclePromises.push(insertOracleDB);
-          }
-        });
-      });
-
-      Promise.all(createCentralizedOraclePromises).then(()=>{
-        resolve()
-      });
-    });
-
-    // sync DecentralizedOracleCreated
-    var syncDecentralizedOracleCreatedPromise = new Promise(async (resolve) => {
-      let result;
-      try {
-        result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated, Contracts, removeHexPrefix)
-        console.log('searchlog DecentralizedOracleCreated')
-      } catch(err) {
-        console.error(`Error: ${err.message}`);
-        resolve();
-        return;
-      }
-
-      console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreated`);
-      var createDecentralizedOraclePromises = [];
-
-      _.forEach(result, (event, index) => {
-        let blockNum = event.blockNumber;
-        let txid = event.transactionHash;
-        _.forEachRight(event.log, (rawLog) => {
-          if(rawLog['_eventName'] === 'DecentralizedOracleCreated'){
-            var insertOracleDB = new Promise(async (resolve) =>{
-              try {
-                var decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
-                await db.Oracles.insert(decentralOracle);
-                resolve();
-              } catch(err) {
-                console.error(`Error: ${err.message}`);
-                resolve();
-                return;
-              }
-            });
-            createDecentralizedOraclePromises.push(insertOracleDB);
-          }
-        });
-      });
-
-      Promise.all(createDecentralizedOraclePromises).then(()=>{
-        resolve()
-      });
-    });
-
-    // sync OracleResultVoted
-    var syncOracleResultVotedPromise = new Promise(async (resolve) => {
-      let result;
-      try {
-        result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted, Contracts, removeHexPrefix)
-        console.log('searchlog OracleResultVoted')
-      } catch(err) {
-        console.error(`Error: ${err.message}`);
-        resolve();
-        return;
-      }
-
-      console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
-      var createOracleResultVotedPromises = [];
-
-      _.forEach(result, (event, index) => {
-        let blockNum = event.blockNumber;
-        let txid = event.transactionHash;
-        _.forEachRight(event.log, (rawLog) => {
-          if(rawLog['_eventName'] === 'OracleResultVoted'){
-            var insertVoteDB = new Promise(async (resolve) =>{
-              try {
-                var vote = new Vote(blockNum, txid, rawLog).translate();
-                oraclesNeedBalanceUpdate.add(vote.oracleAddress);
-
-                await db.Votes.insert(vote);
-                resolve();
-              } catch(err){
-                console.error(`Error: ${err.message}`);
-                resolve();
-                return;
-              }
-            });
-
-            createOracleResultVotedPromises.push(insertVoteDB);
-          }
-        });
-      });
-
-      Promise.all(createOracleResultVotedPromises).then(()=>{
-        resolve()
-      });
-    });
-
-    // sync OracleResultSet
-    var syncOracleResultSetPromise = new Promise(async (resolve) => {
-      let result;
-      try {
-        result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts, removeHexPrefix)
-        console.log('searchlog OracleResultSet')
-      } catch(err) {
-        console.error(`Error: ${err.message}`);
-        resolve();
-        return;
-      }
-
-      console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
-      var updateOracleResultSetPromises = [];
-
-      _.forEach(result, (event, index) => {
-        _.forEachRight(event.log, (rawLog) => {
-          if(rawLog['_eventName'] === 'OracleResultSet'){
-            var updateOracleResult = new Promise(async (resolve) =>{
-              try {
-                var oracleResult = new OracleResultSet(rawLog).translate();
-                // safeguard to update balance, can be removed in the future
-                oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
-
-                await db.Oracles.update({address: oracleResult.oracleAddress}, {$set: {resultIdx: oracleResult.resultIdx, status:'PENDING'}}, {});
-                resolve();
-              } catch(err) {
-                console.error(`Error: ${err.message}`);
-                resolve();
-                return;
-              }
-            });
-
-            updateOracleResultSetPromises.push(updateOracleResult);
-          }
-        });
-      });
-
-      Promise.all(updateOracleResultSetPromises).then(()=>{
-        resolve()
-      });
-    });
-
-    // sync FinalResultSet
-    var syncFinalResultSetPromise = new Promise(async (resolve) => {
-      let result;
-      try {
-        result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts, removeHexPrefix)
-        console.log('searchlog FinalResultSet')
-      } catch(err) {
-        console.error(`Error: ${err.message}`);
-        resolve();
-        return;
-      }
-
-      console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
-      var updateFinalResultSetPromises = [];
-
-      _.forEach(result, (event, index) => {
-        _.forEachRight(event.log, (rawLog) => {
-          if(rawLog['_eventName'] === 'FinalResultSet'){
-            var updateFinalResultSet = new Promise(async (resolve) =>{
-              try {
-                var topicResult = new FinalResultSet(rawLog).translate();
-                // safeguard to update balance, can be removed in the future
-                topicsNeedBalanceUpdate.add(topicResult.topicAddress);
-
-                await db.Topics.update({address: topicResult.topicAddress}, {$set: {resultIdx: topicResult.resultIdx, status:'WITHDRAW'}}, {});
-                resolve();
-              } catch(err) {
-                console.error(`Error: ${err.message}`);
-                resolve();
-                return;
-              }
-            });
-
-            updateFinalResultSetPromises.push(updateFinalResultSet);
-          }
-        });
-      });
-
-      Promise.all(updateFinalResultSetPromises).then(()=>{
-        resolve()
-      });
-    });
-
-    var syncPromises = [];
-    var updatePromises = [];
-    syncPromises.push(syncTopicCreatedPromise);
-    syncPromises.push(syncCentralizedOracleCreatedPromise);
-    syncPromises.push(syncDecentralizedOracleCreatedPromise);
-    syncPromises.push(syncOracleResultVotedPromise);
-    updatePromises.push(syncOracleResultSetPromise);
-    updatePromises.push(syncFinalResultSetPromise);
-
-    Promise.all(syncPromises).then(() => {
-      console.log('Synced Topics & Oracles');
-      // sync first and then update in case update object in current batch
-      Promise.all(updatePromises).then(() =>{
-        console.log('Updated OracleResult & FinalResult');
-
-        const updateBlockPromises = [];
-        for (var i=startBlock; i<=endBlock; i++) {
-          let updateBlockPromise = new Promise(async (resolve) => {
-            let resp = await db.Blocks.insert({'blockNum': i});
-            resolve();
-          });
-          updateBlockPromises.push(updateBlockPromise);
-        }
-
-        Promise.all(updateBlockPromises).then(() => {
-          startBlock = endBlock+1;
-          loop.next();
-        });
-      });
-    });
+    startBlock = endBlock + 1;
+    loop.next();
   },
-  async function(){
+  async function() {
     var oracle_address_batches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
     // execute rpc batch by batch
     sequentialLoop(oracle_address_batches.length, async function(loop) {
@@ -412,13 +152,281 @@ async function sync(db){
   });
 }
 
+async function fetchTopic(db, address) {
+  let topic;
+  try {
+    topic = await db.Topics.findOne({
+      address: address
+    });
+
+    if (!topic) {
+      console.error(`ERROR: could not find Topic ${address} in db`);
+      return null;
+    } else {
+      return topic;
+    }
+  } catch(err) {
+    console.error(`ERROR: find Topic ${address} in db, ${err.message}`);
+    return null;
+  }
+}
+
+async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
+  let result;
+  try {
+    result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address,
+      [Contracts.EventFactory.TopicCreated], Contracts, removeHexPrefix);
+    console.log('searchlog TopicCreated')
+  } catch(err) {
+    console.error(`ERROR: ${err.message}`);
+    return;
+  }
+
+  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
+  var createTopicPromises = [];
+
+  _.forEach(result, (event, index) => {
+    let blockNum = event.blockNumber;
+    let txid = event.transactionHash;
+    _.forEachRight(event.log, (rawLog) => {
+      if(rawLog['_eventName'] === 'TopicCreated'){
+        var insertTopicDB = new Promise(async (resolve) =>{
+          try {
+            var topic = new Topic(blockNum, txid, rawLog).translate();
+            await db.Topics.insert(topic);
+            resolve();
+          } catch(err) {
+            console.error(`ERROR: ${err.message}`);
+            resolve();
+            return;
+          }
+        });
+
+        createTopicPromises.push(insertTopicDB);
+      }
+    });
+  });
+
+  Promise.all(createTopicPromises);
+}
+
+async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {
+  let result;
+  try {
+    result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address,
+      [Contracts.OracleFactory.CentralizedOracleCreated], Contracts, removeHexPrefix);
+    console.log('searchlog CentralizedOracleCreated')
+  } catch(err) {
+    console.error(`ERROR: ${err.message}`);
+    return;
+  }
+
+  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreated`);
+  var createCentralizedOraclePromises = [];
+
+  _.forEach(result, (event, index) => {
+    let blockNum = event.blockNumber;
+    let txid = event.transactionHash;
+    _.forEachRight(event.log, (rawLog) => {
+      if(rawLog['_eventName'] === 'CentralizedOracleCreated'){
+        var insertOracleDB = new Promise(async (resolve) =>{
+          try {
+            let centralOracle = new CentralizedOracle(blockNum, txid, rawLog);
+            const topic = await fetchTopic(db, centralOracle.eventAddress);
+            centralOracle.name = topic.name;
+            centralOracle.options = topic.options;
+            centralOracle = centralOracle.translate();
+
+            await db.Oracles.insert(centralOracle);
+            resolve();
+          } catch(err) {
+            console.error(`ERROR: ${err.message}`);
+            resolve();
+            return;
+          }
+        });
+
+        createCentralizedOraclePromises.push(insertOracleDB);
+      }
+    });
+  });
+
+  Promise.all(createCentralizedOraclePromises);
+}
+
+async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {
+  let result;
+  try {
+    result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated,
+      Contracts, removeHexPrefix)
+    console.log('searchlog DecentralizedOracleCreated')
+  } catch(err) {
+    console.error(`ERROR: ${err.message}`);
+    return;
+  }
+
+  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreated`);
+  var createDecentralizedOraclePromises = [];
+
+  _.forEach(result, (event, index) => {
+    let blockNum = event.blockNumber;
+    let txid = event.transactionHash;
+    _.forEachRight(event.log, (rawLog) => {
+      if(rawLog['_eventName'] === 'DecentralizedOracleCreated'){
+        var insertOracleDB = new Promise(async (resolve) =>{
+          try {
+            let decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog);
+            const topic = await fetchTopic(db, decentralOracle.eventAddress);
+            decentralOracle.name = topic.name;
+            decentralOracle.options = topic.options;
+            decentralOracle = decentralOracle.translate();
+
+            await db.Oracles.insert(decentralOracle);
+            resolve();
+          } catch(err) {
+            console.error(`ERROR: ${err.message}`);
+            resolve();
+            return;
+          }
+        });
+        createDecentralizedOraclePromises.push(insertOracleDB);
+      }
+    });
+  });
+
+  Promise.all(createDecentralizedOraclePromises);
+}
+
+async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
+  let result;
+  try {
+    result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted,
+      Contracts, removeHexPrefix)
+    console.log('searchlog OracleResultVoted')
+  } catch(err) {
+    console.error(`ERROR: ${err.message}`);
+    return;
+  }
+
+  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
+  var createOracleResultVotedPromises = [];
+
+  _.forEach(result, (event, index) => {
+    let blockNum = event.blockNumber;
+    let txid = event.transactionHash;
+    _.forEachRight(event.log, (rawLog) => {
+      if(rawLog['_eventName'] === 'OracleResultVoted'){
+        var insertVoteDB = new Promise(async (resolve) =>{
+          try {
+            var vote = new Vote(blockNum, txid, rawLog).translate();
+            oraclesNeedBalanceUpdate.add(vote.oracleAddress);
+
+            await db.Votes.insert(vote);
+            resolve();
+          } catch(err){
+            console.error(`ERROR: ${err.message}`);
+            resolve();
+            return;
+          }
+        });
+
+        createOracleResultVotedPromises.push(insertVoteDB);
+      }
+    });
+  });
+
+  Promise.all(createOracleResultVotedPromises);
+}
+
+async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
+  let result;
+  try {
+    result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts,
+      removeHexPrefix)
+    console.log('searchlog OracleResultSet')
+  } catch(err) {
+    console.error(`ERROR: ${err.message}`);
+    return;
+  }
+
+  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
+  var updateOracleResultSetPromises = [];
+
+  _.forEach(result, (event, index) => {
+    _.forEachRight(event.log, (rawLog) => {
+      if(rawLog['_eventName'] === 'OracleResultSet'){
+        var updateOracleResult = new Promise(async (resolve) =>{
+          try {
+            var oracleResult = new OracleResultSet(rawLog).translate();
+            // safeguard to update balance, can be removed in the future
+            oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
+
+            await db.Oracles.update({address: oracleResult.oracleAddress},
+              {$set: {resultIdx: oracleResult.resultIdx, status:'PENDING'}}, {});
+            resolve();
+          } catch(err) {
+            console.error(`ERROR: ${err.message}`);
+            resolve();
+            return;
+          }
+        });
+
+        updateOracleResultSetPromises.push(updateOracleResult);
+      }
+    });
+  })
+
+  Promise.all(updateOracleResultSetPromises);
+}
+
+async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate) {
+  let result;
+  try {
+    result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts,
+      removeHexPrefix)
+    console.log('searchlog FinalResultSet')
+  } catch(err) {
+    console.error(`ERROR: ${err.message}`);
+    return;
+  }
+
+  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
+  var updateFinalResultSetPromises = [];
+
+  _.forEach(result, (event, index) => {
+    _.forEachRight(event.log, (rawLog) => {
+      if(rawLog['_eventName'] === 'FinalResultSet'){
+        var updateFinalResultSet = new Promise(async (resolve) =>{
+          try {
+            var topicResult = new FinalResultSet(rawLog).translate();
+            // safeguard to update balance, can be removed in the future
+            topicsNeedBalanceUpdate.add(topicResult.topicAddress);
+
+            await db.Topics.update({address: topicResult.topicAddress},
+              {$set: {resultIdx: topicResult.resultIdx, status:'WITHDRAW'}}, {});
+            resolve();
+          } catch(err) {
+            console.error(`ERROR: ${err.message}`);
+            resolve();
+            return;
+          }
+        });
+
+        updateFinalResultSetPromises.push(updateFinalResultSet);
+      }
+    });
+  });
+
+  Promise.all(updateFinalResultSetPromises);
+}
+
 async function updateOraclesPassedEndBlock(currentBlockChainHeight, db, resolve){
   // all central & decentral oracles with VOTING status and endBlock less than currentBlockChainHeight
   try {
     await db.Oracles.update({endBlock: {$lt:currentBlockChainHeight}, status: 'VOTING'}, {$set: {status:'WAITRESULT'}}, {multi: true});
     console.log('Updated Oracles Passed EndBlock');
   }catch(err){
-    console.error(`Error: updateOraclesPassedEndBlock ${err.message}`);
+    console.error(`ERROR: updateOraclesPassedEndBlock ${err.message}`);
   }
 }
 
@@ -429,7 +437,7 @@ async function updateCentralizedOraclesPassedResultSetEndBlock(currentBlockChain
       {$set: {status:'OPENRESULTSET'}}, {multi: true});
     console.log('Updated COracles Passed ResultSetEndBlock');
   }catch(err){
-    console.error(`Error: updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
+    console.error(`ERROR: updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
   }
 }
 
@@ -438,11 +446,11 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
   try {
     oracle = await db.Oracles.findOne({address: oracleAddress});
     if (!oracle){
-      console.error(`Error: find 0 oracle ${oracleAddress} in db to update`);
+      console.error(`ERROR: find 0 oracle ${oracleAddress} in db to update`);
       return;
     }
   } catch(err){
-    console.error(`Error: update oracle ${oracleAddress} in db, ${err.message}`);
+    console.error(`ERROR: update oracle ${oracleAddress} in db, ${err.message}`);
     return;
   }
 
@@ -455,7 +463,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
     try {
       value = await contract.call('getTotalBets',{ methodArgs: [], senderAddress: senderAddress});
     } catch(err){
-      console.error(`Error: getTotalBets for oracle ${oracleAddress}, ${err.message}`);
+      console.error(`ERROR: getTotalBets for oracle ${oracleAddress}, ${err.message}`);
       return;
     }
   }else{
@@ -464,12 +472,12 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
     try {
       value = await contract.call('getTotalVotes', { methodArgs: [], senderAddress: senderAddress});
     } catch(err){
-      console.error(`Error: getTotalVotes for oracle ${oracleAddress}, ${err.message}`);
+      console.error(`ERROR: getTotalVotes for oracle ${oracleAddress}, ${err.message}`);
       return;
     }
   }
 
-  let balances = _.map(value[0].slice(0, oracle.options.length), (balance_BN) => {
+  let balances = _.map(value[0].slice(0, oracle.numOfResults), (balance_BN) => {
     return balance_BN.toJSON();
   });
 
@@ -477,7 +485,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
     await db.Oracles.update({address: oracleAddress}, { $set: { amounts: balances }});
     console.log(`Update oracle ${oracleAddress} amounts ${balances}`);
   } catch(err){
-    console.error(`Error: update oracle ${oracleAddress}, ${err.message}`);
+    console.error(`ERROR: update oracle ${oracleAddress}, ${err.message}`);
   }
 }
 
@@ -486,11 +494,11 @@ async function updateTopicBalance(topicAddress, db){
   try{
     topic = await db.Topics.findOne({address: topicAddress});
     if (!topic){
-      console.error(`Error: find 0 topic ${topicAddress} in db to update`);
+      console.error(`ERROR: find 0 topic ${topicAddress} in db to update`);
       return;
     }
   } catch(err){
-    console.error(`Error: find topic ${topicAddress} in db, ${err.message}`);
+    console.error(`ERROR: find topic ${topicAddress} in db, ${err.message}`);
     return;
   }
 
@@ -501,7 +509,7 @@ async function updateTopicBalance(topicAddress, db){
     totalBetsValue = await contract.call('getTotalBets', { methodArgs: [], senderAddress: senderAddress});
     totalVotesValue = await contract.call('getTotalVotes', { methodArgs: [], senderAddress: senderAddress});
   }catch(err){
-    console.error(`Error: getTotalBets for topic ${topicAddress}, ${err.message}`);
+    console.error(`ERROR: getTotalBets for topic ${topicAddress}, ${err.message}`);
     return;
   }
 
@@ -517,7 +525,7 @@ async function updateTopicBalance(topicAddress, db){
     await db.Topics.update({address: topicAddress}, { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances }});
     console.log(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
   }catch(err){
-    console.error(`Error: update topic ${topicAddress} in db, ${err.message}`);
+    console.error(`ERROR: update topic ${topicAddress} in db, ${err.message}`);
   }
 }
 
