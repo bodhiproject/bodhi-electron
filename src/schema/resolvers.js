@@ -2,37 +2,8 @@ const _ = require('lodash');
 const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
 
-/* Default limit number for query page */
-const DEFAULT_LIMIT_NUM = 50;
-const DEFAULT_SKIP_NUM = 0;
-
-/**
- * Returns an options object to pass in database query
- * @param  {Array} orderBy Array of Order type defined in schema
- * @param  {Number} limit   limit number in paging; default value DEFAULT_LIMIT_NUM
- * @param  {Number} skip    skip number in paging; default value DEFAULT_SKIP_NUM
- * @return {Object}         
- */
-function buildQueryOptions(orderBy, limit, skip) {
-  const options = {};
-
-  if (!_.isEmpty(orderBy)) {
-    options.sort = [];
-
-    _.each(orderBy, (order) => {
-      options.sort.push([order.field, (order.direction === "ASC" ? 'asc' : 'desc')]);
-    });
-  }
-
-  options.limit = limit || DEFAULT_LIMIT_NUM;
-  options.skip = skip || DEFAULT_SKIP_NUM;
-
-  return options;
-}
-
-function buildTopicFilters({ OR = [], orderBy, limit, skip }) {
-  const filter = (order || status) ? {} : null;
-
+function buildTopicFilters({OR = [], address, status}) {
+  const filter = (address || status) ? {} : null;
   if (address) {
     filter.address = address;
   }
@@ -45,7 +16,6 @@ function buildTopicFilters({ OR = [], orderBy, limit, skip }) {
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildTopicFilters(OR[i]));
   }
-
   return filters;
 }
 
@@ -72,7 +42,6 @@ function buildOracleFilters({OR = [], address, topicAddress, resultSetterQAddres
   }
 
   let filters = filter ? [filter] : [];
-
   for (let i = 0; i < OR.length; i++) {
     filters = filters.concat(buildOracleFilters(OR[i]));
   }
@@ -145,7 +114,7 @@ module.exports = {
       }
 
       if (skip) {
-        options.skip(skip);
+        cursor.skip(skip);
       }
       return await cursor.exec();
     },
