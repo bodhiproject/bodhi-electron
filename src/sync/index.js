@@ -70,7 +70,7 @@ async function sync(db){
   currentBlockChainHeight = currentBlockChainHeight - 1;
 
   var startBlock = contractDeployedBlockNum;
-  let blocks = await db.Blocks.cfind({}).sort({blockNum:-1}).limit(1).exec();
+  let blocks = await db.Blocks.cfind({}).sort({blockNum: -1}).limit(1).exec();
   if (blocks.length > 0){
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
@@ -98,7 +98,7 @@ async function sync(db){
     const updateBlockPromises = [];
     for (let i = startBlock; i <= endBlock; i++) {
       let updateBlockPromise = new Promise(async (resolve) => {
-        let resp = await db.Blocks.insert({'blockNum': i});
+        let resp = await db.Blocks.insert({'_id': i, 'blockNum': i});
         resolve();
       });
       updateBlockPromises.push(updateBlockPromise);
@@ -152,22 +152,12 @@ async function sync(db){
   });
 }
 
-async function fetchTopic(db, address) {
-  let topic;
-  try {
-    topic = await db.Topics.findOne({
-      _id: address
-    });
-
-    if (!topic) {
-      console.error(`ERROR: could not find Topic ${address} in db`);
-      return null;
-    } else {
-      return topic;
-    }
-  } catch(err) {
-    console.error(`ERROR: find Topic ${address} in db, ${err.message}`);
-    return null;
+async function fetchNameOptionsFromTopic(db, address) {
+  var topic = await db.Topics.findOne({_id: address}, {name: 1, options: 1});
+  if (!topic) {
+    throw Error(`could not find Topic ${address} in db`);
+  } else {
+    return topic;
   }
 }
 
@@ -207,7 +197,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
     });
   });
 
-  Promise.all(createTopicPromises);
+  await Promise.all(createTopicPromises);
 }
 
 async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {
@@ -231,18 +221,17 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
       if(rawLog['_eventName'] === 'CentralizedOracleCreated'){
         var insertOracleDB = new Promise(async (resolve) =>{
           try {
-            let centralOracle = new CentralizedOracle(blockNum, txid, rawLog);
-            const topic = await fetchTopic(db, centralOracle.eventAddress);
+            var centralOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
+            const topic = await fetchNameOptionsFromTopic(db, centralOracle.topicAddress);
+
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
-            centralOracle = centralOracle.translate();
 
             await db.Oracles.insert(centralOracle);
             resolve();
           } catch(err) {
             console.error(`ERROR: ${err.message}`);
             resolve();
-            return;
           }
         });
 
@@ -251,7 +240,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
     });
   });
 
-  Promise.all(createCentralizedOraclePromises);
+  await Promise.all(createCentralizedOraclePromises);
 }
 
 async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {
@@ -275,18 +264,16 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
       if(rawLog['_eventName'] === 'DecentralizedOracleCreated'){
         var insertOracleDB = new Promise(async (resolve) =>{
           try {
-            let decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog);
-            const topic = await fetchTopic(db, decentralOracle.eventAddress);
+            var decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
+            const topic = await fetchNameOptionsFromTopic(db, decentralOracle.topicAddress);
+
             decentralOracle.name = topic.name;
             decentralOracle.options = topic.options;
-            decentralOracle = decentralOracle.translate();
-
             await db.Oracles.insert(decentralOracle);
             resolve();
           } catch(err) {
             console.error(`ERROR: ${err.message}`);
             resolve();
-            return;
           }
         });
         createDecentralizedOraclePromises.push(insertOracleDB);
@@ -294,7 +281,7 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
     });
   });
 
-  Promise.all(createDecentralizedOraclePromises);
+  await Promise.all(createDecentralizedOraclePromises);
 }
 
 async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
@@ -326,7 +313,6 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
           } catch(err){
             console.error(`ERROR: ${err.message}`);
             resolve();
-            return;
           }
         });
 
@@ -335,7 +321,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
     });
   });
 
-  Promise.all(createOracleResultVotedPromises);
+  await Promise.all(createOracleResultVotedPromises);
 }
 
 async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
@@ -361,13 +347,12 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
             // safeguard to update balance, can be removed in the future
             oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
 
-            await db.Oracles.update({address: oracleResult.oracleAddress},
+            await db.Oracles.update({_id: oracleResult.oracleAddress},
               {$set: {resultIdx: oracleResult.resultIdx, status:'PENDING'}}, {});
             resolve();
           } catch(err) {
             console.error(`ERROR: ${err.message}`);
             resolve();
-            return;
           }
         });
 
@@ -376,7 +361,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
     });
   })
 
-  Promise.all(updateOracleResultSetPromises);
+  await Promise.all(updateOracleResultSetPromises);
 }
 
 async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate) {
@@ -402,13 +387,12 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
             // safeguard to update balance, can be removed in the future
             topicsNeedBalanceUpdate.add(topicResult.topicAddress);
 
-            await db.Topics.update({address: topicResult.topicAddress},
+            await db.Topics.update({_id: topicResult.topicAddress},
               {$set: {resultIdx: topicResult.resultIdx, status:'WITHDRAW'}}, {});
             resolve();
           } catch(err) {
             console.error(`ERROR: ${err.message}`);
             resolve();
-            return;
           }
         });
 
@@ -417,7 +401,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
     });
   });
 
-  Promise.all(updateFinalResultSetPromises);
+  await Promise.all(updateFinalResultSetPromises);
 }
 
 async function updateOraclesPassedEndBlock(currentBlockChainHeight, db, resolve){
@@ -444,7 +428,7 @@ async function updateCentralizedOraclesPassedResultSetEndBlock(currentBlockChain
 async function updateOracleBalance(oracleAddress, topicSet, db){
   var oracle;
   try {
-    oracle = await db.Oracles.findOne({address: oracleAddress});
+    oracle = await db.Oracles.findOne({_id: oracleAddress});
     if (!oracle){
       console.error(`ERROR: find 0 oracle ${oracleAddress} in db to update`);
       return;
@@ -482,7 +466,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
   });
 
   try {
-    await db.Oracles.update({address: oracleAddress}, { $set: { amounts: balances }});
+    await db.Oracles.update({_id: oracleAddress}, { $set: { amounts: balances }});
     console.log(`Update oracle ${oracleAddress} amounts ${balances}`);
   } catch(err){
     console.error(`ERROR: update oracle ${oracleAddress}, ${err.message}`);
@@ -492,7 +476,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db){
 async function updateTopicBalance(topicAddress, db){
   var topic;
   try{
-    topic = await db.Topics.findOne({address: topicAddress});
+    topic = await db.Topics.findOne({_id: topicAddress});
     if (!topic){
       console.error(`ERROR: find 0 topic ${topicAddress} in db to update`);
       return;
@@ -504,11 +488,12 @@ async function updateTopicBalance(topicAddress, db){
 
   const contract = new Contract(config.QTUM_RPC_ADDRESS, topicAddress, Contracts.TopicEvent.abi);
   var totalBetsValue, totalVotesValue;
-  try{
-    // TODO(frankobe): mk this two async
-    totalBetsValue = await contract.call('getTotalBets', { methodArgs: [], senderAddress: senderAddress});
-    totalVotesValue = await contract.call('getTotalVotes', { methodArgs: [], senderAddress: senderAddress});
-  }catch(err){
+  try {
+    var getTotalBetsPromise = contract.call('getTotalBets', { methodArgs: [], senderAddress: senderAddress});
+    var getTotalVotesPromise = contract.call('getTotalVotes', { methodArgs: [], senderAddress: senderAddress});
+    totalBetsValue = await getTotalBetsPromise;
+    totalVotesValue = await getTotalVotesPromise;
+  } catch(err){
     console.error(`ERROR: getTotalBets for topic ${topicAddress}, ${err.message}`);
     return;
   }
@@ -522,7 +507,7 @@ async function updateTopicBalance(topicAddress, db){
   });
 
   try {
-    await db.Topics.update({address: topicAddress}, { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances }});
+    await db.Topics.update({_id: topicAddress}, { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances }});
     console.log(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
   }catch(err){
     console.error(`ERROR: update topic ${topicAddress} in db, ${err.message}`);
