@@ -74,9 +74,9 @@ async function sync(db){
   }
 
   var startBlock = contractDeployedBlockNum;
-  let block = await db.Blocks.cfind({}).sort({blockNum:-1}).limit(1).exec();
-  if(block.length > 0){
-    startBlock = Math.max(block.blockNum + 1, startBlock);
+  let blocks = await db.Blocks.cfind({}).sort({blockNum:-1}).limit(1).exec();
+  if(blocks.length > 0){
+    startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
   var initialSync = sequentialLoop(Math.ceil((currentBlockChainHeight-startBlock)/batchSize), function(loop){
