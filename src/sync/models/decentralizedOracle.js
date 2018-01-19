@@ -22,6 +22,11 @@ class DecentralizedOracle {
     this.consensusThreshold = this.rawLog['_consensusThreshold'].toJSON();
   }
 
+  setTopicInfo(topic) {
+    this.name = topic.name;
+    this.options = topic.options;
+  }
+
   translate() {
     const optionIdxs = Array.from(Array(this.numOfResults).keys());
     _.remove(optionIdxs, this.lastResultIndex);
@@ -34,6 +39,8 @@ class DecentralizedOracle {
       topicAddress:this.eventAddress,
       status: 'VOTING',
       token: 'BOT',
+      name: this.name,
+      options: this.options,
       optionIdxs: optionIdxs,
       amounts: _.fill(Array(this.numOfResults), '0'),
       resultIdx: null,

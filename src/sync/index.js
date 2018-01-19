@@ -86,19 +86,19 @@ async function sync(db){
     await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
 
     var syncCentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
-      syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix);
+      syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, resolve);
     });
     var syncDecentralizedOracleCreatedPromise = new Promise(async (resolve) => { 
-      syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix);
+      syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, resolve);
     });
     var syncOracleResultVotedPromise = new Promise(async (resolve) => { 
-      syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate); 
+      syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate, resolve); 
     });
     var syncOracleResultSetPromise = new Promise(async (resolve) => { 
-      syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate);
+      syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate, resolve);
     });
     var syncFinalResultSetPromise = new Promise(async (resolve) => { 
-      syncFinalResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate);
+      syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate, resolve);
     });
 
     var syncPromises = [];
@@ -230,7 +230,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   Promise.all(createTopicPromises);
 }
 
-async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
+async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, resolve) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, Contracts.EventFactory.address, 
@@ -275,7 +275,7 @@ async function syncCentralizedOracleCreated(resolve, db, startBlock, endBlock, r
   });
 }
 
-async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock, removeHexPrefix) {
+async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, resolve) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated, 
@@ -319,7 +319,7 @@ async function syncDecentralizedOracleCreated(resolve, db, startBlock, endBlock,
   });
 }
 
-async function syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
+async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate, resolve) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted, 
@@ -363,7 +363,7 @@ async function syncOracleResultVoted(resolve, db, startBlock, endBlock, removeHe
   });
 }
 
-async function syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
+async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate, resolve) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts, 
@@ -407,7 +407,7 @@ async function syncOracleResultSet(resolve, db, startBlock, endBlock, removeHexP
   });
 }
 
-async function syncFinalResultSet(resolve, db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate) {
+async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate, resolve) {
   let result;
   try {
     result = await qclient.searchLogs(startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts, 

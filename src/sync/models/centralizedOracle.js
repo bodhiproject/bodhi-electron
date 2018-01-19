@@ -42,6 +42,8 @@ class CentralizedOracle {
       resultSetterQAddress: Decoder.toQtumAddress(this.oracle),
       status: 'VOTING',
       token: 'QTUM',
+      name: this.name,
+      options: this.options,
       optionIdxs: Array.from(Array(this.numOfResults).keys()),
       amounts: _.fill(Array(this.numOfResults), '0'),
       resultIdx: null,
