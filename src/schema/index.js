@@ -27,13 +27,13 @@ type Oracle {
   resultSetterQAddress: String
   status: _OracleStatusType!
   token: String!
-  name: String
-  options: [String!]
+  name: String!
+  options: [String!]!
   optionIdxs: [Int!]!
   amounts: [String!]!
   resultIdx: Int
   blockNum: Int!
-  betStartBlock: Int
+  startBlock: Int
   endBlock: Int!
   resultSetStartBlock: Int
   resultSetEndBlock: Int
@@ -97,7 +97,6 @@ input VoteFilter {
 
 type Mutation {
   createTopic(
-    version: Int!
     address: String!
     name: String!
     options: [String!]!
@@ -105,7 +104,6 @@ type Mutation {
   ): Topic
 
   createOracle(
-    version: Int!
     address: String!
     topicAddress: String!
     token: _TokenType!
@@ -115,7 +113,6 @@ type Mutation {
   ): Oracle
 
   createVote(
-    version: Int!
     address: String!
     voterAddress: String!
     oracleAddress: String!

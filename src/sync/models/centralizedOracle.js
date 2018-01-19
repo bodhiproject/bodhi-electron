@@ -41,7 +41,7 @@ class CentralizedOracle {
       amounts: _.fill(Array(this.numOfResults), '0'),
       resultIdx: null,
       blockNum: this.blockNum,
-      betStartBlock: this.bettingStartBlock,
+      startBlock: this.bettingStartBlock,
       endBlock: this.bettingEndBlock,
       resultSetStartBlock: this.resultSettingStartBlock,
       resultSetEndBlock: this.resultSettingEndBlock,
