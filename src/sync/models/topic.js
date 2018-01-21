@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const Decoder = require('qweb3').Decoder;
 const Utils = require('qweb3').Utils;
 
 class Topic {
