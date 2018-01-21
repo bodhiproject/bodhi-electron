@@ -17,6 +17,11 @@ module.exports = {
       }
     ],
     "no-console": 0,
+    "no-param-reassign": [2,
+      {
+        "props": false
+      }
+    ],
     "no-plusplus": [0
     ],
     "no-underscore-dangle": [1,

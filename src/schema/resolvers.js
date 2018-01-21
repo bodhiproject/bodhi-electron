@@ -7,12 +7,12 @@ const DEFAULT_SKIP_NUM = 0;
 
 function buildCursorOptions(cursor, orderBy, limit, skip) {
   if (!_.isEmpty(orderBy)) {
-    sort_dict = {};
+    const sortDict = {};
     _.forEach(orderBy, (order) => {
-      sort_dict[order.field] = order.direction === "ASC" ? 1:-1;
+      sortDict[order.field] = order.direction === "ASC" ? 1:-1;
     })
 
-    cursor.sort(sort_dict);
+    cursor.sort(sortDict);
   }
 
   cursor.limit(limit || DEFAULT_LIMIT_NUM);
@@ -74,7 +74,7 @@ function buildSearchOracleFilter(searchPhrase) {
     return [];
   }
 
-  filters = [];
+  const filters = [];
   for (let i = 0; i < filterFields.length; i++) {
     const filter = {};
     filter[filterFields[i]] = { $regex: `.*${searchPhrase}.*` };
@@ -117,28 +117,28 @@ module.exports = {
       var cursor = Topics.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
 
-      return await cursor.exec();
+      return cursor.exec();
     },
 
     allOracles: async (root, { filter, orderBy, limit, skip }, {db: {Oracles}}) => {
       let query = filter ? {$or: buildOracleFilters(filter)}: {};
       var cursor = Oracles.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-      return await cursor.exec();
+      return cursor.exec();
     },
 
     searchOracles: async (root, { searchPhrase, orderBy, limit, skip }, {db: {Oracles}}) => {
       let query = searchPhrase ? {$or: buildSearchOracleFilter(searchPhrase)}: {};
       var cursor = Oracles.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-      return await cursor.exec();
+      return cursor.exec();
     },
 
     allVotes: async (root, { filter, orderBy, limit, skip }, {db: {Votes}}) => {
       let query = filter ? {$or: buildVoteFilters(filter)}: {};
       var cursor = Votes.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
-      return await cursor.exec();
+      return cursor.exec();
     },
 
     syncInfo: async (root, {}, {db: {Blocks}}) => {
@@ -198,7 +198,7 @@ module.exports = {
 
   Topic: {
     oracles: async ({address}, data, {db: {Oracles}}) => {
-      return await Oracles.find({topicAddress: address});
+      return Oracles.find({topicAddress: address});
     }
   },
 
