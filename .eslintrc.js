@@ -35,7 +35,7 @@ module.exports = {
         "classes": false
       }
     ],
-    "no-unused-vars": [2,
+    "no-unused-vars": [1,
       {
         "args": "all",
         "caughtErrors": "none"
