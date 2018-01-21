@@ -1,13 +1,11 @@
 const datastore = require('nedb-promise');
 
-const config = require('../config')
+const topics = datastore({filename: './nedb/topics.db', autoload: true});
+const oracles = datastore({filename: './nedb/oracles.db', autoload: true});
+const votes = datastore({filename: './nedb/votes.db', autoload: true});
+const blocks = datastore({filename: './nedb/blocks.db', autoload: true});
 
-topics = datastore({filename: './nedb/topics.db', autoload: true});
-oracles = datastore({filename: './nedb/oracles.db', autoload: true});
-votes = datastore({filename: './nedb/votes.db', autoload: true});
-blocks = datastore({filename: './nedb/blocks.db', autoload: true});
-
-dbPromises = [topics, oracles, votes, blocks];
+const dbPromises = [topics, oracles, votes, blocks];
 
 module.exports = async () => {
   try{
