@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: 0 */
+
 const _ = require('lodash');
 const Utils = require('qweb3').Utils;
 

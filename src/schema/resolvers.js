@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: [2, { "allow": ["_id"] }] */
+
 const _ = require('lodash');
 const pubsub = require('../pubsub');
 const fetch = require('node-fetch');

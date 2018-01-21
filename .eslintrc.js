@@ -24,7 +24,7 @@ module.exports = {
     ],
     "no-plusplus": [0
     ],
-    "no-underscore-dangle": [1,
+    "no-underscore-dangle": [2,
       {
         "enforceInMethodNames": true
       }
