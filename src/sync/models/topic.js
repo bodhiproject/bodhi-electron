@@ -15,7 +15,7 @@ class Topic {
     this.version = this.rawLog._version.toNumber();
     this.topicAddress = this.rawLog._topicAddress;
 
-    const nameHex = _.reduce(this.rawLog._name, (hexStr, value) => hexStr += value, '');
+    const nameHex = _.reduce(this.rawLog._name, (hexStr, value) => hexStr.concat(value), '');
     this.name = Utils.toUtf8(nameHex);
 
     const intermedia = _.map(this.rawLog._resultNames, item => Utils.toUtf8(item));
