@@ -24,14 +24,17 @@ const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender a
 
 const RPC_BATCH_SIZE = 20;
 
-const currentBlockChainHeight = 0;
+const startSync = async () => {
+  const db = await connectDB();
+  sync(db);
+};
 
 function sequentialLoop(iterations, process, exit) {
-  let index = 0,
-    done = false,
-    shouldExit = false;
+  let index = 0;
+  let done = false;
+  let shouldExit = false;
 
-  var loop = {
+  const loop = {
     next() {
       if (done) {
         if (shouldExit && exit) {
@@ -66,8 +69,8 @@ function sequentialLoop(iterations, process, exit) {
 
 async function sync(db) {
   const removeHexPrefix = true;
-  let topicsNeedBalanceUpdate = new Set(),
-    oraclesNeedBalanceUpdate = new Set();
+  const topicsNeedBalanceUpdate = new Set();
+  const oraclesNeedBalanceUpdate = new Set();
 
   let currentBlockChainHeight = await qclient.getBlockCount();
   currentBlockChainHeight -= 1;
@@ -78,15 +81,9 @@ async function sync(db) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
-  const initialSync = sequentialLoop(
+  sequentialLoop(
     Math.ceil((currentBlockChainHeight - startBlock) / batchSize), async (loop) => {
-      const endBlock = Math.min(startBlock + batchSize - 1, currentBlockChainHeight);
-      let syncTopic = false,
-        syncCOracle = false,
-        syncDOracle = false,
-        syncVote = false,
-        syncOracleResult = false,
-        syncFinalResult = false;
+      const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
       console.log('Synced Topics\n');
@@ -107,7 +104,7 @@ async function sync(db) {
       const updateBlockPromises = [];
       for (let i = startBlock; i <= endBlock; i++) {
         const updateBlockPromise = new Promise(async (resolve) => {
-          const resp = await db.Blocks.insert({ _id: i, blockNum: i });
+          await db.Blocks.insert({ _id: i, blockNum: i });
           resolve();
         });
         updateBlockPromises.push(updateBlockPromise);
@@ -119,24 +116,24 @@ async function sync(db) {
       loop.next();
     },
     async () => {
-      const oracle_address_batches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
+      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
       // execute rpc batch by batch
-      sequentialLoop(oracle_address_batches.length, async (loop) => {
-        const iteration = loop.iteration();
-        console.log(`oracle batch: ${iteration}`);
-        await Promise.all(oracle_address_batches[iteration].map(async (oracle_address) => {
-          await updateOracleBalance(oracle_address, topicsNeedBalanceUpdate, db);
+      sequentialLoop(oracleAddressBatches.length, async (loop) => {
+        const oracleIteration = loop.iteration();
+        console.log(`oracle batch: ${oracleIteration}`);
+        await Promise.all(oracleAddressBatches[oracleIteration].map(async (oracleAddress) => {
+          await updateOracleBalance(oracleAddress, topicsNeedBalanceUpdate, db);
         }));
 
         // Oracle balance update completed
-        if (iteration === oracle_address_batches.length - 1) {
+        if (oracleIteration === oracleAddressBatches.length - 1) {
         // two rpc call per topic balance so batch_size = RPC_BATCH_SIZE/2
-          const topic_address_batches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
-          sequentialLoop(topic_address_batches.length, async (topicLoop) => {
-            const iteration = topicLoop.iteration();
-            console.log(`topic batch: ${iteration}`);
-            await Promise.all(topic_address_batches[iteration].map(async (topic_address) => {
-              await updateTopicBalance(topic_address, db);
+          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
+          sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
+            const topicIteration = topicLoop.iteration();
+            console.log(`topic batch: ${topicIteration}`);
+            await Promise.all(topicAddressBatches[topicIteration].map(async (topicAddress) => {
+              await updateTopicBalance(topicAddress, db);
             }));
             console.log('next topic batch');
             topicLoop.next();
@@ -430,10 +427,14 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
   await Promise.all(updateFinalResultSetPromises);
 }
 
-async function updateOraclesPassedEndBlock(currentBlockChainHeight, db, resolve) {
+async function updateOraclesPassedEndBlock(currentBlockChainHeight, db) {
   // all central & decentral oracles with VOTING status and endBlock less than currentBlockChainHeight
   try {
-    await db.Oracles.update({ endBlock: { $lt: currentBlockChainHeight }, status: 'VOTING' }, { $set: { status: 'WAITRESULT' } }, { multi: true });
+    await db.Oracles.update(
+      { endBlock: { $lt: currentBlockChainHeight }, status: 'VOTING' },
+      { $set: { status: 'WAITRESULT' } },
+      { multi: true },
+    );
     console.log('Updated Oracles Passed EndBlock');
   } catch (err) {
     console.error(`ERROR: updateOraclesPassedEndBlock ${err.message}`);
@@ -489,7 +490,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     }
   }
 
-  const balances = _.map(value[0].slice(0, oracle.numOfResults), balance_BN => balance_BN.toJSON());
+  const balances = _.map(value[0].slice(0, oracle.numOfResults), balanceBN => balanceBN.toJSON());
 
   try {
     await db.Oracles.update({ _id: oracleAddress }, { $set: { amounts: balances } });
@@ -513,8 +514,8 @@ async function updateTopicBalance(topicAddress, db) {
   }
 
   const contract = new Contract(config.QTUM_RPC_ADDRESS, topicAddress, Contracts.TopicEvent.abi);
-  let totalBetsValue,
-    totalVotesValue;
+  let totalBetsValue;
+  let totalVotesValue;
   try {
     const getTotalBetsPromise = contract.call('getTotalBets', { methodArgs: [], senderAddress });
     const getTotalVotesPromise = contract.call('getTotalVotes', { methodArgs: [], senderAddress });
@@ -525,21 +526,19 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length), balance_BN => balance_BN.toJSON());
+  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length), balanceBN => balanceBN.toJSON());
 
-  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), balance_BN => balance_BN.toJSON());
+  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), balanceBN => balanceBN.toJSON());
 
   try {
-    await db.Topics.update({ _id: topicAddress }, { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances } });
+    await db.Topics.update(
+      { _id: topicAddress },
+      { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances } },
+    );
     console.log(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
   } catch (err) {
     console.error(`ERROR: update topic ${topicAddress} in db, ${err.message}`);
   }
 }
-
-const startSync = async () => {
-  const db = await connectDB();
-  sync(db);
-};
 
 module.exports = startSync;
