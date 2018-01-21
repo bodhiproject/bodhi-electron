@@ -17,6 +17,8 @@ module.exports = {
       }
     ],
     "no-console": 0,
+    "no-plusplus": [0
+    ],
     "no-use-before-define": [2,
       {
         "functions": true,
