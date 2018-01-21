@@ -19,6 +19,11 @@ module.exports = {
     "no-console": 0,
     "no-plusplus": [0
     ],
+    "no-underscore-dangle": [1,
+      {
+        "enforceInMethodNames": true
+      }
+    ],
     "no-use-before-define": [2,
       {
         "functions": true,
