@@ -2,7 +2,6 @@ const _ = require('lodash');
 
 class FinalResultSet {
   constructor(rawLog) {
-
     if (!_.isEmpty(rawLog)) {
       this.rawLog = rawLog;
       this.decode();
@@ -10,9 +9,9 @@ class FinalResultSet {
   }
 
   decode() {
-    this.version = this.rawLog['_version'].toNumber();
-    this.eventAddress = this.rawLog['_eventAddress']
-    this.finalResultIndex = this.rawLog['_finalResultIndex'].toNumber();
+    this.version = this.rawLog._version.toNumber();
+    this.eventAddress = this.rawLog._eventAddress;
+    this.finalResultIndex = this.rawLog._finalResultIndex.toNumber();
   }
 
   translate() {
@@ -20,7 +19,7 @@ class FinalResultSet {
       version: this.version,
       topicAddress: this.eventAddress,
       resultIdx: this.finalResultIndex,
-    }
+    };
   }
 }
 
