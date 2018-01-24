@@ -1,3 +1,6 @@
+require("babel-core/register");
+require('babel-polyfill');
+
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
@@ -35,6 +38,11 @@ server.on('after', (req, res, route, err) => {
 const startAPI = async () => {
   syncRouter.applyRoutes(server);
   apiRouter.applyRoutes(server);
+
+  server.get(/\/?.*/, restify.plugins.serveStatic({
+    directory: './ui',
+    default: 'index.html'
+  }))
 
   server.listen(PORT, () => {
     SubscriptionServer.create(
