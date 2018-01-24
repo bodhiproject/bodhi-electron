@@ -2,6 +2,7 @@ const { graphqlRestify, graphiqlRestify } = require('apollo-server-restify');
 const Router = require('restify-router').Router;
 
 const connectDB = require('../db/nedb');
+const schema = require('../schema');
 
 const syncPort = 5555;
 
