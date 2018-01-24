@@ -1,4 +1,4 @@
-const express = require('express');
+const restify = require('restify');
 const cors = require('cors');
 const { spawn } = require('child_process');
 
@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 
 // This package will handle GraphQL server requests and responses
 // for you, based on your schema.
-const { graphqlExpress, graphiqlExpress } = require('apollo-server-express');
+const { graphqlRestify, graphiqlRestify } = require('apollo-server-restify');
+
 
 const schema = require('./schema');
 
@@ -18,26 +19,29 @@ const { execute, subscribe } = require('graphql');
 const { createServer } = require('http');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 
+
 const startAPI = async () => {
   const db = await connectDB();
-  const app = express();
+
+  const server = restify.createServer({
+    title: 'Bodhi Synchroniser',
+  });
 
   const PORT = 5555;
-  app.use(cors());
+  // app.use(cors());
+  const graphQLOptions = { context: { db }, schema };
 
-  app.use('/graphql', bodyParser.json(), graphqlExpress({
-    context: {
-      db,
-    },
-    schema,
-  }));
+  server.use(restify.plugins.bodyParser());
+  server.use(restify.plugins.queryParser());
 
-  app.use('/graphiql', graphiqlExpress({
+  server.get('/graphql', graphqlRestify(graphQLOptions));
+  server.post('/graphql', graphqlRestify(graphQLOptions));
+
+  server.get('/graphiql', graphiqlRestify({
     endpointURL: '/graphql',
     subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`,
   }));
 
-  const server = createServer(app);
   server.listen(PORT, () => {
     SubscriptionServer.create(
       { execute, subscribe, schema },
