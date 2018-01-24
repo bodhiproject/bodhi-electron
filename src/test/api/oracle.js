@@ -4,7 +4,7 @@ import Chai from 'chai';
 import ChaiAsPromised from 'chai-as-promised';
 import Web3Utils from 'web3-utils';
 
-import Oracle from '../api/oracle';
+import Oracle from '../../api/oracle';
 import TestConfig from './config/test_config';
 import Mocks from './mock/oracle';
 

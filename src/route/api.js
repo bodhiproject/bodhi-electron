@@ -370,5 +370,4 @@ apiRouter.post('/last-result-index', (req, res, next) => {
     });
 });
 
-
 module.exports = apiRouter;

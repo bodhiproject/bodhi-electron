@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import Chai from 'chai';
 import ChaiAsPromised from 'chai-as-promised';
 
-import Blockchain from '../api/blockchain';
+import Blockchain from '../../api/blockchain';
 import Mocks from './mock/blockchain';
 
 Chai.use(ChaiAsPromised);

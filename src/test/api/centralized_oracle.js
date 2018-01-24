@@ -4,7 +4,7 @@ import ChaiAsPromised from 'chai-as-promised';
 import Web3Utils from 'web3-utils';
 import { Decoder } from 'qweb3';
 
-import CentralizedOracle from '../api/centralized_oracle';
+import CentralizedOracle from '../../api/centralized_oracle';
 import ContractUtils from './util/contract_utils';
 import TestConfig from './config/test_config';
 import Mocks from './mock/centralized_oracle';

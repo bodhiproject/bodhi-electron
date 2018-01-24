@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import Chai from 'chai';
 import ChaiAsPromised from 'chai-as-promised';
 
-import Wallet from '../api/wallet';
+import Wallet from '../../api/wallet';
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;

@@ -3,7 +3,7 @@ import Chai from 'chai';
 import ChaiAsPromised from 'chai-as-promised';
 import Web3Utils from 'web3-utils';
 
-import DecentralizedOracle from '../api/decentralized_oracle';
+import DecentralizedOracle from '../../api/decentralized_oracle';
 import ContractUtils from './util/contract_utils';
 import TestConfig from './config/test_config';
 import Mocks from './mock/decentralized_oracle';
