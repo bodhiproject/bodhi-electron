@@ -51,7 +51,7 @@ const startAPI = async () => {
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    console.log(`Bodhi API server running on http://localhost:${PORT}.`);
+    console.log(`Bodhi App is running on http://localhost:${PORT}.`);
   });
 };
 
