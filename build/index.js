@@ -98,7 +98,7 @@ var openBrowser = function () {
             }
 
             _context2.next = 5;
-            return opn('http://localhost:5555', {
+            return opn('http://localhost:' + PORT, {
               app: ['google chrome', '--incognito']
             });
 
@@ -113,7 +113,7 @@ var openBrowser = function () {
             }
 
             _context2.next = 10;
-            return opn('http://localhost:5555', {
+            return opn('http://localhost:' + PORT, {
               app: ['chrome', '--incognito']
             });
 
@@ -128,7 +128,7 @@ var openBrowser = function () {
             }
 
             _context2.next = 15;
-            return opn('http://localhost:5555', {
+            return opn('http://localhost:' + PORT, {
               app: ['google-chrome', '--incognito']
             });
 
@@ -142,7 +142,7 @@ var openBrowser = function () {
 
             console.debug('Chrome not found. Launching default browser.');
             _context2.next = 22;
-            return opn('http://localhost:5555');
+            return opn('http://localhost:' + PORT);
 
           case 22:
           case 'end':
