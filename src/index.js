@@ -57,19 +57,24 @@ const startAPI = async () => {
 };
 
 const openBrowser = async () => {
-  const platform = process.platform;
-  if (platform.includes('darwin')) {
-    opn('http://localhost:5555', {
-      app: ['google chrome', '--incognito'],
-    });
-  } else if (platform.includes('win')) {
-    opn('http://localhost:5555', {
-      app: ['chrome', '--incognito'],
-    });
-  } else if (platform.includes('linux')) {
-    opn('http://localhost:5555', {
-      app: ['google-chrome', '--incognito'],
-    });
+  try {
+    const platform = process.platform;
+    if (platform.includes('darwin')) {
+      await opn('http://localhost:5555', {
+        app: ['google chrome', '--incognito'],
+      });
+    } else if (platform.includes('win')) {
+      await opn('http://localhost:5555', {
+        app: ['chrome', '--incognito'],
+      });
+    } else if (platform.includes('linux')) {
+      await opn('http://localhost:5555', {
+        app: ['google-chrome', '--incognito'],
+      });
+    }
+  } catch(err) {
+    console.debug('Chrome not found. Launching default browser.');
+    await opn('http://localhost:5555');
   }
 };
 
