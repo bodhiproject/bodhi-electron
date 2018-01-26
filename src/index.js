@@ -7,6 +7,7 @@ const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
+const opn = require('opn');
 
 const schema = require('./schema');
 
@@ -55,6 +56,23 @@ const startAPI = async () => {
   });
 };
 
+const openBrowser = async () => {
+  const platform = process.platform;
+  if (platform.includes('darwin')) {
+    opn('http://localhost:5555', {
+      app: ['google chrome', '--incognito'],
+    });
+  } else if (platform.includes('win')) {
+    opn('http://localhost:5555', {
+      app: ['chrome', '--incognito'],
+    });
+  } else if (platform.includes('linux')) {
+    opn('http://localhost:5555', {
+      app: ['google-chrome', '--incognito'],
+    });
+  }
+};
+
 // avoid using path.join for pkg to pack qtumd
 const qtumdPath = path.dirname(process.argv[0])+'/qtumd';
 const qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
@@ -84,4 +102,5 @@ process.on(['SIGINT', 'SIGTERM'], exit);
 setTimeout(() => {
   startSync();
   startAPI();
+  openBrowser();
 }, 3000);
