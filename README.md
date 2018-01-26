@@ -9,17 +9,11 @@
 
 4. start bodhi-graphql at 5555
 
-`node src/index.js`
+`npm start`
 
 play with graphiql on `localhost:5555/graphiql`
 
 ## Package & Release
 1. `npm install -g pkg`
 
-2. `npm run build`
-
-3. In the dir with package.json, run
-
-`pkg . --out-path bin`
-
-3. all executables are in `bin\`
+2. `npm run pkg:mac` or `npm run pkg:win64`

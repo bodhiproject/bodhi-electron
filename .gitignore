@@ -129,4 +129,6 @@ $RECYCLE.BIN/
 
 # NeDB
 *.db
-bin/
+
+build/
+

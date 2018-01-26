@@ -1,6 +1,7 @@
 require("babel-core/register");
 require('babel-polyfill');
 
+const path = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
@@ -23,6 +24,7 @@ const server = restify.createServer({
 const cors = corsMiddleware({
   origins: ['*'],
 });
+
 server.pre(cors.preflight);
 server.use(cors.actual);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
@@ -40,9 +42,9 @@ const startAPI = async () => {
   apiRouter.applyRoutes(server);
 
   server.get(/\/?.*/, restify.plugins.serveStatic({
-    directory: './ui',
-    default: 'index.html'
-  }))
+    directory: path.join(__dirname, '../ui'),
+    default: 'index.html',
+  }));
 
   server.listen(PORT, () => {
     SubscriptionServer.create(
@@ -53,7 +55,9 @@ const startAPI = async () => {
   });
 };
 
-const qtumprocess = spawn('./qtum/bin/qtumd', ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi']);
+// avoid using path.join for pkg to pack qtumd
+const qtumdPath = path.dirname(process.argv[0])+'/qtumd';
+const qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
 
 qtumprocess.stdout.on('data', (data) => {
   console.log(`stdout: ${data}`);
