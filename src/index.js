@@ -7,6 +7,7 @@ const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
+const opn = require('opn');
 
 const schema = require('./schema');
 
@@ -55,6 +56,28 @@ const startAPI = async () => {
   });
 };
 
+const openBrowser = async () => {
+  try {
+    const platform = process.platform;
+    if (platform.includes('darwin')) {
+      await opn(`http://localhost:${PORT}`, {
+        app: ['google chrome', '--incognito'],
+      });
+    } else if (platform.includes('win')) {
+      await opn(`http://localhost:${PORT}`, {
+        app: ['chrome', '--incognito'],
+      });
+    } else if (platform.includes('linux')) {
+      await opn(`http://localhost:${PORT}`, {
+        app: ['google-chrome', '--incognito'],
+      });
+    }
+  } catch(err) {
+    console.debug('Chrome not found. Launching default browser.');
+    await opn(`http://localhost:${PORT}`);
+  }
+};
+
 // avoid using path.join for pkg to pack qtumd
 const qtumdPath = path.dirname(process.argv[0])+'/qtumd';
 const qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
@@ -78,10 +101,13 @@ function exit(signal) {
   qtumprocess.kill();
 }
 
-process.on(['SIGINT', 'SIGTERM'], exit);
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
 
 // 3s is sufficient for qtumd to start
 setTimeout(() => {
   startSync();
   startAPI();
+  openBrowser();
 }, 3000);

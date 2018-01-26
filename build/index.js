@@ -5,6 +5,7 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 require("babel-core/register");
 require('babel-polyfill');
 
+var path = require('path');
 var restify = require('restify');
 var corsMiddleware = require('restify-cors-middleware');
 
@@ -17,6 +18,8 @@ var _require2 = require('graphql'),
 
 var _require3 = require('subscriptions-transport-ws'),
     SubscriptionServer = _require3.SubscriptionServer;
+
+var opn = require('opn');
 
 var schema = require('./schema');
 
@@ -34,6 +37,7 @@ var server = restify.createServer({
 var cors = corsMiddleware({
   origins: ['*']
 });
+
 server.pre(cors.preflight);
 server.use(cors.actual);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
@@ -56,13 +60,13 @@ var startAPI = function () {
             apiRouter.applyRoutes(server);
 
             server.get(/\/?.*/, restify.plugins.serveStatic({
-              directory: './ui',
+              directory: path.join(__dirname, '../ui'),
               default: 'index.html'
             }));
 
             server.listen(PORT, function () {
               SubscriptionServer.create({ execute: execute, subscribe: subscribe, schema: schema }, { server: server, path: '/subscriptions' });
-              console.log('Bodhi API server running on http://localhost:' + PORT + '.');
+              console.log('Bodhi App is running on http://localhost:' + PORT + '.');
             });
 
           case 4:
@@ -78,7 +82,84 @@ var startAPI = function () {
   };
 }();
 
-var qtumprocess = spawn('./qtum/bin/qtumd', ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi']);
+var openBrowser = function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+    var platform;
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.prev = 0;
+            platform = process.platform;
+
+            if (!platform.includes('darwin')) {
+              _context2.next = 7;
+              break;
+            }
+
+            _context2.next = 5;
+            return opn('http://localhost:' + PORT, {
+              app: ['google chrome', '--incognito']
+            });
+
+          case 5:
+            _context2.next = 15;
+            break;
+
+          case 7:
+            if (!platform.includes('win')) {
+              _context2.next = 12;
+              break;
+            }
+
+            _context2.next = 10;
+            return opn('http://localhost:' + PORT, {
+              app: ['chrome', '--incognito']
+            });
+
+          case 10:
+            _context2.next = 15;
+            break;
+
+          case 12:
+            if (!platform.includes('linux')) {
+              _context2.next = 15;
+              break;
+            }
+
+            _context2.next = 15;
+            return opn('http://localhost:' + PORT, {
+              app: ['google-chrome', '--incognito']
+            });
+
+          case 15:
+            _context2.next = 22;
+            break;
+
+          case 17:
+            _context2.prev = 17;
+            _context2.t0 = _context2['catch'](0);
+
+            console.debug('Chrome not found. Launching default browser.');
+            _context2.next = 22;
+            return opn('http://localhost:' + PORT);
+
+          case 22:
+          case 'end':
+            return _context2.stop();
+        }
+      }
+    }, _callee2, undefined, [[0, 17]]);
+  }));
+
+  return function openBrowser() {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+// avoid using path.join for pkg to pack qtumd
+var qtumdPath = path.dirname(process.argv[0]) + '/qtumd';
+var qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
 
 qtumprocess.stdout.on('data', function (data) {
   console.log('stdout: ' + data);
@@ -99,10 +180,13 @@ function exit(signal) {
   qtumprocess.kill();
 }
 
-process.on(['SIGINT', 'SIGTERM'], exit);
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
 
 // 3s is sufficient for qtumd to start
 setTimeout(function () {
   startSync();
   startAPI();
+  openBrowser();
 }, 3000);

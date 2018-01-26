@@ -2,12 +2,13 @@
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
+var path = require('path');
 var datastore = require('nedb-promise');
 
-var topics = datastore({ filename: './nedb/topics.db', autoload: true });
-var oracles = datastore({ filename: './nedb/oracles.db', autoload: true });
-var votes = datastore({ filename: './nedb/votes.db', autoload: true });
-var blocks = datastore({ filename: './nedb/blocks.db', autoload: true });
+var topics = datastore({ filename: path.dirname(process.argv[0]) + '/nedb/topics.db', autoload: true });
+var oracles = datastore({ filename: path.dirname(process.argv[0]) + '/nedb/oracles.db', autoload: true });
+var votes = datastore({ filename: path.dirname(process.argv[0]) + '/nedb/votes.db', autoload: true });
+var blocks = datastore({ filename: path.dirname(process.argv[0]) + '/nedb/blocks.db', autoload: true });
 
 var dbPromises = [topics, oracles, votes, blocks];
 
