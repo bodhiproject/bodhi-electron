@@ -101,7 +101,9 @@ function exit(signal) {
   qtumprocess.kill();
 }
 
-process.on(['SIGINT', 'SIGTERM'], exit);
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
 
 // 3s is sufficient for qtumd to start
 setTimeout(() => {
