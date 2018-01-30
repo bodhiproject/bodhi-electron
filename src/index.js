@@ -42,7 +42,7 @@ server.use(restify.plugins.queryParser());
 server.on('after', (req, res, route, err) => {
   if (route) {
     if(IS_DEBUG_MODE){
-      console.log(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+      console.info(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
     }
   } else {
     console.error(`${err.message}`);
