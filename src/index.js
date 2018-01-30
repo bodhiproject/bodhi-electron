@@ -18,6 +18,15 @@ const startSync = require('./sync');
 
 const PORT = 5555;
 
+const LOG_DEBUG = 20;
+const LOG_CURRENT = parseInt(process.argv[2]);
+
+var IS_DEBUG_MODE = false;
+
+if(LOG_CURRENT >= LOG_DEBUG){
+  IS_DEBUG_MODE = true;
+}
+
 const server = restify.createServer({
   title: 'Bodhi Synchroniser',
 });
@@ -32,9 +41,11 @@ server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.use(restify.plugins.queryParser());
 server.on('after', (req, res, route, err) => {
   if (route) {
-    console.log(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    if(IS_DEBUG_MODE){
+      console.info(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    }
   } else {
-    console.log(`${err.message}`);
+    console.error(`${err.message}`);
   }
 });
 
@@ -83,21 +94,27 @@ const qtumdPath = path.dirname(process.argv[0])+'/qtumd';
 const qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
 
 qtumprocess.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+  if(IS_DEBUG_MODE){
+    console.log(`stdout: ${data}`);
+  }
 });
 
 qtumprocess.stderr.on('data', (data) => {
-  console.log(`qtum node cant start with error: ${data}`);
+  console.error(`qtum node cant start with error: ${data}`);
   process.exit();
 });
 
 qtumprocess.on('close', (code) => {
-  console.log(`qtum node exited with code ${code}`);
+  if(IS_DEBUG_MODE){
+    console.log(`qtum node exited with code ${code}`);
+  }
   process.exit();
 });
 
 function exit(signal) {
-  console.log(`Received ${signal}, exiting`);
+  if(IS_DEBUG_MODE){
+    console.log(`Received ${signal}, exiting`);
+  }
   qtumprocess.kill();
   process.exit();
 }

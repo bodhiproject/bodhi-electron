@@ -26,6 +26,16 @@ const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender a
 
 const RPC_BATCH_SIZE = 20;
 
+const LOG_DEBUG = 20;
+const LOG_CURRENT = parseInt(process.argv[2]);
+
+var IS_DEBUG_MODE = false;
+
+if(LOG_CURRENT >= LOG_DEBUG){
+  IS_DEBUG_MODE = true;
+}
+
+
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
@@ -88,20 +98,26 @@ async function sync(db) {
       const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
-      console.log('Synced Topics\n');
+      if (IS_DEBUG_MODE) {
+        console.log('Synced Topics\n');
+      }
 
       await Promise.all([
         syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
         syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
         syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
       ]);
-      console.log('Synced Oracles\n');
+      if (IS_DEBUG_MODE) {
+        console.log('Synced Oracles\n');
+      }
 
       await Promise.all([
         syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
         syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate),
       ]);
-      console.log('Synced Result Set\n');
+      if (IS_DEBUG_MODE) {
+        console.log('Synced Result Set\n');
+      }
 
       const updateBlockPromises = [];
       for (let i = startBlock; i <= endBlock; i++) {
@@ -112,8 +128,9 @@ async function sync(db) {
         updateBlockPromises.push(updateBlockPromise);
       }
       await Promise.all(updateBlockPromises);
-      console.log('Inserted Blocks\n');
-
+      if (IS_DEBUG_MODE) {
+        console.log('Inserted Blocks\n');
+      }
       startBlock = endBlock + 1;
       loop.next();
     },
@@ -122,7 +139,9 @@ async function sync(db) {
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
         const oracleIteration = loop.iteration();
-        console.log(`oracle batch: ${oracleIteration}`);
+        if (IS_DEBUG_MODE) {
+          console.log(`oracle batch: ${oracleIteration}`);
+        }
         await Promise.all(oracleAddressBatches[oracleIteration].map(async (oracleAddress) => {
           await updateOracleBalance(oracleAddress, topicsNeedBalanceUpdate, db);
         }));
@@ -133,18 +152,26 @@ async function sync(db) {
           const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
           sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
             const topicIteration = topicLoop.iteration();
-            console.log(`topic batch: ${topicIteration}`);
+            if (IS_DEBUG_MODE) {
+              console.log(`topic batch: ${topicIteration}`);
+            }
             await Promise.all(topicAddressBatches[topicIteration].map(async (topicAddress) => {
               await updateTopicBalance(topicAddress, db);
             }));
-            console.log('next topic batch');
+            if (IS_DEBUG_MODE) {
+              console.log('next topic batch');
+            }
             topicLoop.next();
           }, () => {
-            console.log('Updated topics balance');
+            if (IS_DEBUG_MODE) {
+              console.log('Updated topics balance');
+            }
             loop.next();
           });
         } else {
-          console.log('next oracle batch');
+          if (IS_DEBUG_MODE) {
+            console.log('next oracle batch');
+          }
           loop.next();
         }
       }, async () => {
@@ -154,7 +181,9 @@ async function sync(db) {
 
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
-        console.log('sleep');
+        if(IS_DEBUG_MODE){
+          console.log('sleep');
+        }
         setTimeout(startSync, 5000);
       });
     },
@@ -177,13 +206,16 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
       startBlock, endBlock, Contracts.EventFactory.address,
       [Contracts.EventFactory.TopicCreated], Contracts, removeHexPrefix,
     );
-    console.log('searchlog TopicCreated');
+    if (IS_DEBUG_MODE) {
+      console.log('searchlog TopicCreated');
+    }
   } catch (err) {
     console.error(`ERROR: ${err.message}`);
     return;
   }
-
-  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
+  if (IS_DEBUG_MODE) {
+    console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
+  }
   const createTopicPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -217,13 +249,16 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
       startBlock, endBlock, Contracts.EventFactory.address,
       [Contracts.OracleFactory.CentralizedOracleCreated], Contracts, removeHexPrefix,
     );
-    console.log('searchlog CentralizedOracleCreated');
+    if (IS_DEBUG_MODE) {
+      console.log('searchlog CentralizedOracleCreated');
+    }
   } catch (err) {
     console.error(`ERROR: ${err.message}`);
     return;
   }
-
-  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreated`);
+  if (IS_DEBUG_MODE) {
+    console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreated`);
+  }
   const createCentralizedOraclePromises = [];
 
   _.forEach(result, (event, index) => {
@@ -262,13 +297,16 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
       startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated,
       Contracts, removeHexPrefix,
     );
-    console.log('searchlog DecentralizedOracleCreated');
+    if (IS_DEBUG_MODE) {
+      console.log('searchlog DecentralizedOracleCreated');
+    }
   } catch (err) {
     console.error(`ERROR: ${err.message}`);
     return;
   }
-
-  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreated`);
+  if (IS_DEBUG_MODE) {
+    console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreated`);
+  }
   const createDecentralizedOraclePromises = [];
 
   _.forEach(result, (event, index) => {
@@ -305,13 +343,16 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
       startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted,
       Contracts, removeHexPrefix,
     );
-    console.log('searchlog OracleResultVoted');
+    if (IS_DEBUG_MODE) {
+      console.log('searchlog OracleResultVoted');
+    }
   } catch (err) {
     console.error(`ERROR: ${err.message}`);
     return;
   }
-
-  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
+  if (IS_DEBUG_MODE) {
+    console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
+  }
   const createOracleResultVotedPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -347,13 +388,16 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
       startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts,
       removeHexPrefix,
     );
-    console.log('searchlog OracleResultSet');
+    if (IS_DEBUG_MODE) {
+      console.log('searchlog OracleResultSet');
+    }
   } catch (err) {
     console.error(`ERROR: ${err.message}`);
     return;
   }
-
-  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
+  if (IS_DEBUG_MODE) {
+    console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
+  }
   const updateOracleResultSetPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -391,13 +435,16 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
       startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts,
       removeHexPrefix,
     );
-    console.log('searchlog FinalResultSet');
+    if (IS_DEBUG_MODE) {
+      console.log('searchlog FinalResultSet');
+    }
   } catch (err) {
     console.error(`ERROR: ${err.message}`);
     return;
   }
-
-  console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
+  if (IS_DEBUG_MODE) {
+    console.log(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
+  }
   const updateFinalResultSetPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -441,7 +488,9 @@ async function updateOraclesPassedEndBlock(currentBlockChainHeight, db) {
       { $set: { status: 'WAITRESULT' } },
       { multi: true },
     );
-    console.log('Updated Oracles Passed EndBlock');
+    if(IS_DEBUG_MODE){
+      console.log('Updated Oracles Passed EndBlock');
+    }
   } catch (err) {
     console.error(`ERROR: updateOraclesPassedEndBlock ${err.message}`);
   }
@@ -454,7 +503,9 @@ async function updateCentralizedOraclesPassedResultSetEndBlock(currentBlockChain
       { resultSetEndBlock: { $lt: currentBlockChainHeight }, token: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } }, { multi: true },
     );
-    console.log('Updated COracles Passed ResultSetEndBlock');
+    if(IS_DEBUG_MODE){
+      console.log('Updated COracles Passed ResultSetEndBlock');
+    }
   } catch (err) {
     console.error(`ERROR: updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
   }
@@ -500,7 +551,9 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 
   try {
     await db.Oracles.update({ _id: oracleAddress }, { $set: { amounts: balances } });
-    console.log(`Update oracle ${oracleAddress} amounts ${balances}`);
+    if (IS_DEBUG_MODE) {
+      console.log(`Update oracle ${oracleAddress} amounts ${balances}`);
+    }
   } catch (err) {
     console.error(`ERROR: update oracle ${oracleAddress}, ${err.message}`);
   }
@@ -541,7 +594,9 @@ async function updateTopicBalance(topicAddress, db) {
       { _id: topicAddress },
       { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances } },
     );
-    console.log(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
+    if (IS_DEBUG_MODE) {
+      console.log(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
+    }
   } catch (err) {
     console.error(`ERROR: update topic ${topicAddress} in db, ${err.message}`);
   }
