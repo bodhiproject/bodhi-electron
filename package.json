@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "babel-node src/index.js",
+    "debug": "babel-node src/index.js 20",
     "start:debug": "babel-node --inspect src/index.js",
     "build": "babel -d build src",
     "test": "mocha --compilers js:babel-core/register --recursive src/test/.",
