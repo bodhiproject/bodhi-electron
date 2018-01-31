@@ -1,3 +1,9 @@
+require('dotenv').config();
+
+const loglvl = process.env.loglvl || 'silent';
+var log = require('loglevel');
+log.setDefaultLevel(loglvl);
+
 const path = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
@@ -29,9 +35,9 @@ server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.use(restify.plugins.queryParser());
 server.on('after', (req, res, route, err) => {
   if (route) {
-    console.log(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    log.info(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
   } else {
-    console.log(`${err.message}`);
+    log.log(`${err.message}`);
   }
 });
 
@@ -69,8 +75,8 @@ const openBrowser = async () => {
         app: ['google-chrome', '--incognito'],
       });
     }
-  } catch (err) {
-    console.debug('Chrome not found. Launching default browser.');
+  } catch(err) {
+    log.debug('Chrome not found. Launching default browser.');
     await opn(`http://localhost:${PORT}`);
   }
 };
@@ -80,21 +86,21 @@ const qtumdPath = `${path.dirname(__dirname)}/qtumd`;
 const qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
 
 qtumprocess.stdout.on('data', (data) => {
-  console.log(`stdout: ${data}`);
+  log.log(`stdout: ${data}`);
 });
 
 qtumprocess.stderr.on('data', (data) => {
-  console.log(`qtum node cant start with error: ${data}`);
+  log.error(`qtum node cant start with error: ${data}`);
   process.exit();
 });
 
 qtumprocess.on('close', (code) => {
-  console.log(`qtum node exited with code ${code}`);
+  log.log(`qtum node exited with code ${code}`);
   process.exit();
 });
 
 function exit(signal) {
-  console.log(`Received ${signal}, exiting`);
+  log.log(`Received ${signal}, exiting`);
   qtumprocess.kill();
   process.exit();
 }
