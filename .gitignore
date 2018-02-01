@@ -129,3 +129,6 @@ $RECYCLE.BIN/
 *.db
 
 build/
+
+# log file
+logs/
