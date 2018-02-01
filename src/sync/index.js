@@ -23,7 +23,7 @@ var logger = new (winston.Logger)({
       }
     }),
     new (winston.transports.File)({
-      filename: new Date().toISOString().slice(0,10)+'.log', 
+      filename: './logs/'+new Date().toISOString().slice(0,10)+'.log', 
       
     })
   ]
