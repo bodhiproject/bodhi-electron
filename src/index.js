@@ -1,8 +1,37 @@
 require('dotenv').config();
 
-const loglvl = process.env.loglvl || 'silent';
-var log = require('loglevel');
-log.setDefaultLevel(loglvl);
+var fs = require('fs');
+var dir = './logs';
+
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
+
+const loglvl = process.env.loglvl || 'info';
+var winston = require('winston');
+var config = winston.config;
+var logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)({
+      timestamp: function() {
+        return new Date().toISOString().slice(0,19); 
+      },
+      formatter: function(options) {
+        return options.timestamp() +' '+ __filename+' ' +
+          config.colorize(options.level, options.level.toUpperCase()) + ' ' +
+          (options.message ? options.message : '') +
+          (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
+      }
+    }),
+    new (winston.transports.File)({
+      filename: './logs/'+new Date().toISOString().slice(0,10)+'.log', 
+    })
+  ]
+});
+
+
+logger.level = loglvl;
+
 
 const path = require('path');
 const restify = require('restify');
@@ -35,9 +64,9 @@ server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.use(restify.plugins.queryParser());
 server.on('after', (req, res, route, err) => {
   if (route) {
-    log.info(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    logger.debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
   } else {
-    log.log(`${err.message}`);
+    logger.error(`${err.message}`);
   }
 });
 
@@ -55,7 +84,7 @@ const startAPI = async () => {
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    console.log(`Bodhi App is running on http://localhost:${PORT}.`);
+    logger.info(`Bodhi App is running on http://localhost:${PORT}.`);
   });
 };
 
@@ -86,21 +115,21 @@ const qtumdPath = `${path.dirname(__dirname)}/qtumd`;
 const qtumprocess = spawn(qtumdPath, ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'], {});
 
 qtumprocess.stdout.on('data', (data) => {
-  log.log(`stdout: ${data}`);
+  logger.debug(`stdout: ${data}`);
 });
 
 qtumprocess.stderr.on('data', (data) => {
-  log.error(`qtum node cant start with error: ${data}`);
+  logger.error(`qtum node cant start with error: ${data}`);
   process.exit();
 });
 
 qtumprocess.on('close', (code) => {
-  log.log(`qtum node exited with code ${code}`);
+  logger.debug(`qtum node exited with code ${code}`);
   process.exit();
 });
 
 function exit(signal) {
-  log.log(`Received ${signal}, exiting`);
+  logger.debug(`Received ${signal}, exiting`);
   qtumprocess.kill();
   process.exit();
 }
