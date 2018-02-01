@@ -1,37 +1,5 @@
-require('dotenv').config();
-
-var fs = require('fs');
-var dir = './logs';
-
-if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
-}
-
-const loglvl = process.env.loglvl || 'info';
-var winston = require('winston');
-var config = winston.config;
-var logger = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Console)({
-      timestamp: function() {
-        return new Date().toISOString().slice(0,19); 
-      },
-      formatter: function(options) {
-        return options.timestamp() +' '+ __filename+' ' +
-          config.colorize(options.level, options.level.toUpperCase()) + ' ' +
-          (options.message ? options.message : '') +
-          (options.meta && Object.keys(options.meta).length ? '\n\t'+ JSON.stringify(options.meta) : '' );
-      }
-    }),
-    new (winston.transports.File)({
-      filename: './logs/'+new Date().toISOString().slice(0,10)+'.log', 
-    })
-  ]
-});
-
-
-logger.level = loglvl;
-
+const logger = require('./utils/logger');
+const fs = require('fs');
 
 const path = require('path');
 const restify = require('restify');
@@ -57,6 +25,12 @@ const server = restify.createServer({
 const cors = corsMiddleware({
   origins: ['*'],
 });
+
+const dir = `${__dirname}/logs`;
+
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
 
 server.pre(cors.preflight);
 server.use(cors.actual);
