@@ -131,4 +131,4 @@ $RECYCLE.BIN/
 build/
 
 # log file
-logs/
+src/logs/
