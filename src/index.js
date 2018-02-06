@@ -79,7 +79,7 @@ const openBrowser = async () => {
       });
     }
   } catch(err) {
-    log.debug('Chrome not found. Launching default browser.');
+    logger.debug('Chrome not found. Launching default browser.');
     await opn(`http://localhost:${PORT}`);
   }
 };
@@ -94,12 +94,15 @@ qtumprocess.stdout.on('data', (data) => {
 
 qtumprocess.stderr.on('data', (data) => {
   logger.error(`qtum node cant start with error: ${data}`);
-  process.exit();
+   setTimeout(() => {
+    process.exit()
+  }, 500);
 });
-
 qtumprocess.on('close', (code) => {
   logger.debug(`qtum node exited with code ${code}`);
-  process.exit();
+    setTimeout(() => {
+    process.exit()
+  }, 500);
 });
 
 function exit(signal) {
@@ -118,3 +121,5 @@ setTimeout(() => {
   startAPI();
   openBrowser();
 }, 3000);
+
+
