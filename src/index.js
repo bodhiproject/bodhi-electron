@@ -94,13 +94,13 @@ qtumprocess.stdout.on('data', (data) => {
 
 qtumprocess.stderr.on('data', (data) => {
   logger.error(`qtum node cant start with error: ${data}`);
-   setTimeout(() => {
+  setTimeout(() => {
     process.exit()
   }, 500);
 });
 qtumprocess.on('close', (code) => {
   logger.debug(`qtum node exited with code ${code}`);
-    setTimeout(() => {
+  setTimeout(() => {
     process.exit()
   }, 500);
 });
