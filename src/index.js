@@ -10,6 +10,7 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const opn = require('opn');
 
 const schema = require('./schema');
+const config = require('./config/config');
 
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
@@ -26,7 +27,7 @@ const cors = corsMiddleware({
   origins: ['*'],
 });
 
-const dir = `${__dirname}/logs`;
+const dir = config.LOG_PATH;
 
 if (!fs.existsSync(dir)){
     fs.mkdirSync(dir);
@@ -100,6 +101,7 @@ qtumprocess.stderr.on('data', (data) => {
   }, 500);
 });
 
+// add delay to give some time to write to log file
 qtumprocess.on('close', (code) => {
   logger.debug(`qtum node exited with code ${code}`);
   setTimeout(() => {

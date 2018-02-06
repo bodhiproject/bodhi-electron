@@ -1,6 +1,7 @@
 require('dotenv').config();
 const moment = require('moment');
 const winston = require('winston');
+const log_config = require('../config/config');
 
 var config = winston.config;
 var logger = new (winston.Logger)({
@@ -26,7 +27,7 @@ var logger = new (winston.Logger)({
   ],
   exitOnError: false
 });
-const loglvl = process.env.loglvl || 'info';
+const loglvl = process.env.loglvl || log_config.DEFAULT_LOGLVL;
 logger.level = loglvl;
 
 module.exports = logger;
