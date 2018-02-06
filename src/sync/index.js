@@ -223,7 +223,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
     );
     logger.debug('searchlog CentralizedOracleCreated');
   } catch (err) {
-    logger.error(`ERROR: ${err.message}`);
+    logger.error(`${err.message}`);
     return;
   }
 
@@ -246,7 +246,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
             await db.Oracles.insert(centralOracle);
             resolve();
           } catch (err) {
-            logger.error(`ERROR: ${err.message}`);
+            logger.error(`${err.message}`);
             resolve();
           }
         });
@@ -268,7 +268,7 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
     );
     logger.debug('searchlog DecentralizedOracleCreated');
   } catch (err) {
-    logger.error(`ERROR: ${err.message}`);
+    logger.error(`${err.message}`);
     return;
   }
 
@@ -292,7 +292,7 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
             await db.Oracles.insert(decentralOracle);
             resolve();
           } catch (err) {
-            logger.error(`ERROR: ${err.message}`);
+            logger.error(`${err.message}`);
             resolve();
           }
         });
@@ -313,7 +313,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
     );
     logger.debug('searchlog OracleResultVoted');
   } catch (err) {
-    logger.error(`ERROR: ${err.message}`);
+    logger.error(`${err.message}`);
     return;
   }
 
@@ -333,7 +333,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
             await db.Votes.insert(vote);
             resolve();
           } catch (err) {
-            logger.error(`ERROR: ${err.message}`);
+            logger.error(`${err.message}`);
             resolve();
           }
         });
@@ -355,7 +355,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
     );
     logger.debug('searchlog OracleResultSet');
   } catch (err) {
-    logger.error(`ERROR: ${err.message}`);
+    logger.error(`${err.message}`);
     return;
   }
 
@@ -377,7 +377,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
             );
             resolve();
           } catch (err) {
-            logger.error(`ERROR: ${err.message}`);
+            logger.error(`${err.message}`);
             resolve();
           }
         });
@@ -399,7 +399,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
     );
     logger.debug('searchlog FinalResultSet');
   } catch (err) {
-    logger.error(`ERROR: ${err.message}`);
+    logger.error(`${err.message}`);
     return;
   }
 
@@ -426,7 +426,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
             );
             resolve();
           } catch (err) {
-            logger.error(`ERROR: ${err.message}`);
+            logger.error(`${err.message}`);
             resolve();
           }
         });
@@ -449,7 +449,7 @@ async function updateOraclesPassedEndTime(currentBlockTime, db) {
     );
     logger.debug('Updated Oracles Passed EndBlock');
   } catch (err) {
-    logger.error(`ERROR: updateOraclesPassedEndBlock ${err.message}`);
+    logger.error(`updateOraclesPassedEndBlock ${err.message}`);
   }
 }
 
@@ -462,7 +462,7 @@ async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, 
     );
     logger.debug('Updated COracles Passed ResultSetEndBlock');
   } catch (err) {
-    logger.error(`ERROR: updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
+    logger.error(`updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
   }
 }
 
@@ -471,11 +471,11 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   try {
     oracle = await db.Oracles.findOne({ _id: oracleAddress });
     if (!oracle) {
-      logger.error(`ERROR: find 0 oracle ${oracleAddress} in db to update`);
+      logger.error(`find 0 oracle ${oracleAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`ERROR: update oracle ${oracleAddress} in db, ${err.message}`);
+    logger.error(`update oracle ${oracleAddress} in db, ${err.message}`);
     return;
   }
 
@@ -488,7 +488,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     try {
       value = await contract.call('getTotalBets', { methodArgs: [], senderAddress });
     } catch (err) {
-      logger.error(`ERROR: getTotalBets for oracle ${oracleAddress}, ${err.message}`);
+      logger.error(`getTotalBets for oracle ${oracleAddress}, ${err.message}`);
       return;
     }
   } else {
@@ -497,7 +497,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     try {
       value = await contract.call('getTotalVotes', { methodArgs: [], senderAddress });
     } catch (err) {
-      logger.error(`ERROR: getTotalVotes for oracle ${oracleAddress}, ${err.message}`);
+      logger.error(`getTotalVotes for oracle ${oracleAddress}, ${err.message}`);
       return;
     }
   }
@@ -508,7 +508,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     await db.Oracles.update({ _id: oracleAddress }, { $set: { amounts: balances } });
     logger.debug(`Update oracle ${oracleAddress} amounts ${balances}`);
   } catch (err) {
-    logger.error(`ERROR: update oracle ${oracleAddress}, ${err.message}`);
+    logger.error(`update oracle ${oracleAddress}, ${err.message}`);
   }
 }
 
@@ -517,11 +517,11 @@ async function updateTopicBalance(topicAddress, db) {
   try {
     topic = await db.Topics.findOne({ _id: topicAddress });
     if (!topic) {
-      logger.error(`ERROR: find 0 topic ${topicAddress} in db to update`);
+      logger.error(`find 0 topic ${topicAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`ERROR: find topic ${topicAddress} in db, ${err.message}`);
+    logger.error(`find topic ${topicAddress} in db, ${err.message}`);
     return;
   }
 
@@ -534,7 +534,7 @@ async function updateTopicBalance(topicAddress, db) {
     totalBetsValue = await getTotalBetsPromise;
     totalVotesValue = await getTotalVotesPromise;
   } catch (err) {
-    logger.error(`ERROR: getTotalBets for topic ${topicAddress}, ${err.message}`);
+    logger.error(`getTotalBets for topic ${topicAddress}, ${err.message}`);
     return;
   }
 
@@ -549,7 +549,7 @@ async function updateTopicBalance(topicAddress, db) {
     );
     logger.debug(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
   } catch (err) {
-    logger.error(`ERROR: update topic ${topicAddress} in db, ${err.message}`);
+    logger.error(`update topic ${topicAddress} in db, ${err.message}`);
   }
 }
 

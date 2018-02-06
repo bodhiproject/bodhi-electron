@@ -92,12 +92,14 @@ qtumprocess.stdout.on('data', (data) => {
   logger.debug(`stdout: ${data}`);
 });
 
+// add delay to give some time to write to log file
 qtumprocess.stderr.on('data', (data) => {
   logger.error(`qtum node cant start with error: ${data}`);
   setTimeout(() => {
     process.exit()
   }, 500);
 });
+
 qtumprocess.on('close', (code) => {
   logger.debug(`qtum node exited with code ${code}`);
   setTimeout(() => {
