@@ -11,7 +11,7 @@
 
 `npm start`
 
-play with graphiql on `localhost:5555/graphiql`
+play with graphiql on `127.0.0.1:5555/graphiql`
 
 ## Package & Release
 1. `npm install -g pkg`

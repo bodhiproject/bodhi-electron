@@ -13,20 +13,25 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
 
-const PORT = 5555;
+const PORT = 5000;
 
 // Restify setup
 const server = restify.createServer({
-  title: 'Bodhi Synchroniser',
+  title: 'Bodhi app',
 });
+
+const apiServer = restify.createServer({
+  title: 'Bodhi api',
+});
+
 const cors = corsMiddleware({
   origins: ['*'],
 });
-server.pre(cors.preflight);
-server.use(cors.actual);
-server.use(restify.plugins.bodyParser({ mapParams: true }));
-server.use(restify.plugins.queryParser());
-server.on('after', (req, res, route, err) => {
+apiServer.pre(cors.preflight);
+apiServer.use(cors.actual);
+apiServer.use(restify.plugins.bodyParser({ mapParams: true }));
+apiServer.use(restify.plugins.queryParser());
+apiServer.on('after', (req, res, route, err) => {
   if (route) {
     logger.debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
   } else {
@@ -84,20 +89,21 @@ function startQtumProcess(reindex) {
 }
 
 async function startAPI() {
-  syncRouter.applyRoutes(server);
-  apiRouter.applyRoutes(server);
-
   server.get(/\/?.*/, restify.plugins.serveStatic({
     directory: path.join(__dirname, '../ui'),
     default: 'index.html',
+    maxAge: 0,
   }));
 
+  syncRouter.applyRoutes(apiServer);
+  apiRouter.applyRoutes(apiServer);
+
+  apiServer.listen(5555, () => {
+    logger.debug('Bodhi Api is running on http://127.0.0.1:5555.');
+  });
+
   server.listen(PORT, () => {
-    SubscriptionServer.create(
-      { execute, subscribe, schema },
-      { server, path: '/subscriptions' },
-    );
-    logger.info(`Bodhi App is running on http://localhost:${PORT}.`);
+    logger.info(`Bodhi App is running on http://127.0.0.1:${PORT}.`);
   });
 }
 
@@ -105,21 +111,21 @@ async function openBrowser() {
   try {
     const platform = process.platform;
     if (platform.includes('darwin')) {
-      await opn(`http://localhost:${PORT}`, {
+      await opn(`http://127.0.0.1:${PORT}`, {
         app: ['google chrome', '--incognito'],
       });
     } else if (platform.includes('win')) {
-      await opn(`http://localhost:${PORT}`, {
+      await opn(`http://127.0.0.1:${PORT}`, {
         app: ['chrome', '--incognito'],
       });
     } else if (platform.includes('linux')) {
-      await opn(`http://localhost:${PORT}`, {
+      await opn(`http://127.0.0.1:${PORT}`, {
         app: ['google-chrome', '--incognito'],
       });
     }
   } catch (err) {
     logger.debug('Chrome not found. Launching default browser.');
-    await opn(`http://localhost:${PORT}`);
+    await opn(`http://127.0.0.1:${PORT}`);
   }
 }
 
