@@ -92,20 +92,20 @@ async function sync(db) {
       const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
-      logger.debug('Synced Topics\n');
+      logger.debug('Synced Topics');
 
       await Promise.all([
         syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
         syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime),
         syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
       ]);
-      logger.debug('Synced Oracles\n');
+      logger.debug('Synced Oracles');
 
       await Promise.all([
         syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
         syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate),
       ]);
-      logger.debug('Synced Result Set\n');
+      logger.debug('Synced Result Set');
 
       const updateBlockPromises = [];
       for (let i = startBlock; i <= endBlock; i++) {
@@ -116,7 +116,7 @@ async function sync(db) {
         updateBlockPromises.push(updateBlockPromise);
       }
       await Promise.all(updateBlockPromises);
-      logger.debug('Inserted Blocks\n');
+      logger.debug('Inserted Blocks');
 
       startBlock = endBlock + 1;
       loop.next();
