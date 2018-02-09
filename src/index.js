@@ -97,12 +97,12 @@ async function startAPI() {
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    logger.info(`Bodhi App is running on http://localhost:${PORT}.`);
+    logger.info(`Bodhi App is running on http://127.0.0.1:${PORT}.`);
   });
 }
 
 async function openBrowser() {
-  await opn(`http://localhost:${PORT}`);
+  await opn(`http://127.0.0.1:${PORT}`);
 }
 
 function exit(signal) {
