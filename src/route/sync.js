@@ -18,7 +18,7 @@ syncRouter.post('/graphql', graphqlRestify(graphQLOptions));
 
 syncRouter.get('/graphiql', graphiqlRestify({
   endpointURL: '/graphql',
-  subscriptionsEndpoint: `ws://localhost:${syncPort}/subscriptions`,
+  subscriptionsEndpoint: `ws://127.0.0.1:${syncPort}/subscriptions`,
 }));
 
 module.exports = syncRouter;
