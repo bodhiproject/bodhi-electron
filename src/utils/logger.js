@@ -1,7 +1,5 @@
 require('dotenv').config();
-const _ = require('lodash');
 const fs = require('fs');
-const path = require('path');
 const moment = require('moment');
 const winston = require('winston');
 

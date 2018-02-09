@@ -1,3 +1,6 @@
+const _ = require('lodash');
+const path = require('path');
+
 class Utils {
   static getRootPath() {
     if (_.indexOf(process.argv, '--dev') === -1) {
