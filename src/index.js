@@ -7,13 +7,12 @@ const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const opn = require('opn');
 
+const config = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
-
-const PORT = 5555;
 
 // Restify setup
 const server = restify.createServer({
@@ -93,17 +92,17 @@ async function startAPI() {
     maxAge: 0,
   }));
 
-  server.listen(PORT, () => {
+  server.listen(config.PORT, () => {
     SubscriptionServer.create(
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    logger.info(`Bodhi App is running on http://127.0.0.1:${PORT}.`);
+    logger.info(`Bodhi App is running on http://${config.HOSTNAME}:${config.PORT}.`);
   });
 }
 
 async function openBrowser() {
-  await opn(`http://127.0.0.1:${PORT}`);
+  await opn(`http://${config.HOSTNAME}:${config.PORT}`);
 }
 
 function exit(signal) {
