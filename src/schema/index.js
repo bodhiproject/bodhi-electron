@@ -58,6 +58,7 @@ type Block {
 
 type syncInfo {
   syncBlockNum: Int
+  syncBlockTime: Int
   chainBlockNum: Int
 }
 
