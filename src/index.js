@@ -90,6 +90,7 @@ async function startAPI() {
   server.get(/\/?.*/, restify.plugins.serveStatic({
     directory: path.join(__dirname, '../ui'),
     default: 'index.html',
+    maxAge: 0,
   }));
 
   server.listen(PORT, () => {
