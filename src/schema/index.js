@@ -132,7 +132,7 @@ type Mutation {
     version: Int!
     senderAddress: String!
     oracleAddress: String!
-    consensusThreshold: Int!
+    consensusThreshold: String!
     resultIdx: Int!
   ): Transaction
 
@@ -140,7 +140,8 @@ type Mutation {
     version: Int!
     senderAddress: String!
     oracleAddress: String!
-    amount: Int!
+    optionIdx: Int!
+    amount: String!
   ): Transaction
 
   createVote(
@@ -148,7 +149,7 @@ type Mutation {
     senderAddress: String!
     oracleAddress: String!
     optionIdx: Int!
-    amount: Int!
+    amount: String!
   ): Transaction
 
   finalizeResult(

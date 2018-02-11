@@ -319,6 +319,53 @@ module.exports = {
       return tx;
     },
 
+    createBet: async (root, data, { db: { Transactions } }) => {
+      const version = data.version;
+      const senderAddress = data.senderAddress;
+      const oracleAddress = data.oracleAddress;
+      const amount = data.amount;
+      const optionIdx = data.optionIdx;
+
+      let txid;
+      try {
+        const resp = await fetch('http://localhost:5555/bet', {
+          method: 'POST',
+          body: JSON.stringify({
+            oracleAddress, // address
+            index: optionIdx, // number
+            amount, // number (Satoshi)
+            senderAddress, // address
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        }).then(res => res.json());
+
+        txid = resp.result.txid;
+      } catch (err) {
+        logger.error(`Error call /approve: ${err.message}`);
+        throw err;
+      }
+
+      const tx = {
+        version,
+        txid,
+        type: 'BET',
+        txStatus: 'PENDING',
+        senderAddress,
+        entityId: oracleAddress,
+        optionIdx,
+        token: 'QTUM',
+        amount,
+      };
+
+      try {
+        await Transactions.insert(tx);
+      } catch (err) {
+        logger.error(`Error insert Transactions: ${err.message}`);
+        throw err;
+      }
+
+      return tx;
+    },
 
     createVote: async (root, data, { db: { Votes } }) => {
       const response = await Votes.insert(data);
