@@ -8,8 +8,9 @@ const topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
 const oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
 const votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
 const blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
+const transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
 
-const dbPromises = [topics, oracles, votes, blocks];
+const dbPromises = [topics, oracles, votes, blocks, transactions];
 
 module.exports = async () => {
   try {
@@ -24,5 +25,6 @@ module.exports = async () => {
     Oracles: oracles,
     Votes: votes,
     Blocks: blocks,
+    Transactions: transactions,
   };
 };

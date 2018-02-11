@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
+const logger = require('../utils/logger');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -163,7 +164,7 @@ module.exports = {
       try {
         blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
       } catch (err) {
-        console.error(`Error query latest block from db: ${err.message}`);
+        logger.error(`Error query latest block from db: ${err.message}`);
       }
 
       if (blocks.length > 0) {
@@ -177,7 +178,7 @@ module.exports = {
         const json = await resp.json();
         chainBlockNum = json.info.blocks;
       } catch (err) {
-        console.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
+        logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
       }
 
       return { syncBlockNum, syncBlockTime, chainBlockNum };
@@ -185,26 +186,89 @@ module.exports = {
   },
 
   Mutation: {
-    createTopic: async (root, data, { db: { Topics } }) => {
-      data.status = 'CREATED';
-      data.qtumAmount = Array(data.options.length).fill(0);
-      data.botAmount = Array(data.options.length).fill(0);
+    createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
+      const version = data.version;
+      const senderAddress = data.senderAddress;
+      const name = data.name;
+      const options = data.options;
+      const bettingStartTime = data.bettingStartTime;
+      const bettingEndTime = data.bettingEndTime;
+      const resultSetterAddress = data.resultSetterAddress;
+      const resultSettingStartTime = data.resultSettingStartTime;
+      const resultSettingEndTime = data.resultSettingEndTime;
 
-      const response = await Topics.insert(data);
-      const newTopic = Object.assign({ id: response.insertedIds[0] }, data);
+      // rpc call first
+      const payload = {
+        oracleAddress: resultSetterAddress,
+        eventName: name,
+        resultNames: options,
+        bettingStartTime,
+        bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+        senderAddress,
+      };
 
-      pubsub.publish('Topic', { Topic: { mutation: 'CREATED', node: newTopic } });
-      return newTopic;
-    },
+      let txid;
+      try {
+        const resp = await fetch('http://localhost:5555/create-topic', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' },
+        }).then(res => res.json());
 
-    createOracle: async (root, data, { db: { Oracles } }) => {
-      data.status = 'CREATED';
-      data.amounts = Array(data.options.length).fill(0);
+        txid = resp.result.txid;
+      } catch (err) {
+        logger.error(`Error call create-topic: ${err.message}`);
+        throw err;
+      }
 
-      const response = await Oracles.insert(data);
-      const newOracle = Object.assign({ id: response.insertedIds[0] }, data);
+      const topic = {
+        _id: txid,
+        version,
+        txid,
+        status: 'CREATED',
+        name,
+        options,
+        qtumAmount: _.fill(Array(options), '0'),
+        botAmount: _.fill(Array(options), '0'),
+      };
 
-      return newOracle;
+      const oracle = {
+        _id: txid,
+        version,
+        txid,
+        resultSetterAddress,
+        status: 'CREATED',
+        token: 'QTUM',
+        name,
+        options,
+        optionIdxs: Array.from(Array(options).keys()),
+        amounts: _.fill(Array(options), '0'),
+        startTime: bettingStartTime,
+        endTime: bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+      };
+
+      const transaction = {
+        txid,
+        version,
+        type: 'CREATEEVENT',
+        txStatus: 'PENDING',
+        senderAddress,
+      };
+
+      try {
+        await Topics.insert(topic);
+        await Oracles.insert(oracle);
+        await Transactions.insert(transaction);
+      } catch (err) {
+        logger.error(`Error insertion db: ${err.message}`);
+        throw err;
+      }
+
+      return transaction;
     },
 
     createVote: async (root, data, { db: { Votes } }) => {
