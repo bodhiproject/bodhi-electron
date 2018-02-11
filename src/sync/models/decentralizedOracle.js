@@ -27,7 +27,7 @@ class DecentralizedOracle {
     _.remove(optionIdxs, num => num === this.lastResultIndex);
 
     return {
-      _id: this.contractAddress,
+      _id: this.txid,
       version: this.version,
       address: this.contractAddress,
       txid: this.txid,
