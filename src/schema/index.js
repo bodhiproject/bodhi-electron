@@ -132,6 +132,7 @@ type Mutation {
     version: Int!
     senderAddress: String!
     oracleAddress: String!
+    consensusThreshold: Int!
     resultIdx: Int!
   ): Transaction
 
