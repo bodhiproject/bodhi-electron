@@ -219,7 +219,7 @@ module.exports = {
 
         txid = resp.result.txid;
       } catch (err) {
-        logger.error(`Error call create-topic: ${err.message}`);
+        logger.error(`Error call /create-topic: ${err.message}`);
         throw err;
       }
 
@@ -251,7 +251,7 @@ module.exports = {
         resultSettingEndTime,
       };
 
-      const transaction = {
+      const tx = {
         txid,
         version,
         type: 'CREATEEVENT',
@@ -262,14 +262,63 @@ module.exports = {
       try {
         await Topics.insert(topic);
         await Oracles.insert(oracle);
-        await Transactions.insert(transaction);
+        await Transactions.insert(tx);
       } catch (err) {
         logger.error(`Error insertion db: ${err.message}`);
         throw err;
       }
 
-      return transaction;
+      return tx;
     },
+
+    setResult: async (root, data, { db: { Transactions } }) => {
+      const version = data.version;
+      const senderAddress = data.senderAddress;
+      const oracleAddress = data.oracleAddress;
+      const resultIdx = data.resultIdx;
+      const consensusThreshold = data.consensusThreshold;
+
+      // rpc call to approve
+      let approveTxid;
+      try {
+        const resp = await fetch('http://localhost:5555/approve', {
+          method: 'POST',
+          body: JSON.stringify({
+            spender: oracleAddress,
+            value: consensusThreshold,
+            senderAddress,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        }).then(res => res.json());
+
+        approveTxid = resp.result.txid;
+      } catch (err) {
+        logger.error(`Error call /approve: ${err.message}`);
+        throw err;
+      }
+
+      const tx = {
+        version,
+        type: 'SETRESULT',
+        txStatus: 'APPROVING',
+        approveTxid,
+        senderAddress,
+        entityId: oracleAddress,
+        optionIdx: resultIdx,
+        token: 'BOT',
+        amount: consensusThreshold,
+      };
+
+      try {
+        await Transactions.insert(tx);
+      } catch (err) {
+        logger.error(`Error insert Transactions: ${err.message}`);
+        throw err;
+      }
+
+      return tx;
+    },
+
 
     createVote: async (root, data, { db: { Votes } }) => {
       const response = await Votes.insert(data);
