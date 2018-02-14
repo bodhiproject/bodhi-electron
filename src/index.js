@@ -125,4 +125,4 @@ setTimeout(() => {
   startSync();
   startAPI();
   openBrowser();
-}, 5000);
+}, 0);
