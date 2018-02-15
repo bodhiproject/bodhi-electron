@@ -2,7 +2,7 @@
   "name": "bodhi-app",
   "version": "0.2.0",
   "description": "An open source blockchain explorer for monitoring Bodhi platform",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "start": "node src/index.js --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
