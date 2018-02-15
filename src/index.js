@@ -138,6 +138,3 @@ process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
 startQtumProcess(false);
-
-startService();
-
