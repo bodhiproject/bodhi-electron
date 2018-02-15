@@ -13,11 +13,7 @@ function createWindow () {
     height: 10000,
   });
 
-  win.loadURL(url.format({
-    pathname: '127.0.0.1:5555',
-    protocol: 'http:',
-    slashes: true
-  }));
+  win.loadURL('http://127.0.0.1:5555');
 
   // Open the DevTools.
   // win.webContents.openDevTools()

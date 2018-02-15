@@ -104,10 +104,6 @@ async function startAPI() {
   });
 }
 
-async function openBrowser() {
-  await opn(`http://${config.HOSTNAME}:${config.PORT}`);
-}
-
 function exit(signal) {
   logger.info(`Received ${signal}, exiting`);
 
