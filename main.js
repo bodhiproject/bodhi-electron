@@ -1,6 +1,8 @@
-const {app, BrowserWindow} = require('electron');
-const path = require('path');
-const url = require('url');
+const _ = require('lodash');
+const { app, BrowserWindow, ipcMain } = require('electron');
+
+// Keep track of all child processes ids
+let pids = [];
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -27,10 +29,19 @@ function createWindow () {
   });
 }
 
+// Save child process ids when receiving it from ipcRenderer
+ipcMain.on('pid-message', function(event, arg) {
+  console.log('Main:', arg);
+  pids.push(arg);
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  require('./src/index');
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -46,4 +57,14 @@ app.on('activate', () => {
   }
 });
 
-require('./src/index');
+app.on('before-quit', function() {
+  _.each(pids, (pid) => {
+    ps.kill(pid, function(err) {
+      if (err) {
+        throw new Error( err );
+      } else {
+        console.log( 'Process %s has been killed!', pid );
+      }
+    });
+  })
+});

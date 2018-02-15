@@ -5,7 +5,6 @@ const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
-const opn = require('opn');
 const { Qweb3 } = require('qweb3');
 
 const config = require('./config/config');
@@ -57,6 +56,9 @@ function startQtumProcess(reindex) {
 
   const qtumProcess = spawn(qtumdPath, flags);
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
+
+  // Send pid to tracking in main.js
+  ipcRenderer.send('pid-message', qtumProcess.pid);
 
   qtumProcess.stdout.on('data', (data) => {
     logger.debug(`qtumd output: ${data}`);
