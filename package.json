@@ -1,5 +1,5 @@
 {
-  "name": "bodhi-api",
+  "name": "bodhi-app",
   "version": "0.2.0",
   "description": "An open source blockchain explorer for monitoring Bodhi platform",
   "main": "index.js",
@@ -54,6 +54,7 @@
     "winston": "^2.4.0"
   },
   "devDependencies": {
+    "electron": "^1.8.2",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
