@@ -38,9 +38,11 @@ server.on('after', (req, res, route, err) => {
 
 function startQtumProcess(reindex) {
   let basePath;
-  if (process.argv[2]) {
+  if (_.includes(process.argv, '--dev')) {
+    // dev path
     basePath = (_.split(process.argv[2], '=', 2))[1];
   } else {
+    // prod path
     basePath = `${path.dirname(process.argv[0])}/qtum`;
   }
 
