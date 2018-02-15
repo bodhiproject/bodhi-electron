@@ -74,18 +74,9 @@ async function sync(db) {
   const removeHexPrefix = true;
   const topicsNeedBalanceUpdate = new Set();
   const oraclesNeedBalanceUpdate = new Set();
-
-  let retr = true;
-  while(retr){
-    try{
-      var currentBlockChainHeight = await qclient.getBlockCount();
-      currentBlockChainHeight = Math.max(0,currentBlockChainHeight-1);
-      retr = false;
-    }
-    catch (exc){
-      retr = true;
-    }
-  }
+  while(!await qclient.isConnected());
+  var currentBlockChainHeight = await qclient.getBlockCount();
+  currentBlockChainHeight = Math.max(0,currentBlockChainHeight-1);
 
   const currentBlockHash = await qclient.getBlockHash(currentBlockChainHeight);
   const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
