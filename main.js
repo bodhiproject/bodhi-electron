@@ -1,7 +1,9 @@
 const _ = require('lodash');
-const { app, BrowserWindow, ipcMain, ipcRenderer } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
+
+const logger = require('./src/utils/logger');
 
 // Keep track of all child processes ids
 let pids = [];
@@ -47,7 +49,7 @@ function createBackgroundWindow() {
     focusable: false,
     skipTaskbar: true,
   });
-  
+
   bgWin.once('ready-to-show', () => {
     console.log('bgWin ready to show');
   });
@@ -59,10 +61,21 @@ function createBackgroundWindow() {
   }));
 }
 
-// Save child process ids when receiving it from ipcRenderer
+/* IPC Messages */
 ipcMain.on('pid-message', function(event, arg) {
-  console.log('Main:', arg);
   pids.push(arg);
+});
+
+ipcMain.on('log-info', (event, arg) => {
+  logger.info(arg);
+});
+
+ipcMain.on('log-debug', (event, arg) => {
+  logger.debug(arg);
+});
+
+ipcMain.on('log-error', (event, arg) => {
+  logger.error(arg);
 });
 
 // This method will be called when Electron has finished
