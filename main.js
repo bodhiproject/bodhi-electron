@@ -38,6 +38,12 @@ function killServer() {
   }
 }
 
+function exit(signal) {
+  logger.info(`Received ${signal}, exiting`);
+  killServer();
+  app.quit();
+}
+
 /* IPC Messages */
 ipcMain.on('log-info', (event, arg) => {
   logger.info(arg);
@@ -79,3 +85,7 @@ app.on('before-quit', () => {
   logger.debug('before-quit');
   killServer();
 });
+
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
