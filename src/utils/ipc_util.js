@@ -4,7 +4,7 @@ class IpcUtil {
   }
 
   newProcess(pid) {
-    ipcRenderer.send('pid-message', pid);
+    ipcRenderer.send('new-process', pid);
   }
 
   logInfo(msg) {

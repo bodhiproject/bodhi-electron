@@ -1,17 +1,14 @@
 const _ = require('lodash');
 const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const url = require('url');
 
+const Config = require('./src/config/config');
 const logger = require('./src/utils/logger');
-
-// Keep track of all child processes ids
-let pids = [];
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
-let bgWin;
+
+let server;
 
 function createWindow () {
   // Create the browser window.
@@ -27,45 +24,21 @@ function createWindow () {
     uiWin = null
   });
 
-  uiWin.once('did-finish-load', () => {
-    console.log('uiWin did finish load');
-  });
-  uiWin.once('ready-to-show', () => {
-    console.log('uiWin ready to show');
-  });
-
-  uiWin.loadURL('http://127.0.0.1:5555');
-
-  // Open the DevTools.
-  // uiWin.webContents.openDevTools()
-
-  // console.log('ipcMain', ipcMain);
+  uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
 }
 
-function createBackgroundWindow() {
-  // Init background window to create renderer process
-  bgWin = new BrowserWindow({ 
-    show: false,
-    focusable: false,
-    skipTaskbar: true,
-  });
-
-  bgWin.once('ready-to-show', () => {
-    console.log('bgWin ready to show');
-  });
-
-  bgWin.loadURL(url.format({
-    pathname: path.join(__dirname, '/src/bg.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
+function killServer() {
+  if (server && server.process) {
+    try {
+      logger.info('Killing process', server.process.pid);
+      server.process.kill();
+    } catch (err) {
+      logger.error(`Error killing process ${server.process.pid}:`, err);
+    }
+  }
 }
 
 /* IPC Messages */
-ipcMain.on('pid-message', function(event, arg) {
-  pids.push(arg);
-});
-
 ipcMain.on('log-info', (event, arg) => {
   logger.info(arg);
 });
@@ -78,22 +51,23 @@ ipcMain.on('log-error', (event, arg) => {
   logger.error(arg);
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
+/* App Events */
+// This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  console.log('app ready');
+  server = require('./src/index');
   createWindow();
-  createBackgroundWindow();
 });
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  logger.debug('window-all-closed');
+  killServer();
   app.quit();
-  // TODO: kill child processes
 });
 
 app.on('activate', () => {
+  logger.debug('activate');
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (uiWin === null) {
@@ -101,14 +75,7 @@ app.on('activate', () => {
   }
 });
 
-app.on('before-quit', function() {
-  _.each(pids, (pid) => {
-    ps.kill(pid, function(err) {
-      if (err) {
-        throw new Error( err );
-      } else {
-        console.log( 'Process %s has been killed!', pid );
-      }
-    });
-  })
+app.on('before-quit', () => {
+  logger.debug('before-quit');
+  killServer();
 });
