@@ -5,6 +5,7 @@ const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
+const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 
 const config = require('./config/config');
@@ -14,7 +15,11 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
 
+const qClient = new Qweb3(config.QTUM_RPC_ADDRESS);
+const emitter = new EventEmitter();
+
 let qtumProcess;
+let checkInterval;
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
@@ -36,6 +41,14 @@ server.on('after', (req, res, route, err) => {
     logger.error(`${err.message}`);
   }
 });
+
+async function checkQtumd() {
+  const running = await qClient.isConnected();
+  if (running) {
+    clearInterval(checkInterval);
+    startServices();    
+  }
+}
 
 function startQtumProcess(reindex) {
   if (_.includes(process.argv, '--dev')) {
@@ -85,6 +98,9 @@ function startQtumProcess(reindex) {
   qtumProcess.on('close', (code) => {
     logger.debug(`qtumd exited with code ${code}`);
   });
+
+  // repeatedly check if qtumd is running
+  checkInterval = setInterval(checkQtumd, 1000);
 }
 
 async function startAPI() {
@@ -106,14 +122,12 @@ async function startAPI() {
   });
 }
 
-function startAllServices() {
-  startQtumProcess(false);
-
-  // Wait 5s for qtumd to start and reindex if necessary
+function startServices() {
   setTimeout(() => {
     startSync();
     startAPI();
-  }, 5000);
+    emitter.emit('qtumd-started');
+  }, 3000);
 }
 
 function exit(signal) {
@@ -125,22 +139,6 @@ function exit(signal) {
   }, 500);
 }
 
-async function startService() {
-  if(!await qclient.isConnected()){
-    logger.info('qtum is still starting, please wait');
-    setTimeout(()=>{
-      startService();
-    },1000);
-  }else{
-    //add delay since the iscconected can also return true before qtum is fully running
-    setTimeout(()=>{
-      startSync();
-      startAPI();
-      openBrowser();
-    },3000)
-  }
-}
-
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
@@ -148,3 +146,4 @@ process.on('SIGHUP', exit);
 startQtumProcess(false);
 
 exports.process = qtumProcess;
+exports.emitter = emitter;
