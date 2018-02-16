@@ -130,6 +130,10 @@ $RECYCLE.BIN/
 
 # Binaries
 bin/
+<<<<<<< HEAD
+=======
+qtum/
+>>>>>>> empty bin and qtum folder
 
 # log file
 src/logs/
