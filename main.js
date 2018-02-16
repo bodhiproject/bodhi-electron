@@ -64,7 +64,7 @@ app.on('ready', () => {
   createWindow();
 
   server = require('./src/index');
-  server.emitter.on('qtumd-started', () => {
+  server.emitter.once('qtumd-started', () => {
     uiWin.reload();
   });
 });
