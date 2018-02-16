@@ -6,6 +6,7 @@ const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const opn = require('opn');
+const { Qweb3 } = require('qweb3');
 
 const config = require('./config/config');
 const logger = require('./utils/logger');
@@ -13,6 +14,8 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
+
+const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
 // Restify setup
 const server = restify.createServer({
@@ -114,15 +117,27 @@ function exit(signal) {
   }, 500);
 }
 
+async function startService() {
+  if(!await qclient.isConnected()){
+    logger.info('qtum is still starting, please wait');
+    setTimeout(()=>{
+      startService();
+    },1000);
+  }else{
+    startSync();
+    startAPI();
+    openBrowser();
+  }
+}
+
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
 startQtumProcess(false);
 
-// Wait 4s for qtumd to start and reindex if necessary
-setTimeout(() => {
-  startSync();
-  startAPI();
-  openBrowser();
-}, 5000);
+//// Wait 4s for qtumd to start and reindex if necessary
+setTimeout(()=>{
+  startService();
+},4000);
+
