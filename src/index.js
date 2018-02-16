@@ -36,14 +36,14 @@ server.on('after', (req, res, route, err) => {
 });
 
 function startQtumProcess(reindex) {
-  let basePath;
-  if (_.includes(process.argv, '--dev')) {
-    // dev path
-    basePath = (_.split(process.argv[2], '=', 2))[1];
-  } else {
-    // prod path
-    basePath = `${path.dirname(process.argv[0])}/qtum`;
-  }
+  let basePath = './qtum/mac/bin';
+  // if (_.includes(process.argv, '--dev')) {
+  //   // dev path
+  //   basePath = (_.split(process.argv[2], '=', 2))[1];
+  // } else {
+  //   // prod path
+  //   basePath = `${path.dirname(process.argv[0])}/qtum`;
+  // }
 
   // avoid using path.join for pkg to pack qtumd
   const qtumdPath = `${basePath}/qtumd`;
@@ -58,6 +58,7 @@ function startQtumProcess(reindex) {
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
 
   // Send pid to tracking in main.js
+  console.log('ipcRenderer', ipcRenderer);
   ipcRenderer.send('pid-message', qtumProcess.pid);
 
   qtumProcess.stdout.on('data', (data) => {
@@ -106,6 +107,16 @@ async function startAPI() {
     );
     logger.info(`Bodhi App is running on http://${config.HOSTNAME}:${config.PORT}.`);
   });
+}
+
+function startAllServices() {
+  startQtumProcess(false);
+
+  // Wait 5s for qtumd to start and reindex if necessary
+  setTimeout(() => {
+    startSync();
+    startAPI();
+  }, 5000);
 }
 
 function exit(signal) {
