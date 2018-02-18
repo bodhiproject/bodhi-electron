@@ -68,7 +68,7 @@ function startQtumProcess(reindex) {
     flags.push('-reindex');
   }
 
-  qtumProcess = spawn(qtumdPath, flags, { detached: true });
+  qtumProcess = spawn(qtumdPath, flags);
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
 
   qtumProcess.stdout.on('data', (data) => {
