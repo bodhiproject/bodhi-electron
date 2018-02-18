@@ -124,9 +124,12 @@ async function startService() {
       startService();
     },1000);
   }else{
-    startSync();
-    startAPI();
-    openBrowser();
+    //add delay since the iscconected can also return true before qtum is fully running
+    setTimeout(()=>{
+      startSync();
+      startAPI();
+      openBrowser();
+    },3000)
   }
 }
 
@@ -136,8 +139,5 @@ process.on('SIGHUP', exit);
 
 startQtumProcess(false);
 
-//// Wait 4s for qtumd to start and reindex if necessary
-setTimeout(()=>{
-  startService();
-},4000);
+startService();
 
