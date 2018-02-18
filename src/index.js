@@ -7,6 +7,7 @@ const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
+const { app } = require('electron');
 
 const config = require('./config/config');
 const logger = require('./utils/logger');
@@ -56,7 +57,7 @@ function startQtumProcess(reindex) {
     basePath = (_.split(process.argv[2], '=', 2))[1];
   } else {
     // prod path
-    basePath = `${path.dirname(process.argv[0])}/qtum`;
+    basePath = `${app.getPath()}/qtum`;
   }
 
   // avoid using path.join for pkg to pack qtumd
