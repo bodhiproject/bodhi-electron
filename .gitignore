@@ -132,6 +132,7 @@ $RECYCLE.BIN/
 bin/
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 qtum/
 <<<<<<< HEAD
@@ -142,6 +143,10 @@ qtum/*/
 >>>>>>> keep qtum folder
 !qtum/.gitkeep
 >>>>>>> keep qtum folder
+=======
+qtum/*/*
+!qtum/*/.gitkeep
+>>>>>>> add keep win32/win64/linux32/linux64/mac folder
 
 # log file
 src/logs/
