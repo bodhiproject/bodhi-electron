@@ -52,12 +52,13 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
+  let basePath;
   if (_.includes(process.argv, '--dev')) {
     // dev path
     basePath = (_.split(process.argv[2], '=', 2))[1];
   } else {
     // prod path
-    basePath = `${app.getPath()}/qtum`;
+    basePath = `${__dirname}/qtum`;
   }
 
   // avoid using path.join for pkg to pack qtumd
