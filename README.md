@@ -23,16 +23,12 @@ Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the
 # Release
 We are currently using [Electron](https://github.com/electron/electron) and [Electron-Builder](https://github.com/electron-userland/electron-builder) to package our apps into native format depending on OS.
 
-1. `npm install` to install node modules
+1. `npm run insall` to install all node modules from npm and yarn
 
-2. `npm run yarn` to install yarn modules
+2. Run the build script for the appropriate OS:
 
-3. Run the build script for the appropriate OS:
+    npm run build:mac // creates dmg
+    npm run build:win // creates exe
+    npm run build:lin // creates appimage
 
-    npm run build:mac // creates DMG
-    npm run build:win64
-    npm run build:win32
-    npm run build:linux64
-    npm run build:linux32
-
-4. Run the Electron executable
+3. Run the Electron executable

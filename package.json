@@ -13,15 +13,13 @@
     "graphql"
   ],
   "scripts": {
-    "yarn": "./node_modules/.bin/yarn install",
+    "insall": "npm install && ./node_modules/.bin/yarn install",
     "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
     "build:mac": "./node_modules/.bin/electron-builder build -m",
-    "build:win64": "./node_modules/.bin/electron-builder build -w --x64",
-    "build:win32": "./node_modules/.bin/electron-builder build -w --ia32",
-    "build:linux64": "./node_modules/.bin/electron-builder build -l --x64",
-    "build:linux32": "./node_modules/.bin/electron-builder build -l --ia32"
+    "build:win": "./node_modules/.bin/electron-builder build -w",
+    "build:lin": "./node_modules/.bin/electron-builder build -l"
   },
   "build": {
     "appId": "network.bodhi.app",
@@ -48,45 +46,56 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"],
-          "asar": true,
-          "asarUnpack": "qtum/win64/bin/*",
-          "files": [
-            {
-              "filter": [
-                "**/*",
-                "!assets",
-                "!qtum/linux32",
-                "!qtum/linux64",
-                "!qtum/mac",
-                "!qtum/win32"
-              ]
-            }
+          "arch": [
+            "x64",
+            "ia32"
           ]
-        },
+        }
+      ],
+      "asar": true,
+      "asarUnpack": [
+        "qtum/win64/bin/*",
+        "qtum/win32/bin/*"
+      ],
+      "files": [
         {
-          "target": "nsis",
-          "arch": ["ia32"],
-          "asar": true,
-          "asarUnpack": "qtum/win32/bin/*",
-          "files": [
-            {
-              "filter": [
-                "**/*",
-                "!assets",
-                "!qtum/linux32",
-                "!qtum/linux64",
-                "!qtum/mac",
-                "!qtum/win64"
-              ]
-            }
+          "filter": [
+            "**/*",
+            "!assets",
+            "!qtum/linux32",
+            "!qtum/linux64",
+            "!qtum/mac"
           ]
         }
       ],
       "icon": "./assets/logo/Mac_512.png"
     },
     "linux": {
-      "asar": false,
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "asar": true,
+      "asarUnpack": [
+        "qtum/linux64/bin/*",
+        "qtum/linux32/bin/*"
+      ],
+      "files": [
+        {
+          "filter": [
+            "**/*",
+            "!assets",
+            "!qtum/mac",
+            "!qtum/win32",
+            "!qtum/win64"
+          ]
+        }
+      ],
       "icon": "./assets/logo/Mac_512.png"
     }
   },
