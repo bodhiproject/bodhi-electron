@@ -7,7 +7,9 @@
 
 3. `npm install`
 
-4. start bodhi-graphql at 5555
+4. download `qtum-x.xx.xx-osx64.tar.gz` from https://github.com/qtumproject/qtum/releases and unzip it. copy all the folders inside it to ./qtum
+
+5. start bodhi-graphql at 5555
 
 `npm start`
 
