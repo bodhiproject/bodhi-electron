@@ -23,9 +23,11 @@ Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the
 # Package For Release 
 We are currently using Electron to package our apps into native format depending on OS.
 
-1. `npm install` to make sure you have all the required node modules
+1. `npm install` to install node modules
 
-2. Run the build script for the appropriate OS. This is currently set to `~/bodhi-electron/`.
+2. `npm run yarn` to install yarn modules
+
+3. Run the build script for the appropriate OS. This is currently set to `~/bodhi-electron/`.
 
     npm run build:mac
     npm run build:win64
@@ -35,11 +37,11 @@ We are currently using Electron to package our apps into native format depending
 
     This will create the `app` directory that you will copy for the Electron prebuilt binary.
 
-3. Follow the `Application Distribution` instructions on Electron website:
+4. Follow the `Application Distribution` instructions on Electron website:
 
     - [Application Distribution](https://electronjs.org/docs/tutorial/application-distribution)
     - [Prebuilt Binaries](https://github.com/electron/electron/releases)
 
-4. Once you have the prebuilt binary unzipped, you can copy the `app` directory to the appropriate place depending on the OS.
+5. Once you have the prebuilt binary unzipped, you can copy the `app` directory to the appropriate place depending on the OS.
 
-5. Run the Electron executable
+6. Run the Electron executable
