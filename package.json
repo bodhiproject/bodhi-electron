@@ -3,7 +3,7 @@
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "repository": "git@github.com:bodhiproject/bodhi-graphql.git",
   "main": "main.js",
   "keywords": [
@@ -17,11 +17,11 @@
     "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
-    "build:mac": "./node_modules/.bin/electron-builder build --mac",
-    "build:win64": "node script/electron.js ~/bodhi-electron/ win64",
-    "build:win32": "node script/electron.js ~/bodhi-electron/ win32",
-    "build:linux64": "node script/electron.js ~/bodhi-electron/ linux64",
-    "build:linux32": "node script/electron.js ~/bodhi-electron/ linux32"
+    "build:mac": "./node_modules/.bin/electron-builder build -m",
+    "build:win64": "./node_modules/.bin/electron-builder build -w --x64",
+    "build:win32": "./node_modules/.bin/electron-builder build -w --ia32",
+    "build:linux64": "./node_modules/.bin/electron-builder build -l --x64",
+    "build:linux32": "./node_modules/.bin/electron-builder build -l --ia32"
   },
   "build": {
     "appId": "network.bodhi.app",
@@ -45,7 +45,44 @@
       ]
     },
     "win": {
-      "asar": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"],
+          "asar": true,
+          "asarUnpack": "qtum/win64/bin/*",
+          "files": [
+            {
+              "filter": [
+                "**/*",
+                "!assets",
+                "!qtum/linux32",
+                "!qtum/linux64",
+                "!qtum/mac",
+                "!qtum/win32"
+              ]
+            }
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": ["ia32"],
+          "asar": true,
+          "asarUnpack": "qtum/win32/bin/*",
+          "files": [
+            {
+              "filter": [
+                "**/*",
+                "!assets",
+                "!qtum/linux32",
+                "!qtum/linux64",
+                "!qtum/mac",
+                "!qtum/win64"
+              ]
+            }
+          ]
+        }
+      ],
       "icon": "./assets/logo/Mac_512.png"
     },
     "linux": {
