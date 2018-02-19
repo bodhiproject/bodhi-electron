@@ -133,7 +133,11 @@ bin/
 <<<<<<< HEAD
 =======
 qtum/
+<<<<<<< HEAD
 >>>>>>> empty bin and qtum folder
+=======
+!qtum/.gitkeep
+>>>>>>> keep qtum folder
 
 # log file
 src/logs/
