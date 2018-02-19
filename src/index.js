@@ -5,8 +5,9 @@ const corsMiddleware = require('restify-cors-middleware');
 const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
-const opn = require('opn');
+const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
+const { app } = require('electron');
 
 const config = require('./config/config');
 const logger = require('./utils/logger');
@@ -14,6 +15,12 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
+
+const qClient = new Qweb3(config.QTUM_RPC_ADDRESS);
+const emitter = new EventEmitter();
+
+let qtumProcess;
+let checkInterval;
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
@@ -36,12 +43,22 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
+async function checkQtumd() {
+  const running = await qClient.isConnected();
+  if (running) {
+    clearInterval(checkInterval);
+    startServices();    
+  }
+}
+
 function startQtumProcess(reindex) {
   let basePath;
-  if (process.argv[2]) {
+  if (_.includes(process.argv, '--dev')) {
+    // dev path
     basePath = (_.split(process.argv[2], '=', 2))[1];
   } else {
-    basePath = `${path.dirname(process.argv[0])}/qtum`;
+    // prod path
+    basePath = `${__dirname}/qtum`;
   }
 
   // avoid using path.join for pkg to pack qtumd
@@ -53,7 +70,7 @@ function startQtumProcess(reindex) {
     flags.push('-reindex');
   }
 
-  const qtumProcess = spawn(qtumdPath, flags);
+  qtumProcess = spawn(qtumdPath, flags);
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
 
   qtumProcess.stdout.on('data', (data) => {
@@ -83,6 +100,9 @@ function startQtumProcess(reindex) {
   qtumProcess.on('close', (code) => {
     logger.debug(`qtumd exited with code ${code}`);
   });
+
+  // repeatedly check if qtumd is running
+  checkInterval = setInterval(checkQtumd, 1000);
 }
 
 async function startAPI() {
@@ -104,8 +124,12 @@ async function startAPI() {
   });
 }
 
-async function openBrowser() {
-  await opn(`http://${config.HOSTNAME}:${config.PORT}`);
+function startServices() {
+  setTimeout(() => {
+    startSync();
+    startAPI();
+    emitter.emit('qtumd-started');
+  }, 3000);
 }
 
 function exit(signal) {
@@ -117,27 +141,11 @@ function exit(signal) {
   }, 500);
 }
 
-async function startService() {
-  if(!await qclient.isConnected()){
-    logger.info('qtum is still starting, please wait');
-    setTimeout(()=>{
-      startService();
-    },1000);
-  }else{
-    //add delay since the iscconected can also return true before qtum is fully running
-    setTimeout(()=>{
-      startSync();
-      startAPI();
-      openBrowser();
-    },3000)
-  }
-}
-
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
 startQtumProcess(false);
 
-startService();
-
+exports.process = qtumProcess;
+exports.emitter = emitter;

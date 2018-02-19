@@ -1,10 +1,10 @@
 {
-  "name": "bodhi-api",
+  "name": "bodhi-app",
   "version": "0.2.0",
   "description": "An open source blockchain explorer for monitoring Bodhi platform",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node src/index.js --qtumpath=./qtum/mac/bin --dev",
+    "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
     "pkg:mac": "mkdir -p bin/mac/qtum; cp qtum/mac/bin/qtumd bin/mac/qtum/qtumd; pkg . -t node9-mac -o bin/mac/bodhi-app-mac --debug",
@@ -22,9 +22,6 @@
   "author": "bodhi.network",
   "license": "ISC",
   "bin": "src/index.js",
-  "pkg": {
-    "assets": "ui/"
-  },
   "dependencies": {
     "apollo-server-restify": "^1.3.2",
     "babel-polyfill": "^6.26.0",
@@ -43,7 +40,6 @@
     "nedb": "^1.8.0",
     "nedb-promise": "^2.0.1",
     "node-fetch": "^1.7.3",
-    "opn": "^5.2.0",
     "pg": "^7.4.0",
     "qweb3": "^0.6.0",
     "restify": "^6.3.4",
@@ -54,6 +50,7 @@
     "winston": "^2.4.0"
   },
   "devDependencies": {
+    "electron": "^1.8.2",
     "eslint": "^4.16.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
