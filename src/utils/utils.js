@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const _ = require('lodash');
 const path = require('path');
 const { app } = require('electron');
@@ -21,9 +21,8 @@ class Utils {
       dataDir = `${app.getPath('userData')}/${DIR_DEV}`;
     }
 
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir);
-    }
+    // Create data dir if needed
+    fs.ensureDirSync(dataDir);
 
     return dataDir;
   }
