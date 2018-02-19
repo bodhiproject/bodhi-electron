@@ -133,6 +133,7 @@ bin/
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 qtum/
 <<<<<<< HEAD
@@ -144,6 +145,8 @@ qtum/*/
 !qtum/.gitkeep
 >>>>>>> keep qtum folder
 =======
+=======
+>>>>>>> ignore bin/
 qtum/*/*
 !qtum/*/.gitkeep
 >>>>>>> add keep win32/win64/linux32/linux64/mac folder
