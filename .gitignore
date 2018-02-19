@@ -131,11 +131,15 @@ $RECYCLE.BIN/
 # Binaries
 bin/
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 qtum/
 <<<<<<< HEAD
 >>>>>>> empty bin and qtum folder
 =======
+=======
+qtum/*/
+>>>>>>> keep qtum folder
 !qtum/.gitkeep
 >>>>>>> keep qtum folder
 
