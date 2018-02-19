@@ -25,10 +25,8 @@
     "appId": "network.bodhi.app",
     "productName": "BodhiPM",
     "mac": {
-      "target": "dmg",
       "asar": true,
       "asarUnpack": "qtum/mac/bin/*",
-      "icon": "./assets/logo/Mac_512.png",
       "files": [
         {
           "filter": [
@@ -40,18 +38,11 @@
             "!qtum/win64"
           ]
         }
-      ]
+      ],
+      "icon": "./assets/logo/Mac_512.png",
+      "target": "dmg"
     },
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        }
-      ],
       "asar": true,
       "asarUnpack": [
         "qtum/win64/bin/*",
@@ -68,18 +59,18 @@
           ]
         }
       ],
-      "icon": "./assets/logo/Mac_512.png"
-    },
-    "linux": {
+      "icon": "./assets/logo/Mac_512.png",
       "target": [
         {
-          "target": "AppImage",
+          "target": "nsis",
           "arch": [
             "x64",
             "ia32"
           ]
         }
-      ],
+      ]
+    },
+    "linux": {
       "asar": true,
       "asarUnpack": [
         "qtum/linux64/bin/*",
@@ -96,7 +87,16 @@
           ]
         }
       ],
-      "icon": "./assets/logo/Mac_512.png"
+      "icon": "./assets/logo/Mac_512.png",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
     }
   },
   "dependencies": {
