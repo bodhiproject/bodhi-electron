@@ -8,7 +8,6 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
-const Finder = require('fs-finder');
 
 const config = require('./config/config');
 const logger = require('./utils/logger');
@@ -45,24 +44,48 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
+function getProdQtumPath() {
+  switch (process.platform) {
+    case 'darwin': {
+      return `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+    }
+    case 'win32': {
+      if (process.arch === 'x64') {
+        return `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+      } else {
+        return `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+      }
+    }
+    case 'linux': {
+      if (process.arch === 'x64') {
+        return `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+      } else {
+        return `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+      }
+    }
+    default: {
+      throw new Error('Operating system not supported');
+    }
+  }
+}
+
 async function checkQtumd() {
   const running = await qClient.isConnected();
   if (running) {
     clearInterval(checkInterval);
-    startServices();    
+    startServices();
   }
 }
 
 function startQtumProcess(reindex) {
   let qtumdPath;
   if (_.includes(process.argv, '--dev')) {
-    // dev path
+    // dev, must pass in the absolute path to the bin/ folder
     qtumdPath = (_.split(process.argv[2], '=', 2))[1];
-    qtumdPath = Finder.from(qtumdPath).findFile('qtumd');
+    qtumdPath = `${qtumdPath}/qtumd`;
   } else {
-    // prod path
-    qtumdPath = Finder.from(app.getAppPath()).findFile('qtumd');
-    qtumdPath = qtumdPath.replace('app.asar', 'app.asar.unpacked');
+    // prod
+    qtumdPath = getProdQtumPath().replace('app.asar', 'app.asar.unpacked');
   }
   logger.debug(`qtumd dir: ${qtumdPath}`);
 

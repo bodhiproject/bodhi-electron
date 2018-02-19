@@ -31,4 +31,4 @@ We are currently using [Electron](https://github.com/electron/electron) and [Ele
     npm run build:win // creates exe
     npm run build:lin // creates appimage
 
-3. Run the Electron executable
+3. Run the executable
