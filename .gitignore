@@ -133,5 +133,8 @@ bin/
 qtum/*/*
 !qtum/*/.gitignore
 
+# Distributables
+dist/
+
 # log file
 src/logs/

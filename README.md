@@ -21,13 +21,13 @@ Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the
 5. App at `127.0.0.1:5555` or GraphiQL at `127.0.0.1:5555/graphiql`
 
 # Package For Release 
-We are currently using Electron to package our apps into native format depending on OS.
+We are currently using [Electron](https://github.com/electron/electron) and [Electron-Builder](https://github.com/electron-userland/electron-builder) to package our apps into native format depending on OS.
 
 1. `npm install` to install node modules
 
 2. `npm run yarn` to install yarn modules
 
-3. Run the build script for the appropriate OS. This is currently set to `~/bodhi-electron/`.
+3. Run the build script for the appropriate OS:
 
     npm run build:mac
     npm run build:win64
