@@ -9,7 +9,6 @@ const DIR_DEV = 'dev';
 class Utils {
   /*
   * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
-  * 
   */
   static getDataDir() {
     let dataDir;

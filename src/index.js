@@ -8,6 +8,7 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
+const Finder = require('fs-finder');
 
 const config = require('./config/config');
 const logger = require('./utils/logger');
@@ -15,6 +16,7 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
+const Utils = require('./utils/utils');
 
 const qClient = new Qweb3(config.QTUM_RPC_ADDRESS);
 const emitter = new EventEmitter();
@@ -52,16 +54,16 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
-  let basePath;
+  let qtumdPath;
   if (_.includes(process.argv, '--dev')) {
     // dev path
-    basePath = (_.split(process.argv[2], '=', 2))[1];
+    qtumdPath = (_.split(process.argv[2], '=', 2))[1];
+    qtumdPath = Finder.from(qtumdPath).findFile('qtumd');
   } else {
     // prod path
-    basePath = `${app.getAppPath()}/qtum`;
+    qtumdPath = Finder.from(app.getAppPath()).findFile('qtumd');
+    qtumdPath = qtumdPath.replace('app.asar', 'app.asar.unpacked');
   }
-
-  const qtumdPath = `${basePath}/qtumd`;
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
   const flags = ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
