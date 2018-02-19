@@ -31,9 +31,11 @@ if (_.isEmpty(outputPath)) {
 }
 
 // Make all dirs if necessary
+console.log('Making directories');
 fs.ensureDirSync(outputPath);
 
 // Remove all old files if existing
+console.log('Cleaning up old files');
 fs.emptyDirSync(outputPath);
 
 // Copy files

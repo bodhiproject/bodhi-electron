@@ -58,10 +58,9 @@ function startQtumProcess(reindex) {
     basePath = (_.split(process.argv[2], '=', 2))[1];
   } else {
     // prod path
-    basePath = `${__dirname}/qtum`;
+    basePath = `${app.getAppPath()}/qtum`;
   }
 
-  // avoid using path.join for pkg to pack qtumd
   const qtumdPath = `${basePath}/qtumd`;
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
