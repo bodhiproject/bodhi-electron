@@ -7,7 +7,11 @@
     "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
-    "build:mac": "node script/electron.js ~/bodhi-electron/ mac"
+    "build:mac": "node script/electron.js ~/bodhi-electron/ mac",
+    "build:win64": "node script/electron.js ~/bodhi-electron/ win64",
+    "build:win32": "node script/electron.js ~/bodhi-electron/ win32",
+    "build:linux64": "node script/electron.js ~/bodhi-electron/ linux64",
+    "build:linux32": "node script/electron.js ~/bodhi-electron/ linux32"
   },
   "keywords": [
     "qtum",

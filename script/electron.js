@@ -12,15 +12,15 @@ const ACCEPTED_BUILDS = [MAC, WIN64, WIN32, LINUX64, LINUX32];
 // Get build type
 let build = process.argv[3];
 if (_.isEmpty(build)) {
-  throw new Exception('Build type must be defined');
+  throw new Error('Build type must be defined');
 } else if (!_.includes(ACCEPTED_BUILDS, build)) {
-  throw new Exception('Build type unknown');
+  throw new Error('Build type unknown');
 }
 
 // Get output absolute path
 let outputPath = process.argv[2];
 if (_.isEmpty(outputPath)) {
-  throw new Exception('Output path must be defined');
+  throw new Error('Output path must be defined');
 } else {
    // Strip trailing slash
    if (outputPath.substr(-1) === '/') {
