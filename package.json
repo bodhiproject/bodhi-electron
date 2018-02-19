@@ -1,5 +1,5 @@
 {
-  "name": "bodhi-pm",
+  "name": "BodhiPM",
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
@@ -23,7 +23,7 @@
   },
   "build": {
     "appId": "network.bodhi.app",
-    "productName": "bodhi-pm",
+    "productName": "BodhiPM",
     "mac": {
       "target": "dmg",
       "asar": true,
