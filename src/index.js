@@ -26,7 +26,7 @@ const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
 // Restify setup
 const server = restify.createServer({
-  title: 'Bodhi Synchroniser',
+  title: 'Bodhi Server',
 });
 const cors = corsMiddleware({
   origins: ['*'],
