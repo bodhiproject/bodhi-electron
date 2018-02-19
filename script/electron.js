@@ -8,6 +8,7 @@ if (_.isEmpty(process.argv[2])) {
   throw new Exception('Output path must be defined');
 } else {
    outputPath = path.dirname(process.argv[2]);
+   outputPath = `${outputPath}/app`;
 }
 
 // Make dir if necessary
