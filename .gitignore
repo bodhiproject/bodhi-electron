@@ -148,8 +148,12 @@ qtum/*/
 =======
 >>>>>>> ignore bin/
 qtum/*/*
+<<<<<<< HEAD
 !qtum/*/.gitkeep
 >>>>>>> add keep win32/win64/linux32/linux64/mac folder
+=======
+!qtum/*/.gitignore
+>>>>>>> use gitignore inside subfolder instead of gitkeep
 
 # log file
 src/logs/
