@@ -4,10 +4,10 @@ You will need the Qtum client for the OS you are testing on (or building against
 Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the correct OS and put the `bin/` folder in the corresponding dir:
 
     qtum/mac/bin
-    qtum/mac/win64
-    qtum/mac/win32
-    qtum/mac/linux64
-    qtum/mac/linux32
+    qtum/win64/bin
+    qtum/win32/bin
+    qtum/linux64/bin
+    qtum/linux32/bin
 
 # Run Dev Environment
 1. `git clone https://github.com/bodhiproject/bodhi-graphql.git`
