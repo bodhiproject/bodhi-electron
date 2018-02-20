@@ -27,6 +27,7 @@
     "mac": {
       "asar": true,
       "asarUnpack": "qtum/mac/bin/*",
+      "category": "public.app-category.utilities",
       "files": [
         {
           "filter": [
@@ -76,6 +77,7 @@
         "qtum/linux64/bin/*",
         "qtum/linux32/bin/*"
       ],
+      "category": "Utility",
       "files": [
         {
           "filter": [
