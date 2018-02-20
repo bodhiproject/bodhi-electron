@@ -60,7 +60,7 @@ function getProdQtumPath() {
     case 'linux': {
       if (arch === 'x64') {
         return `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-      } else if (arch === 'x32'
+      } else if (arch === 'x32') {
         return `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
       } else {
         throw new Error(`Linux arch ${arch} not supported`);
