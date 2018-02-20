@@ -45,22 +45,25 @@ server.on('after', (req, res, route, err) => {
 });
 
 function getProdQtumPath() {
+  const arch = process.arch;
   switch (process.platform) {
     case 'darwin': {
       return `${app.getAppPath()}/qtum/mac/bin/qtumd`;
     }
     case 'win32': {
-      if (process.arch === 'x64') {
+      if (arch === 'x64') {
         return `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
       } else {
         return `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
       }
     }
     case 'linux': {
-      if (process.arch === 'x64') {
+      if (arch === 'x64') {
         return `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-      } else {
+      } else if (arch === 'x32'
         return `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+      } else {
+        throw new Error(`Linux arch ${arch} not supported`);
       }
     }
     default: {
