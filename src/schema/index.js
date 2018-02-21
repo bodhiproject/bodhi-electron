@@ -123,7 +123,6 @@ type Mutation {
 }
 
 type Subscription {
-  Topic(filter: topicSubscriptionFilter): TopicSubscriptionPayload
   BatchSynced : Block
 }
 

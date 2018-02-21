@@ -75,7 +75,7 @@ async function sync(db) {
   const topicsNeedBalanceUpdate = new Set();
   const oraclesNeedBalanceUpdate = new Set();
   let currentBlockChainHeight = await qclient.getBlockCount();
-  currentBlockChainHeight = Math.max(0,currentBlockChainHeight-1);
+  currentBlockChainHeight = Math.max(0, currentBlockChainHeight - 1);
 
   const currentBlockHash = await qclient.getBlockHash(currentBlockChainHeight);
   const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
@@ -95,7 +95,6 @@ async function sync(db) {
   } catch (err) {
     logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
   }
-
   sequentialLoop(
     Math.ceil((currentBlockChainHeight - startBlock) / batchSize), async (loop) => {
       const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
@@ -168,8 +167,8 @@ async function sync(db) {
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
-        if(startBlock >= chainBlockNum){
-          pubsub.publish('BatchSynced',{BatchSynced:{blockNum:currentBlockChainHeight}});
+        if (chainBlockNum != null && startBlock >= chainBlockNum) {
+          pubsub.publish('BatchSynced', { BatchSynced: { blockNum: currentBlockChainHeight } });
         }
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
