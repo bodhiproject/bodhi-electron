@@ -71,8 +71,6 @@ app.on('ready', () => {
     {
       label: "Application",
       submenu: [
-        { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
-        { type: "separator" },
         { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
       ]
     }, 
@@ -85,7 +83,6 @@ app.on('ready', () => {
         { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
         { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
         { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
       ]
     },
     {
@@ -93,7 +90,6 @@ app.on('ready', () => {
       submenu: [
         {role: 'reload'},
         {role: 'forcereload'},
-        {role: 'toggledevtools'},
         {type: 'separator'},
         {role: 'resetzoom'},
         {role: 'zoomin'},
