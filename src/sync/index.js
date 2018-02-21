@@ -2,6 +2,9 @@
 
 const _ = require('lodash');
 const { Qweb3, Contract } = require('qweb3');
+// const { PubSub, withFilter } = require('graphql-subscriptions');
+// const pubsub = new PubSub();
+const pubsub = require('../pubsub');
 
 const logger = require('../utils/logger');
 
@@ -158,7 +161,8 @@ async function sync(db) {
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
-
+        const newBlock = {test:300, blockNum: currentBlockChainHeight,blockTime: 1000}
+        pubsub.publish('BatchSynced',{BatchSynced:{blockNum:currentBlockChainHeight}});
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
         logger.debug('sleep');
