@@ -3,8 +3,8 @@
 const _ = require('lodash');
 const { Qweb3, Contract } = require('qweb3');
 const pubsub = require('../pubsub');
-
 const logger = require('../utils/logger');
+const fetch = require('node-fetch');
 
 const config = require('../config/config');
 const connectDB = require('../db/nedb');
@@ -27,7 +27,6 @@ const contractDeployedBlockNum = 78893;
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
 const RPC_BATCH_SIZE = 20;
-
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
@@ -83,8 +82,18 @@ async function sync(db) {
 
   let startBlock = contractDeployedBlockNum;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
+  }
+
+  let chainBlockNum = null;
+  try {
+    const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
+    const json = await resp.json();
+    chainBlockNum = json.info.blocks;
+  } catch (err) {
+    logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
   }
 
   sequentialLoop(
@@ -159,7 +168,9 @@ async function sync(db) {
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
-        pubsub.publish('BatchSynced',{BatchSynced:{blockNum:currentBlockChainHeight}});
+        if(startBlock >= chainBlockNum){
+          pubsub.publish('BatchSynced',{BatchSynced:{blockNum:currentBlockChainHeight}});
+        }
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
         logger.debug('sleep');
