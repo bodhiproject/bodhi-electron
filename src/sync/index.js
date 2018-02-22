@@ -167,7 +167,10 @@ async function sync(db) {
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
-        if (chainBlockNum != null && startBlock >= chainBlockNum) {
+
+        if (_.isNil(chainBlockNum)) {
+          logger.warn('chainBlockNum should not be null');
+        } else if (startBlock >= chainBlockNum) {
           pubsub.publish('BatchSynced', { BatchSynced: { blockNum: currentBlockChainHeight } });
         }
         // nedb doesnt require close db, leave the comment as a reminder
