@@ -2,8 +2,9 @@
 
 const _ = require('lodash');
 const { Qweb3, Contract } = require('qweb3');
-
+const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const fetch = require('node-fetch');
 
 const config = require('../config/config');
 const connectDB = require('../db/nedb');
@@ -26,7 +27,6 @@ const contractDeployedBlockNum = 78893;
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
 const RPC_BATCH_SIZE = 20;
-
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
@@ -75,17 +75,26 @@ async function sync(db) {
   const topicsNeedBalanceUpdate = new Set();
   const oraclesNeedBalanceUpdate = new Set();
   let currentBlockChainHeight = await qclient.getBlockCount();
-  currentBlockChainHeight = Math.max(0,currentBlockChainHeight-1);
+  currentBlockChainHeight = Math.max(0, currentBlockChainHeight - 1);
 
   const currentBlockHash = await qclient.getBlockHash(currentBlockChainHeight);
   const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
 
   let startBlock = contractDeployedBlockNum;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
+  let chainBlockNum = null;
+  try {
+    const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
+    const json = await resp.json();
+    chainBlockNum = json.info.blocks;
+  } catch (err) {
+    logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
+  }
   sequentialLoop(
     Math.ceil((currentBlockChainHeight - startBlock) / batchSize), async (loop) => {
       const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
@@ -159,6 +168,11 @@ async function sync(db) {
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
 
+        if (_.isNil(chainBlockNum)) {
+          logger.warn('chainBlockNum should not be null');
+        } else if (startBlock >= chainBlockNum) {
+          pubsub.publish('OnSyncInfo', { OnSyncInfo: { syncBlockNum: currentBlockChainHeight, syncBlockTime: currentBlockTime, chainBlockNum } });
+        }
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
         logger.debug('sleep');

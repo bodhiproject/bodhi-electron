@@ -123,7 +123,7 @@ type Mutation {
 }
 
 type Subscription {
-  Topic(filter: topicSubscriptionFilter): TopicSubscriptionPayload
+  OnSyncInfo : syncInfo
 }
 
 input topicSubscriptionFilter {

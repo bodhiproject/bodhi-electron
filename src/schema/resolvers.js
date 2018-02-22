@@ -218,8 +218,8 @@ module.exports = {
   },
 
   Subscription: {
-    Topic: {
-      subscribe: () => pubsub.asyncIterator('Topic'),
+    OnSyncInfo: {
+      subscribe: () => pubsub.asyncIterator('OnSyncInfo'),
     },
   },
 };
