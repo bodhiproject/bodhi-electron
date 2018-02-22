@@ -218,8 +218,8 @@ module.exports = {
   },
 
   Subscription: {
-    BatchSynced: {
-      subscribe: () => pubsub.asyncIterator('BatchSynced'),
+    OnSyncInfo: {
+      subscribe: () => pubsub.asyncIterator('OnSyncInfo'),
     },
   },
 };

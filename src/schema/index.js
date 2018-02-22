@@ -123,7 +123,7 @@ type Mutation {
 }
 
 type Subscription {
-  BatchSynced : Block
+  OnSyncInfo : syncInfo
 }
 
 input topicSubscriptionFilter {

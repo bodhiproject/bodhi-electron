@@ -171,7 +171,7 @@ async function sync(db) {
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
         } else if (startBlock >= chainBlockNum) {
-          pubsub.publish('BatchSynced', { BatchSynced: { blockNum: currentBlockChainHeight } });
+          pubsub.publish('OnSyncInfo', { OnSyncInfo: { syncBlockNum: currentBlockChainHeight, syncBlockTime: currentBlockTime, chainBlockNum } });
         }
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
