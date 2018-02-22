@@ -1,5 +1,5 @@
 {
-  "name": "BodhiPM",
+  "name": "Bodhi",
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
@@ -23,7 +23,7 @@
   },
   "build": {
     "appId": "network.bodhi.app",
-    "productName": "BodhiPM",
+    "productName": "Bodhi",
     "mac": {
       "asar": true,
       "asarUnpack": "qtum/mac/bin/*",
