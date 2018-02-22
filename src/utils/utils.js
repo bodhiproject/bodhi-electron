@@ -9,13 +9,6 @@ const DIR_DEV = 'dev';
 class Utils {
   /*
   * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  *
->>>>>>> remove useless subscription and ensure chainBlockNum not null
-=======
->>>>>>> rename batchsynced to onsyncinfo and return SyncInfo Object
   */
   static getDataDir() {
     let dataDir;
