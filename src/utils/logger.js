@@ -1,5 +1,5 @@
 require('dotenv').config();
-const fs = require('fs');
+const fs = require('fs-extra');
 const moment = require('moment');
 const winston = require('winston');
 
@@ -10,9 +10,7 @@ const LOG_DIR = `${Utils.getDataDir()}/logs`;
 
 // Create log dir if needed
 console.log(`Logs output: ${LOG_DIR}`);
-if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR);
-}
+fs.ensureDirSync(LOG_DIR);
 
 const winstonCfg = winston.config;
 const logger = new (winston.Logger)({

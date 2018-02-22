@@ -15,6 +15,7 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const startSync = require('./sync');
+const Utils = require('./utils/utils');
 
 const qClient = new Qweb3(config.QTUM_RPC_ADDRESS);
 const emitter = new EventEmitter();
@@ -26,7 +27,7 @@ const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
 // Restify setup
 const server = restify.createServer({
-  title: 'Bodhi Synchroniser',
+  title: 'Bodhi Server',
 });
 const cors = corsMiddleware({
   origins: ['*'],
@@ -43,26 +44,52 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
+function getProdQtumPath() {
+  const arch = process.arch;
+  switch (process.platform) {
+    case 'darwin': {
+      return `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+    }
+    case 'win32': {
+      if (arch === 'x64') {
+        return `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+      } else {
+        return `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+      }
+    }
+    case 'linux': {
+      if (arch === 'x64') {
+        return `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+      } else if (arch === 'x32') {
+        return `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+      } else {
+        throw new Error(`Linux arch ${arch} not supported`);
+      }
+    }
+    default: {
+      throw new Error('Operating system not supported');
+    }
+  }
+}
+
 async function checkQtumd() {
   const running = await qClient.isConnected();
   if (running) {
     clearInterval(checkInterval);
-    startServices();    
+    startServices();
   }
 }
 
 function startQtumProcess(reindex) {
-  let basePath;
+  let qtumdPath;
   if (_.includes(process.argv, '--dev')) {
-    // dev path
-    basePath = (_.split(process.argv[2], '=', 2))[1];
+    // dev, must pass in the absolute path to the bin/ folder
+    qtumdPath = (_.split(process.argv[2], '=', 2))[1];
+    qtumdPath = `${qtumdPath}/qtumd`;
   } else {
-    // prod path
-    basePath = `${__dirname}/qtum`;
+    // prod
+    qtumdPath = getProdQtumPath().replace('app.asar', 'app.asar.unpacked');
   }
-
-  // avoid using path.join for pkg to pack qtumd
-  const qtumdPath = `${basePath}/qtumd`;
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
   const flags = ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
