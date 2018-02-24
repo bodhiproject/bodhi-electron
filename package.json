@@ -53,14 +53,14 @@
         {
           "filter": [
             "**/*",
-            "build/icon.png",
+            "build/icon.ico",
             "!qtum/linux32",
             "!qtum/linux64",
             "!qtum/mac"
           ]
         }
       ],
-      "icon": "build/icon.png",
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "nsis",
