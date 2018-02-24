@@ -60,9 +60,14 @@ ipcMain.on('log-error', (event, arg) => {
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  createWindow();
-
   server = require('./src/index');
+
+  // If --noelec flag is supplied, don't open any Electron windows
+  if (_.includes(process.argv, '--noelec')) {
+    return;
+  }
+
+  createWindow();
   server.emitter.once('qtumd-started', () => {
     uiWin.reload();
   });
