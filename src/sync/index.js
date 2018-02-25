@@ -17,7 +17,6 @@ const DecentralizedOracle = require('./models/decentralizedOracle');
 const Vote = require('./models/vote');
 const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
-
 const Contracts = require('../config/contract_metadata');
 
 const rpcBatchSize = 20;
@@ -173,39 +172,6 @@ async function sync(db) {
       });
     },
   );
-}
-
-async function getInsertBlockPromises(db, startBlock, endBlock) {
-  let blockHash;
-  let blockTime;
-  const insertBlockPromises = [];
-
-  for (let i = startBlock; i <= endBlock; i++) {
-    blockHash = await qclient.getBlockHash(i);
-    blockTime = (await qclient.getBlock(blockHash)).time;
-
-    insertBlockPromises.push(new Promise(async (resolve) => {
-      await db.Blocks.insert({
-        _id: i,
-        blockNum: i,
-        blockTime: blockTime,
-      });
-      resolve();
-    }));
-  }
-
-  return { insertBlockPromises, endBlockTime: blockTime };
-}
-
-// Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
-  pubsub.publish('OnSyncInfo', { 
-    OnSyncInfo: { 
-      syncBlockNum,
-      syncBlockTime,
-      chainBlockNum,
-    } 
-  });
 }
 
 async function fetchNameOptionsFromTopic(db, address) {
@@ -480,6 +446,40 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
   });
 
   await Promise.all(updateFinalResultSetPromises);
+}
+
+// Gets all promises for new blocks to insert
+async function getInsertBlockPromises(db, startBlock, endBlock) {
+  let blockHash;
+  let blockTime;
+  const insertBlockPromises = [];
+
+  for (let i = startBlock; i <= endBlock; i++) {
+    blockHash = await qclient.getBlockHash(i);
+    blockTime = (await qclient.getBlock(blockHash)).time;
+
+    insertBlockPromises.push(new Promise(async (resolve) => {
+      await db.Blocks.insert({
+        _id: i,
+        blockNum: i,
+        blockTime: blockTime,
+      });
+      resolve();
+    }));
+  }
+
+  return { insertBlockPromises, endBlockTime: blockTime };
+}
+
+// Send syncInfo subscription
+function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
+  pubsub.publish('OnSyncInfo', { 
+    OnSyncInfo: { 
+      syncBlockNum,
+      syncBlockTime,
+      chainBlockNum,
+    } 
+  });
 }
 
 // all central & decentral oracles with VOTING status and endTime less than currentBlockTime
