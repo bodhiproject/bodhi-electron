@@ -118,19 +118,8 @@ async function sync(db) {
       ]);
       logger.debug('Synced Result Set');
 
-      const updateBlockPromises = [];
-      for (let i = startBlock; i <= endBlock; i++) {
-        const updateBlockPromise = new Promise(async (resolve) => {
-          await db.Blocks.insert({
-            _id: i,
-            blockNum: i,
-            blockTime: currentBlockTime,
-          });
-          resolve();
-        });
-        updateBlockPromises.push(updateBlockPromise);
-      }
-      await Promise.all(updateBlockPromises);
+      const { insertBlockPromises, endBlockTime } = await getInsertBlockPromises(db, startBlock, endBlock);
+      await Promise.all(insertBlockPromises);
       logger.debug('Inserted Blocks');
 
       startBlock = endBlock + 1;
@@ -174,13 +163,7 @@ async function sync(db) {
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
         } else if (startBlock >= chainBlockNum) {
-          pubsub.publish('OnSyncInfo', { 
-            OnSyncInfo: { 
-              syncBlockNum: currentBlockCount,
-              syncBlockTime: currentBlockTime,
-              chainBlockNum 
-            }
-          });
+          sendSyncInfo(currentBlockChainHeight, currentBlockTime, chainBlockNum);
         }
 
         // nedb doesnt require close db, leave the comment as a reminder
@@ -190,6 +173,39 @@ async function sync(db) {
       });
     },
   );
+}
+
+async function getInsertBlockPromises(db, startBlock, endBlock) {
+  let blockHash;
+  let blockTime;
+  const insertBlockPromises = [];
+
+  for (let i = startBlock; i <= endBlock; i++) {
+    blockHash = await qclient.getBlockHash(i);
+    blockTime = (await qclient.getBlock(blockHash)).time;
+
+    insertBlockPromises.push(new Promise(async (resolve) => {
+      await db.Blocks.insert({
+        _id: i,
+        blockNum: i,
+        blockTime: blockTime,
+      });
+      resolve();
+    }));
+  }
+
+  return { insertBlockPromises, endBlockTime: blockTime };
+}
+
+// Send syncInfo subscription
+function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
+  pubsub.publish('OnSyncInfo', { 
+    OnSyncInfo: { 
+      syncBlockNum,
+      syncBlockTime,
+      chainBlockNum,
+    } 
+  });
 }
 
 async function fetchNameOptionsFromTopic(db, address) {
