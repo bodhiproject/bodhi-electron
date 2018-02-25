@@ -462,7 +462,7 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
       await db.Blocks.insert({
         _id: i,
         blockNum: i,
-        blockTime: blockTime,
+        blockTime,
       });
       resolve();
     }));
@@ -473,12 +473,12 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
 
 // Send syncInfo subscription
 function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
-  pubsub.publish('OnSyncInfo', { 
-    OnSyncInfo: { 
+  pubsub.publish('onSyncInfo', {
+    onSyncInfo: {
       syncBlockNum,
       syncBlockTime,
       chainBlockNum,
-    } 
+    },
   });
 }
 
