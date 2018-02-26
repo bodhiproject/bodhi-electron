@@ -139,7 +139,7 @@ type Mutation {
     senderAddress: String!
     topicAddress: String!
     oracleAddress: String!
-    consensusThreshold: String!
+    amount: String!
     resultIdx: Int!
   ): Transaction
 

@@ -299,12 +299,12 @@ module.exports = {
       // Insert Transaction
       const tx = {
         _id: txid,
-        version,
         txid,
+        version,
         type: 'BET',
         status: 'PENDING',
         senderAddress,
-        entityId,
+        oracleAddress,
         optionIdx,
         token: 'QTUM',
         amount,
@@ -320,7 +320,7 @@ module.exports = {
         topicAddress,
         oracleAddress,
         resultIdx,
-        consensusThreshold,
+        amount,
         senderAddress,
       } = data;
 
@@ -329,7 +329,7 @@ module.exports = {
       try {
         const tx = await bodhiToken.approve({
           spender: topicAddress,
-          value: consensusThreshold,
+          value: amount,
           senderAddress,
         });
         txid = tx.txid;
@@ -341,14 +341,16 @@ module.exports = {
       // Insert Transaction
       const tx = {
         _id: txid,
+        txid,
         version,
         type: 'APPROVESETRESULT',
         status: 'PENDING',
         senderAddress,
-        entityId: oracleAddress,
+        topicAddress,
+        oracleAddress,
         optionIdx: resultIdx,
         token: 'QTUM',
-        amount: consensusThreshold,
+        amount,
         createdTime: Date.now().toString(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
@@ -383,11 +385,13 @@ module.exports = {
       // Insert Transaction
       const tx = {
         _id: txid,
+        txid,
         version,
         type: 'APPROVEVOTE',
         status: 'PENDING',
         senderAddress,
-        entityId: oracleAddress,
+        topicAddress,
+        oracleAddress,
         optionIdx: resultIdx,
         token: 'BOT',
         amount,
@@ -421,11 +425,12 @@ module.exports = {
       // Insert Transaction
       const tx = {
         _id: txid,
+        txid
         version,
         type: 'FINALIZERESULT',
         status: 'PENDING',
         senderAddress,
-        entityId: oracleAddress,
+        oracleAddress,
         createdTime: Date.now().toString(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
@@ -456,11 +461,12 @@ module.exports = {
       // Insert Transaction
       const tx = {
         _id: txid,
+        txid,
         version,
         type: 'WITHDRAW',
         status: 'PENDING',
         senderAddress,
-        entityId: topicAddress,
+        topicAddress,
         createdTime: Date.now().toString(),
       };
       await DBHelper.insertTransaction(Transactions, tx);

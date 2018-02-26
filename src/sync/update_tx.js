@@ -81,7 +81,7 @@ async function executeFollowUpTx(tx, db) {
     case 'APPROVESETRESULT': {
       try {
         const setResultTx = await centralizedOracle.setResult({
-          contractAddress: tx.entityId,
+          contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           senderAddress: tx.senderAddress,
         });
@@ -98,7 +98,7 @@ async function executeFollowUpTx(tx, db) {
         type: 'SETRESULT',
         status: 'PENDING',
         senderAddress: tx.senderAddress,
-        entityId: tx.entityId,
+        oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
@@ -110,7 +110,7 @@ async function executeFollowUpTx(tx, db) {
     case 'APPROVEVOTE': {
       try {
         const voteTx = await decentralizedOracle.vote({
-          contractAddress: tx.entityId,
+          contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           botAmount: tx.amount,
           senderAddress: tx.senderAddress,
@@ -128,7 +128,7 @@ async function executeFollowUpTx(tx, db) {
         type: 'VOTE',
         status: 'PENDING',
         senderAddress: tx.senderAddress,
-        entityId: tx.entityId,
+        oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
