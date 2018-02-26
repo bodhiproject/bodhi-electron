@@ -4,138 +4,137 @@ const fetch = require('node-fetch');
 
 const config = require('../config/config');
 const logger = require('../utils/logger');
+const blockchain = require('../api/blockchain');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/db_helper');
 
-const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
-
-async function checkTxStatus(txid) {
-  const resp = await qclient.getTransactionReceipt(txid);
-  console.log(resp);
-  if (_.isEmpty(resp)) {
-    return {
-      status: 'PENDING',
-    };
-  }
-
-  const tx = resp[0];
-  if (_.isEmpty(tx.log)) {
-    return {
-      status: 'FAIL',
-      gasUsed: tx.gasUsed,
-      blockNum: tx.blockNum,
-    };
-  }
-
-  return {
-    status: 'SUCCESS',
-    gasUsed: tx.gasUsed,
-    blockNum: tx.blockNum,
-  };
-}
-
-async function updateTxDB(db) {
+async function updatePendingTxs(db) {
   let pendingTxs;
   try {
     pendingTxs = await db.Transactions.cfind({ status: 'PENDING' })
       .sort({ createTime: -1 }).exec();
   } catch (err) {
-    logger.error(`Error updateTxDB: ${err.message}`);
+    logger.error(`Error getting pending Transactions: ${err.message}`);
     throw err;
   }
 
   // TODO(frank): batch to void too many rpc calls
-  await Promise.all(pendingTxs.map(async (txid) => {
-    await updateTx(txid, db);
-  }));
+  const updatePromises = [];
+  _.each(pendingTxs, (tx) => {
+    updatePromises.push(new Promise(async (resolve) => {
+      await updateTx(tx);
+      await updateDB(tx, db);
+      await executeFollowUpTx(tx, db);
+      resolve();
+    }));
+  })
+  await Promise.all(updatePromises);
 }
 
-async function updateTx(approveTxid, db) {
-  const txReceipt = await checkTxStatus(approveTxid);
-  let tx;
-  if (txReceipt.status !== 'PENDING') {
+// Update the Transaction info
+async function updateTx(tx) {
+  const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
+
+  if (_.isEmpty(resp)) {
+    tx.status = 'PENDING';
+  } else if (_.isEmpty(resp[0].log)) {
+    tx.status = 'FAIL';
+    tx.gasUsed = resp[0].gasUsed;
+    tx.blockNum = resp[0].blockNumber;
+  } else {
+    tx.status = 'SUCCESS';
+    tx.gasUsed = resp[0].gasUsed;
+    tx.blockNum = resp[0].blockNumber;
+  }
+}
+
+// Update the DB with new Transaction info
+async function updateDB(tx, db) {
+  if (tx.status !== 'PENDING') {
     try {
-      tx = await db.Transactions.update(
-        { address: approveTxid },
+      logger.debug(`Updating Transaction ${tx.type} ${tx._id}`);
+      await db.Transactions.update(
+        { _id: tx._id },
         {
           $set: {
-            status: txReceipt.status,
-            gasUsed: txReceipt.gasUsed,
-            blockNum: txReceipt.blockNum,
+            status: tx.status,
+            gasUsed: tx.gasUsed,
+            blockNum: tx.blockNum,
           },
         }, 
         {},
       );
     } catch (err) {
-      logger.error(`Error updateApproveTx ${approveTxid}: ${err.message}`);
+      logger.error(`Error updating Transaction ${tx.type} ${tx._id}: ${err.message}`);
       throw err;
     }
   }
-
-  if (txReceipt.status === 'SUCCESS' && tx.type.startsWith('APPROVE')) {
-    updateApprovedTx(tx, db);
-  }
 }
 
-async function updateApprovedTx(approveTx, db) {
-  const Transactions = db.Transactions;
+// Execute follow-up transaction
+async function executeFollowUpTx(tx, db) {
+  if (tx.status !== 'SUCCESS') {
+    return;
+  }
 
-  switch (approveTx.type) {
+  const Transactions = db.Transactions;
+  let txid;
+  switch (tx.type) {
     case 'APPROVESETRESULT': {
-      let setResultTxid;
       try {
-        const tx = await centralizedOracle.setResult({
-          contractAddress: approveTx.entityId,
-          resultIndex: approveTx.optionIdx,
-          senderAddress: approveTx.senderAddress,
+        const setResultTx = await centralizedOracle.setResult({
+          contractAddress: tx.entityId,
+          resultIndex: tx.optionIdx,
+          senderAddress: tx.senderAddress,
         });
-        setResultTxid = tx.txid;
+        txid = setResultTx.txid;
       } catch (err) {
         logger.error(`Error calling /set-result: ${err.message}`);
         throw err;
       }
 
       const tx = {
-        _id: setResultTxid,
-        version: approveTx.version,
+        _id: txid,
+        txid,
+        version: tx.version,
         type: 'SETRESULT',
         status: 'PENDING',
-        senderAddress: approveTx.senderAddress,
-        entityId: approveTx.entityId,
-        optionIdx: approveTx.optionIdx,
+        senderAddress: tx.senderAddress,
+        entityId: tx.entityId,
+        optionIdx: tx.optionIdx,
         token: 'BOT',
-        amount: approveTx.amount,
+        amount: tx.amount,
         createdTime: Date.now().toString(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
       break;
     }
     case 'APPROVEVOTE': {
-      let voteTxid;
       try {
-        const tx = await decentralizedOracle.vote({
-          contractAddress: approveTx.entityId,
-          resultIndex: approveTx.optionIdx,
-          botAmount: approveTx.amount,
-          senderAddress: approveTx.senderAddress,
+        const voteTx = await decentralizedOracle.vote({
+          contractAddress: tx.entityId,
+          resultIndex: tx.optionIdx,
+          botAmount: tx.amount,
+          senderAddress: tx.senderAddress,
         });
-        voteTxid = tx.txid;
+        txid = voteTx.txid;
       } catch (err) {
         logger.error(`Error calling /vote: ${err.message}`);
         throw err;
       }
 
       const tx = {
-        _id: voteTxid,
-        version: approveTx.version,
+        _id: txid,
+        txid,
+        version: tx.version,
         type: 'VOTE',
-        txStatus: 'PENDING',
-        senderAddress: approveTx.senderAddress,
-        entityId: approveTx.entityId,
-        optionIdx: approveTx.optionIdx,
+        status: 'PENDING',
+        senderAddress: tx.senderAddress,
+        entityId: tx.entityId,
+        optionIdx: tx.optionIdx,
         token: 'BOT',
-        amount: approveTx.approveTx.amount,
+        amount: tx.amount,
         createdTime: Date.now().toString(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
@@ -147,4 +146,4 @@ async function updateApprovedTx(approveTx, db) {
   }
 }
 
-module.exports = updateTxDB;
+module.exports = updatePendingTxs;
