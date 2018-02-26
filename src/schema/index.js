@@ -58,7 +58,8 @@ type Transaction {
   status: _TransactionStatus!
   senderAddress: String!
   senderQAddress: String!
-  entityId: String
+  topicAddress: String
+  oracleAddress: String
   optionIdx: Int
   token: _TokenType
   amount: String
@@ -128,7 +129,7 @@ type Mutation {
   createBet(
     version: Int!
     senderAddress: String!
-    entityId: String!
+    oracleAddress: String!
     optionIdx: Int!
     amount: String!
   ): Transaction

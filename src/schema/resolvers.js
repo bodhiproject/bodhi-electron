@@ -275,7 +275,7 @@ module.exports = {
     createBet: async (root, data, { db: { Transactions } }) => {
       const {
         version,
-        entityId,
+        oracleAddress,
         optionIdx,
         amount,
         senderAddress,
@@ -285,7 +285,7 @@ module.exports = {
       let txid;
       try {
         const tx = await centralizedOracle.bet({
-          contractAddress: entityId,
+          contractAddress: oracleAddress,
           index: optionIdx,
           amount,
           senderAddress,
