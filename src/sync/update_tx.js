@@ -5,6 +5,8 @@ const fetch = require('node-fetch');
 const config = require('../config/config');
 const logger = require('../utils/logger');
 const centralizedOracle = require('../api/centralized_oracle');
+const decentralizedOracle = require('../api/decentralized_oracle');
+const DBHelper = require('../db/db_helper');
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
@@ -62,7 +64,8 @@ async function updateTx(approveTxid, db) {
             gasUsed: txReceipt.gasUsed,
             blockNum: txReceipt.blockNum,
           },
-        }, {},
+        }, 
+        {},
       );
     } catch (err) {
       logger.error(`Error updateApproveTx ${approveTxid}: ${err.message}`);
@@ -103,29 +106,19 @@ async function updateApprovedTx(approveTx, db) {
       amount: approveTx.amount,
       createdTime: Date.now().toString(),
     };
-
-    try {
-      await Transactions.insert(tx);
-    } catch (err) {
-      logger.error(`Error insert Transactions: ${err.message}`);
-      throw err;
-    }
+    await DBHelper.insertTransaction(Transactions, tx);
   } else if (approveTx.type === 'APPROVEVOTE') {
     let voteTxid;
     try {
-      const resp = await fetch('http://localhost:5555/vote', {
-        method: 'POST',
-        body: JSON.stringify({
-          contractAddress: approveTx.entityId,
-          resultIndex: approveTx.optionIdx,
-          botAmount: approveTx.amount,
-          senderAddress: approveTx.senderAddress,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      }).then(res => res.json());
-      voteTxid = resp.result.txid;
+      const tx = await decentralizedOracle.vote({
+        contractAddress: approveTx.entityId,
+        resultIndex: approveTx.optionIdx,
+        botAmount: approveTx.amount,
+        senderAddress: approveTx.senderAddress,
+      });
+      voteTxid = tx.result.txid;
     } catch (err) {
-      logger.error(`Error call /vote: ${err.message}`);
+      logger.error(`Error calling /vote: ${err.message}`);
       throw err;
     }
 
@@ -141,13 +134,7 @@ async function updateApprovedTx(approveTx, db) {
       amount: approveTx.approveTx.amount,
       createdTime: Date.now().toString(),
     };
-
-    try {
-      await Transactions.insert(tx);
-    } catch (err) {
-      logger.error(`Error insert Transactions: ${err.message}`);
-      throw err;
-    }
+    await DBHelper.insertTransaction(Transactions, tx);
   }
 }
 
