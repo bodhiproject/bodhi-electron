@@ -125,14 +125,6 @@ type Mutation {
     resultSettingEndTime: Int!
   ): Transaction
 
-  setResult(
-    version: Int!
-    senderAddress: String!
-    oracleAddress: String!
-    consensusThreshold: String!
-    resultIdx: Int!
-  ): Transaction
-
   createBet(
     version: Int!
     senderAddress: String!
@@ -141,9 +133,19 @@ type Mutation {
     amount: String!
   ): Transaction
 
+  setResult(
+    version: Int!
+    senderAddress: String!
+    topicAddress: String!
+    oracleAddress: String!
+    consensusThreshold: String!
+    resultIdx: Int!
+  ): Transaction
+
   createVote(
     version: Int!
     senderAddress: String!
+    topicAddress: String!
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
