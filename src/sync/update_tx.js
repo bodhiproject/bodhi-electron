@@ -12,7 +12,7 @@ async function updatePendingTxs(db) {
     pendingTxs = await db.Transactions.cfind({ status: 'PENDING' })
       .sort({ createTime: -1 }).exec();
   } catch (err) {
-    logger.error(`Error getting pending Transactions: ${err.message}`);
+    logger.error(`Error: get pending Transactions: ${err.message}`);
     throw err;
   }
 
@@ -50,7 +50,7 @@ async function updateTx(tx) {
 async function updateDB(tx, db) {
   if (tx.status !== 'PENDING') {
     try {
-      logger.debug(`Updating Transaction ${tx.type} ${tx._id}`);
+      logger.debug(`Update: Transaction ${tx.type} ${tx._id}`);
       await db.Transactions.update(
         { _id: tx._id },
         {
@@ -63,7 +63,7 @@ async function updateDB(tx, db) {
         {},
       );
     } catch (err) {
-      logger.error(`Error updating Transaction ${tx.type} ${tx._id}: ${err.message}`);
+      logger.error(`Error: Update Transaction ${tx.type} ${tx._id}: ${err.message}`);
       throw err;
     }
   }
