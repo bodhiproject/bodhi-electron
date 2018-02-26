@@ -1,8 +1,5 @@
 const _ = require('lodash');
-const { Qweb3 } = require('qweb3');
-const fetch = require('node-fetch');
 
-const config = require('../config/config');
 const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const centralizedOracle = require('../api/centralized_oracle');
