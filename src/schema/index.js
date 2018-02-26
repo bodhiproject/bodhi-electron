@@ -152,7 +152,7 @@ type Mutation {
   finalizeResult(
     version: Int!
     senderAddress: String!
-    oracleAddrss: String!
+    oracleAddress: String!
   ): Transaction
 
   withdraw(
