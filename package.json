@@ -33,7 +33,7 @@
         {
           "filter": [
             "**/*",
-            "!assets",
+            "build/icon.png",
             "!qtum/linux32",
             "!qtum/linux64",
             "!qtum/win32",
@@ -41,7 +41,7 @@
           ]
         }
       ],
-      "icon": "./assets/logo/Mac_512.png",
+      "icon": "build/icon.png",
       "target": "dmg"
     },
     "win": {
@@ -54,14 +54,14 @@
         {
           "filter": [
             "**/*",
-            "!assets",
+            "build/icon.ico",
             "!qtum/linux32",
             "!qtum/linux64",
             "!qtum/mac"
           ]
         }
       ],
-      "icon": "./assets/logo/Mac_512.png",
+      "icon": "build/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -83,14 +83,14 @@
         {
           "filter": [
             "**/*",
-            "!assets",
+            "build/icon.png",
             "!qtum/mac",
             "!qtum/win32",
             "!qtum/win64"
           ]
         }
       ],
-      "icon": "./assets/logo/Mac_512.png",
+      "icon": "build/icon.png",
       "target": [
         {
           "target": "AppImage",
