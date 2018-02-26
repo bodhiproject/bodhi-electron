@@ -455,15 +455,23 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
   const insertBlockPromises = [];
 
   for (let i = startBlock; i <= endBlock; i++) {
-    blockHash = await qclient.getBlockHash(i);
-    blockTime = (await qclient.getBlock(blockHash)).time;
+    try {
+      blockHash = await qclient.getBlockHash(i);
+      blockTime = (await qclient.getBlock(blockHash)).time;
+    } catch (err) {
+      logger.error(err);
+    }
 
     insertBlockPromises.push(new Promise(async (resolve) => {
-      await db.Blocks.insert({
-        _id: i,
-        blockNum: i,
-        blockTime,
-      });
+      try {
+        await db.Blocks.insert({
+          _id: i,
+          blockNum: i,
+          blockTime,
+        });
+      } catch (err) {
+        logger.error(err);
+      }
       resolve();
     }));
   }
