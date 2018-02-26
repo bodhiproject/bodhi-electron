@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "install-dep": "npm install && ./node_modules/.bin/yarn install",
-    "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
+    "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev --noelec",
+    "start-elec": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
     "build:mac": "./node_modules/.bin/electron-builder build -m",

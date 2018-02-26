@@ -16,7 +16,11 @@ Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the
 
 3. `npm run install-dep`
 
-4. `npm start`
+4. To start services either:
+
+	`npm start` // starts API, sync
+	or
+	`npm run start-elec` // start API, sync, launch UI (static built files in ui/ folder)
 
 5. App at `127.0.0.1:5555` or GraphiQL at `127.0.0.1:5555/graphiql`
 
