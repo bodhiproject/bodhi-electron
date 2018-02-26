@@ -140,7 +140,7 @@ type Mutation {
     topicAddress: String!
     oracleAddress: String!
     amount: String!
-    resultIdx: Int!
+    optionIdx: Int!
   ): Transaction
 
   createVote(
