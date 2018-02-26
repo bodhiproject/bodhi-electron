@@ -275,55 +275,6 @@ module.exports = {
       return tx;
     },
 
-    setResult: async (root, data, { db: { Transactions } }) => {
-      const version = data.version;
-      const senderAddress = data.senderAddress;
-      const oracleAddress = data.oracleAddress;
-      const resultIdx = data.resultIdx;
-      const consensusThreshold = data.consensusThreshold;
-
-      // rpc call to approve
-      let approveTxid;
-      try {
-        const resp = await fetch('http://localhost:5555/approve', {
-          method: 'POST',
-          body: JSON.stringify({
-            spender: oracleAddress,
-            value: consensusThreshold,
-            senderAddress,
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        }).then(res => res.json());
-
-        approveTxid = resp.result.txid;
-      } catch (err) {
-        logger.error(`Error call /approve: ${err.message}`);
-        throw err;
-      }
-
-      const tx = {
-        _id: approveTxid,
-        version,
-        type: 'APPROVESETRESULT',
-        txStatus: 'PENDING',
-        senderAddress,
-        entityId: oracleAddress,
-        optionIdx: resultIdx,
-        token: 'QTUM',
-        amount: consensusThreshold,
-        createdTime: Date.now().toString(),
-      };
-
-      try {
-        await Transactions.insert(tx);
-      } catch (err) {
-        logger.error(`Error insert Transactions: ${err.message}`);
-        throw err;
-      }
-
-      return tx;
-    },
-
     createBet: async (root, data, { db: { Transactions } }) => {
       const version = data.version;
       const senderAddress = data.senderAddress;
@@ -355,12 +306,61 @@ module.exports = {
         version,
         txid,
         type: 'BET',
-        txStatus: 'PENDING',
+        status: 'PENDING',
         senderAddress,
         entityId: oracleAddress,
         optionIdx,
         token: 'QTUM',
         amount,
+      };
+
+      try {
+        await Transactions.insert(tx);
+      } catch (err) {
+        logger.error(`Error insert Transactions: ${err.message}`);
+        throw err;
+      }
+
+      return tx;
+    },
+
+    setResult: async (root, data, { db: { Transactions } }) => {
+      const version = data.version;
+      const senderAddress = data.senderAddress;
+      const oracleAddress = data.oracleAddress;
+      const resultIdx = data.resultIdx;
+      const consensusThreshold = data.consensusThreshold;
+
+      // rpc call to approve
+      let approveTxid;
+      try {
+        const resp = await fetch('http://localhost:5555/approve', {
+          method: 'POST',
+          body: JSON.stringify({
+            spender: oracleAddress,
+            value: consensusThreshold,
+            senderAddress,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        }).then(res => res.json());
+
+        approveTxid = resp.result.txid;
+      } catch (err) {
+        logger.error(`Error call /approve: ${err.message}`);
+        throw err;
+      }
+
+      const tx = {
+        _id: approveTxid,
+        version,
+        type: 'APPROVESETRESULT',
+        status: 'PENDING',
+        senderAddress,
+        entityId: oracleAddress,
+        optionIdx: resultIdx,
+        token: 'QTUM',
+        amount: consensusThreshold,
+        createdTime: Date.now().toString(),
       };
 
       try {
@@ -381,14 +381,15 @@ module.exports = {
       const optionIdx = data.optionIdx;
 
       // Send tx
-      let execTx;
+      let txid;
       try {
-        execTx = decentralizedOracle.vote({
+        const tx = decentralizedOracle.vote({
           contractAddress: oracleAddress,
           resultIndex: optionIdx,
           botAmount: amount,
           senderAddress,
         });
+        txid = tx.result.txid;
       } catch (err) {
         logger.error(`Error calling /vote: ${err.message}`);
         throw err;
@@ -399,7 +400,7 @@ module.exports = {
         _id: txid,
         version,
         type: 'APPROVEVOTE',
-        txStatus: 'PENDING',
+        status: 'PENDING',
         senderAddress,
         entityId: oracleAddress,
         optionIdx: resultIdx,
@@ -408,10 +409,51 @@ module.exports = {
         createdTime: Date.now().toString(),
       };
 
+      // Insert in DB
       try {
         await Transactions.insert(tx);
       } catch (err) {
         logger.error(`Error inserting Transactions.createVote: ${err.message}`);
+        throw err;
+      }
+
+      return tx;
+    },
+
+    finalizeResult: async (root, data, { db: { Transactions } }) => {
+      const version = data.version;
+      const senderAddress = data.senderAddress;
+      const oracleAddress = data.oracleAddress;
+
+      // Send tx
+      let txid;
+      try {
+        const tx = decentralizedOracle.finalizeResult({
+          contractAddress: oracleAddress,
+          senderAddress,
+        });
+        txid = tx.result.txid;
+      } catch (err) {
+        logger.error(`Error calling /finalizeResult: ${err.message}`);
+        throw err;
+      }
+
+      // Construct tx object
+      const tx = {
+        _id: txid,
+        version,
+        type: 'FINALIZERESULT',
+        status: 'PENDING',
+        senderAddress,
+        entityId: oracleAddress,
+        createdTime: Date.now().toString(),
+      };
+
+      // Insert in DB
+      try {
+        await Transactions.insert(tx);
+      } catch (err) {
+        logger.error(`Error inserting Transactions.finalizeResult: ${err.message}`);
         throw err;
       }
 
