@@ -128,7 +128,7 @@ type Mutation {
   createBet(
     version: Int!
     senderAddress: String!
-    oracleAddress: String!
+    entityId: String!
     optionIdx: Int!
     amount: String!
   ): Transaction

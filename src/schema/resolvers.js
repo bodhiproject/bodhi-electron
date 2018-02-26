@@ -209,7 +209,7 @@ module.exports = {
       // Send createTopic tx
       let txid;
       try {
-        const tx = eventFactory.createTopic({
+        const tx = await eventFactory.createTopic({
           oracleAddress: resultSetterAddress,
           eventName: name,
           resultNames: options,
@@ -219,7 +219,7 @@ module.exports = {
           resultSettingEndTime,
           senderAddress,
         });
-        txid = tx.result.txid;
+        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /create-topic: ${err.message}`);
         throw err;
@@ -275,7 +275,7 @@ module.exports = {
     createBet: async (root, data, { db: { Transactions } }) => {
       const {
         version,
-        oracleAddress,
+        entityId,
         optionIdx,
         amount,
         senderAddress,
@@ -284,13 +284,13 @@ module.exports = {
       // Send bet tx
       let txid;
       try {
-        const tx = centralizedOracle.bet({
-          contractAddress: oracleAddress,
+        const tx = await centralizedOracle.bet({
+          contractAddress: entityId,
           index: optionIdx,
           amount,
           senderAddress,
         });
-        txid = tx.result.txid;
+        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /create-bet: ${err.message}`);
         throw err;
@@ -304,7 +304,7 @@ module.exports = {
         type: 'BET',
         status: 'PENDING',
         senderAddress,
-        entityId: oracleAddress,
+        entityId,
         optionIdx,
         token: 'QTUM',
         amount,
@@ -327,12 +327,12 @@ module.exports = {
       // Send approve tx
       let txid;
       try {
-        const tx = bodhiToken.approve({
+        const tx = await bodhiToken.approve({
           spender: topicAddress,
           value: consensusThreshold,
           senderAddress,
         });
-        txid = tx.result.txid;
+        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /approve: ${err.message}`);
         throw err;
@@ -369,12 +369,12 @@ module.exports = {
       // Send approve tx
       let txid;
       try {
-        const tx = bodhiToken.approve({
+        const tx = await bodhiToken.approve({
           spender: topicAddress,
           value: amount,
           senderAddress,
         });
-        txid = tx.result.txid;
+        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /approve: ${err.message}`);
         throw err;
@@ -408,11 +408,11 @@ module.exports = {
       // Send finalizeResult tx
       let txid;
       try {
-        const tx = decentralizedOracle.finalizeResult({
+        const tx = await decentralizedOracle.finalizeResult({
           contractAddress: oracleAddress,
           senderAddress,
         });
-        txid = tx.result.txid;
+        txid = tx.txid;lt.txid;
       } catch (err) {
         logger.error(`Error calling /finalizeResult: ${err.message}`);
         throw err;
@@ -443,11 +443,11 @@ module.exports = {
       // Send withdraw tx
       let txid;
       try {
-        const tx = topicEvent.withdrawWinnings({
+        const tx = await topicEvent.withdrawWinnings({
           contractAddress: topicAddress,
           senderAddress,
         });
-        txid = tx.result.txid;
+        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /withdraw: ${err.message}`);
         throw err;

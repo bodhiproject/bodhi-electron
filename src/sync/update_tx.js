@@ -90,7 +90,7 @@ async function updateApprovedTx(approveTx, db) {
           resultIndex: approveTx.optionIdx,
           senderAddress: approveTx.senderAddress,
         });
-        setResultTxid = tx.result.txid;
+        setResultTxid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /set-result: ${err.message}`);
         throw err;
@@ -120,7 +120,7 @@ async function updateApprovedTx(approveTx, db) {
           botAmount: approveTx.amount,
           senderAddress: approveTx.senderAddress,
         });
-        voteTxid = tx.result.txid;
+        voteTxid = tx.txid;
       } catch (err) {
         logger.error(`Error calling /vote: ${err.message}`);
         throw err;
