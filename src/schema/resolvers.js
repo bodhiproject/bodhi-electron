@@ -225,7 +225,7 @@ module.exports = {
         throw err;
       }
 
-      // Create Topic, Oracle, and Transaction objects
+      // Insert Topic
       const topic = {
         _id: txid,
         version,
@@ -236,7 +236,9 @@ module.exports = {
         qtumAmount: _.fill(Array(options), '0'),
         botAmount: _.fill(Array(options), '0'),
       };
+      await DBHelper.insertTopic(Topics, topic);
 
+      // Insert Oracle
       const oracle = {
         _id: txid,
         version,
@@ -253,7 +255,9 @@ module.exports = {
         resultSettingStartTime,
         resultSettingEndTime,
       };
+      await DBHelper.insertOracle(oracle);
 
+      // Insert Transaction
       const tx = {
         _id: txid,
         txid,
@@ -263,16 +267,7 @@ module.exports = {
         senderAddress,
         createdTime: Date.now().toString(),
       };
-
-      // Insert DB
-      try {
-        await DBHelper.insertTopic(Topics, topic);
-        await DBHelper.insertOracle(oracle);
-        await DBHelper.insertTransaction(Transactions, tx);
-      } catch (err) {
-        logger.error(`Error inserting in DB: ${err.message}`);
-        throw err;
-      }
+      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },

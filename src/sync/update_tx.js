@@ -80,61 +80,70 @@ async function updateTx(approveTxid, db) {
 
 async function updateApprovedTx(approveTx, db) {
   const Transactions = db.Transactions;
-  if (approveTx.type === 'APPROVESETRESULT') {
-    let setResultTxid;
-    try {
-      const tx = await centralizedOracle.setResult({
-        contractAddress: approveTx.entityId,
-        resultIndex: approveTx.optionIdx,
-        senderAddress: approveTx.senderAddress,
-      });
-      setResultTxid = tx.result.txid;
-    } catch (err) {
-      logger.error(`Error calling /set-result: ${err.message}`);
-      throw err;
-    }
 
-    const tx = {
-      _id: setResultTxid,
-      version: approveTx.version,
-      type: 'SETRESULT',
-      status: 'PENDING',
-      senderAddress: approveTx.senderAddress,
-      entityId: approveTx.entityId,
-      optionIdx: approveTx.optionIdx,
-      token: 'BOT',
-      amount: approveTx.amount,
-      createdTime: Date.now().toString(),
-    };
-    await DBHelper.insertTransaction(Transactions, tx);
-  } else if (approveTx.type === 'APPROVEVOTE') {
-    let voteTxid;
-    try {
-      const tx = await decentralizedOracle.vote({
-        contractAddress: approveTx.entityId,
-        resultIndex: approveTx.optionIdx,
-        botAmount: approveTx.amount,
-        senderAddress: approveTx.senderAddress,
-      });
-      voteTxid = tx.result.txid;
-    } catch (err) {
-      logger.error(`Error calling /vote: ${err.message}`);
-      throw err;
-    }
+  switch (approveTx.type) {
+    case 'APPROVESETRESULT': {
+      let setResultTxid;
+      try {
+        const tx = await centralizedOracle.setResult({
+          contractAddress: approveTx.entityId,
+          resultIndex: approveTx.optionIdx,
+          senderAddress: approveTx.senderAddress,
+        });
+        setResultTxid = tx.result.txid;
+      } catch (err) {
+        logger.error(`Error calling /set-result: ${err.message}`);
+        throw err;
+      }
 
-    const tx = {
-      _id: voteTxid,
-      version: approveTx.version,
-      type: 'VOTE',
-      txStatus: 'PENDING',
-      senderAddress: approveTx.senderAddress,
-      entityId: approveTx.entityId,
-      optionIdx: approveTx.optionIdx,
-      token: 'BOT',
-      amount: approveTx.approveTx.amount,
-      createdTime: Date.now().toString(),
-    };
-    await DBHelper.insertTransaction(Transactions, tx);
+      const tx = {
+        _id: setResultTxid,
+        version: approveTx.version,
+        type: 'SETRESULT',
+        status: 'PENDING',
+        senderAddress: approveTx.senderAddress,
+        entityId: approveTx.entityId,
+        optionIdx: approveTx.optionIdx,
+        token: 'BOT',
+        amount: approveTx.amount,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+      break;
+    }
+    case 'APPROVEVOTE': {
+      let voteTxid;
+      try {
+        const tx = await decentralizedOracle.vote({
+          contractAddress: approveTx.entityId,
+          resultIndex: approveTx.optionIdx,
+          botAmount: approveTx.amount,
+          senderAddress: approveTx.senderAddress,
+        });
+        voteTxid = tx.result.txid;
+      } catch (err) {
+        logger.error(`Error calling /vote: ${err.message}`);
+        throw err;
+      }
+
+      const tx = {
+        _id: voteTxid,
+        version: approveTx.version,
+        type: 'VOTE',
+        txStatus: 'PENDING',
+        senderAddress: approveTx.senderAddress,
+        entityId: approveTx.entityId,
+        optionIdx: approveTx.optionIdx,
+        token: 'BOT',
+        amount: approveTx.approveTx.amount,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 }
 
