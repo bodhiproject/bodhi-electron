@@ -190,15 +190,17 @@ module.exports = {
 
   Mutation: {
     createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
-      const version = data.version;
-      const senderAddress = data.senderAddress;
-      const name = data.name;
-      const options = data.options;
-      const bettingStartTime = data.bettingStartTime;
-      const bettingEndTime = data.bettingEndTime;
-      const resultSetterAddress = data.resultSetterAddress;
-      const resultSettingStartTime = data.resultSettingStartTime;
-      const resultSettingEndTime = data.resultSettingEndTime;
+      const {
+        version,
+        resultSetterAddress,
+        name,
+        options,
+        bettingStartTime,
+        bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+        senderAddress,
+      } = data;
 
       // rpc call first
       const payload = {
@@ -277,11 +279,13 @@ module.exports = {
     },
 
     createBet: async (root, data, { db: { Transactions } }) => {
-      const version = data.version;
-      const senderAddress = data.senderAddress;
-      const oracleAddress = data.oracleAddress;
-      const amount = data.amount;
-      const optionIdx = data.optionIdx;
+      const {
+        version,
+        oracleAddress,
+        optionIdx,
+        amount,
+        senderAddress,
+      } = data;
 
       let txid;
       try {
@@ -326,11 +330,13 @@ module.exports = {
     },
 
     setResult: async (root, data, { db: { Transactions } }) => {
-      const version = data.version;
-      const senderAddress = data.senderAddress;
-      const oracleAddress = data.oracleAddress;
-      const resultIdx = data.resultIdx;
-      const consensusThreshold = data.consensusThreshold;
+      const {
+        version,
+        oracleAddress,
+        resultIdx,
+        consensusThreshold,
+        senderAddress,
+      } = data;
 
       // rpc call to approve
       let approveTxid;
@@ -375,11 +381,13 @@ module.exports = {
     },
 
     createVote: async (root, data, { db: { Transactions } }) => {
-      const version = data.version;
-      const senderAddress = data.senderAddress;
-      const oracleAddress = data.oracleAddress;
-      const amount = data.amount;
-      const optionIdx = data.optionIdx;
+      const {
+        version,
+        oracleAddress
+        optionIdx
+        amount
+        senderAddress,
+      } = data;
 
       // Send tx
       let txid;
@@ -422,9 +430,11 @@ module.exports = {
     },
 
     finalizeResult: async (root, data, { db: { Transactions } }) => {
-      const version = data.version;
-      const senderAddress = data.senderAddress;
-      const oracleAddress = data.oracleAddress;
+      const {
+        version,
+        oracleAddress,
+        senderAddress,
+      } = data;
 
       // Send tx
       let txid;
@@ -464,8 +474,8 @@ module.exports = {
     withdraw: async (root, data, { db: { Transactions } }) => {
       const {
         version,
-        senderAddress,
         topicAddress,
+        senderAddress,
       } = data;
 
       // Send tx
