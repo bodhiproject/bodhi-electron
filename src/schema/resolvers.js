@@ -360,9 +360,9 @@ module.exports = {
       const {
         version,
         topicAddress,
-        oracleAddress
-        optionIdx
-        amount
+        oracleAddress,
+        optionIdx,
+        amount,
         senderAddress,
       } = data;
 
