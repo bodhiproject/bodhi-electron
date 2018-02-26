@@ -10,6 +10,7 @@ const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
+const DBHelper = require('../db/db_helper');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -122,15 +123,6 @@ function buildVoteFilters({
     filters = filters.concat(buildVoteFilters(OR[i]));
   }
   return filters;
-}
-
-async function insertTransaction(db, tx, txType) {
-  try {
-    await db.insert(tx);
-  } catch (err) {
-    logger.error(`Error inserting ${txType} Transaction: ${err.message}`);
-    throw err;
-  }
 }
 
 module.exports = {
@@ -274,9 +266,9 @@ module.exports = {
 
       // Insert DB
       try {
-        await Topics.insert(topic);
-        await Oracles.insert(oracle);
-        await insertTransaction(Transactions, tx, tx.type);
+        await DBHelper.insertTopic(Topics, topic);
+        await DBHelper.insertOracle(oracle);
+        await DBHelper.insertTransaction(Transactions, tx);
       } catch (err) {
         logger.error(`Error inserting in DB: ${err.message}`);
         throw err;
@@ -322,7 +314,7 @@ module.exports = {
         token: 'QTUM',
         amount,
       };
-      await insertTransaction(Transactions, tx, tx.type);
+      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },
@@ -364,7 +356,7 @@ module.exports = {
         amount: consensusThreshold,
         createdTime: Date.now().toString(),
       };
-      await insertTransaction(Transactions, tx, tx.type);
+      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },
@@ -406,7 +398,7 @@ module.exports = {
         amount,
         createdTime: Date.now().toString(),
       };
-      await insertTransaction(Transactions, tx, tx.type);
+      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },
@@ -441,7 +433,7 @@ module.exports = {
         entityId: oracleAddress,
         createdTime: Date.now().toString(),
       };
-      await insertTransaction(Transactions, tx, tx.type);
+      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },
@@ -476,7 +468,7 @@ module.exports = {
         entityId: topicAddress,
         createdTime: Date.now().toString(),
       };
-      await insertTransaction(Transactions, tx, tx.type);
+      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },
