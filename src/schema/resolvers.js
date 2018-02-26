@@ -124,9 +124,9 @@ function buildVoteFilters({
   return filters;
 }
 
-async function insertTransaction(Transactions, tx, txType) {
+async function insertTransaction(db, tx, txType) {
   try {
-    await Transactions.insert(tx);
+    await db.insert(tx);
   } catch (err) {
     logger.error(`Error inserting ${txType} Transaction: ${err.message}`);
     throw err;
@@ -214,7 +214,7 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Send create-topic tx
+      // Send createTopic tx
       let txid;
       try {
         const tx = eventFactory.createTopic({
@@ -330,6 +330,7 @@ module.exports = {
     setResult: async (root, data, { db: { Transactions } }) => {
       const {
         version,
+        topicAddress,
         oracleAddress,
         resultIdx,
         consensusThreshold,
@@ -371,6 +372,7 @@ module.exports = {
     createVote: async (root, data, { db: { Transactions } }) => {
       const {
         version,
+        topicAddress,
         oracleAddress
         optionIdx
         amount
