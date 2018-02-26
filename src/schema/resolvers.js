@@ -425,7 +425,7 @@ module.exports = {
       // Insert Transaction
       const tx = {
         _id: txid,
-        txid
+        txid,
         version,
         type: 'FINALIZERESULT',
         status: 'PENDING',
