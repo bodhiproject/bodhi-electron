@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const topicEvent = require('../api/topic_event');
 const decentralizedOracle = require('../api/decentralized_oracle');
 
 const DEFAULT_LIMIT_NUM = 50;
@@ -454,6 +455,48 @@ module.exports = {
         await Transactions.insert(tx);
       } catch (err) {
         logger.error(`Error inserting Transactions.finalizeResult: ${err.message}`);
+        throw err;
+      }
+
+      return tx;
+    },
+
+    withdraw: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        senderAddress,
+        topicAddress,
+      } = data;
+
+      // Send tx
+      let txid;
+      try {
+        const tx = topicEvent.withdrawWinnings({
+          contractAddress: topicAddress,
+          senderAddress,
+        });
+        txid = tx.result.txid;
+      } catch (err) {
+        logger.error(`Error calling /withdraw: ${err.message}`);
+        throw err;
+      }
+
+      // Construct tx object
+      const tx = {
+        _id: txid,
+        version,
+        type: 'WITHDRAW',
+        status: 'PENDING',
+        senderAddress,
+        entityId: topicAddress,
+        createdTime: Date.now().toString(),
+      };
+
+      // Insert in DB
+      try {
+        await Transactions.insert(tx);
+      } catch (err) {
+        logger.error(`Error inserting Transactions.withdraw: ${err.message}`);
         throw err;
       }
 
