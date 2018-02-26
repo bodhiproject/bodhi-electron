@@ -155,7 +155,7 @@ type Mutation {
     oracleAddrss: String!
   ): Transaction
 
-  withDraw(
+  withdraw(
     version: Int!
     senderAddress: String!
     topicAddress: String!
