@@ -5,7 +5,10 @@ const fetch = require('node-fetch');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const bodhiToken = require('../api/bodhi_token');
+const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
+const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 
 const DEFAULT_LIMIT_NUM = 50;
@@ -121,6 +124,15 @@ function buildVoteFilters({
   return filters;
 }
 
+async function insertTransaction(Transactions, tx, txType) {
+  try {
+    await Transactions.insert(tx);
+  } catch (err) {
+    logger.error(`Error inserting ${txType} Transaction: ${err.message}`);
+    throw err;
+  }
+}
+
 module.exports = {
   Query: {
     allTopics: async (root, {
@@ -202,32 +214,26 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // rpc call first
-      const payload = {
-        oracleAddress: resultSetterAddress,
-        eventName: name,
-        resultNames: options,
-        bettingStartTime,
-        bettingEndTime,
-        resultSettingStartTime,
-        resultSettingEndTime,
-        senderAddress,
-      };
-
+      // Send create-topic tx
       let txid;
       try {
-        const resp = await fetch('http://localhost:5555/create-topic', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' },
-        }).then(res => res.json());
-
-        txid = resp.result.txid;
+        const tx = eventFactory.createTopic({
+          oracleAddress: resultSetterAddress,
+          eventName: name,
+          resultNames: options,
+          bettingStartTime,
+          bettingEndTime,
+          resultSettingStartTime,
+          resultSettingEndTime,
+          senderAddress,
+        });
+        txid = tx.result.txid;
       } catch (err) {
-        logger.error(`Error call /create-topic: ${err.message}`);
+        logger.error(`Error calling /create-topic: ${err.message}`);
         throw err;
       }
 
+      // Create Topic, Oracle, and Transaction objects
       const topic = {
         _id: txid,
         version,
@@ -261,17 +267,18 @@ module.exports = {
         txid,
         version,
         type: 'CREATEEVENT',
-        txStatus: 'PENDING',
+        status: 'PENDING',
         senderAddress,
         createdTime: Date.now().toString(),
       };
 
+      // Insert DB
       try {
         await Topics.insert(topic);
         await Oracles.insert(oracle);
-        await Transactions.insert(tx);
+        await insertTransaction(Transactions, tx, tx.type);
       } catch (err) {
-        logger.error(`Error insertion db: ${err.message}`);
+        logger.error(`Error inserting in DB: ${err.message}`);
         throw err;
       }
 
@@ -287,25 +294,22 @@ module.exports = {
         senderAddress,
       } = data;
 
+      // Send bet tx
       let txid;
       try {
-        const resp = await fetch('http://localhost:5555/bet', {
-          method: 'POST',
-          body: JSON.stringify({
-            oracleAddress,
-            index: optionIdx,
-            amount,
-            senderAddress,
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        }).then(res => res.json());
-
-        txid = resp.result.txid;
+        const tx = centralizedOracle.bet({
+          contractAddress: oracleAddress,
+          index: optionIdx,
+          amount,
+          senderAddress,
+        });
+        txid = tx.result.txid;
       } catch (err) {
-        logger.error(`Error call /approve: ${err.message}`);
+        logger.error(`Error calling /create-bet: ${err.message}`);
         throw err;
       }
 
+      // Insert Transaction
       const tx = {
         _id: txid,
         version,
@@ -318,13 +322,7 @@ module.exports = {
         token: 'QTUM',
         amount,
       };
-
-      try {
-        await Transactions.insert(tx);
-      } catch (err) {
-        logger.error(`Error insert Transactions: ${err.message}`);
-        throw err;
-      }
+      await insertTransaction(Transactions, tx, tx.type);
 
       return tx;
     },
@@ -338,27 +336,23 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // rpc call to approve
-      let approveTxid;
+      // Send approve tx
+      let txid;
       try {
-        const resp = await fetch('http://localhost:5555/approve', {
-          method: 'POST',
-          body: JSON.stringify({
-            spender: oracleAddress,
-            value: consensusThreshold,
-            senderAddress,
-          }),
-          headers: { 'Content-Type': 'application/json' },
-        }).then(res => res.json());
-
-        approveTxid = resp.result.txid;
+        const tx = bodhiToken.approve({
+          spender: topicAddress,
+          value: consensusThreshold,
+          senderAddress,
+        });
+        txid = tx.result.txid;
       } catch (err) {
-        logger.error(`Error call /approve: ${err.message}`);
+        logger.error(`Error calling /approve: ${err.message}`);
         throw err;
       }
 
+      // Insert Transaction
       const tx = {
-        _id: approveTxid,
+        _id: txid,
         version,
         type: 'APPROVESETRESULT',
         status: 'PENDING',
@@ -369,13 +363,7 @@ module.exports = {
         amount: consensusThreshold,
         createdTime: Date.now().toString(),
       };
-
-      try {
-        await Transactions.insert(tx);
-      } catch (err) {
-        logger.error(`Error insert Transactions: ${err.message}`);
-        throw err;
-      }
+      await insertTransaction(Transactions, tx, tx.type);
 
       return tx;
     },
@@ -389,22 +377,21 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Send tx
+      // Send approve tx
       let txid;
       try {
-        const tx = decentralizedOracle.vote({
-          contractAddress: oracleAddress,
-          resultIndex: optionIdx,
-          botAmount: amount,
+        const tx = bodhiToken.approve({
+          spender: topicAddress,
+          value: amount,
           senderAddress,
         });
         txid = tx.result.txid;
       } catch (err) {
-        logger.error(`Error calling /vote: ${err.message}`);
+        logger.error(`Error calling /approve: ${err.message}`);
         throw err;
       }
 
-      // Construct tx object
+      // Insert Transaction
       const tx = {
         _id: txid,
         version,
@@ -417,14 +404,7 @@ module.exports = {
         amount,
         createdTime: Date.now().toString(),
       };
-
-      // Insert in DB
-      try {
-        await Transactions.insert(tx);
-      } catch (err) {
-        logger.error(`Error inserting Transactions.createVote: ${err.message}`);
-        throw err;
-      }
+      await insertTransaction(Transactions, tx, tx.type);
 
       return tx;
     },
@@ -436,7 +416,7 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Send tx
+      // Send finalizeResult tx
       let txid;
       try {
         const tx = decentralizedOracle.finalizeResult({
@@ -449,7 +429,7 @@ module.exports = {
         throw err;
       }
 
-      // Construct tx object
+      // Insert Transaction
       const tx = {
         _id: txid,
         version,
@@ -459,14 +439,7 @@ module.exports = {
         entityId: oracleAddress,
         createdTime: Date.now().toString(),
       };
-
-      // Insert in DB
-      try {
-        await Transactions.insert(tx);
-      } catch (err) {
-        logger.error(`Error inserting Transactions.finalizeResult: ${err.message}`);
-        throw err;
-      }
+      await insertTransaction(Transactions, tx, tx.type);
 
       return tx;
     },
@@ -478,7 +451,7 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Send tx
+      // Send withdraw tx
       let txid;
       try {
         const tx = topicEvent.withdrawWinnings({
@@ -491,7 +464,7 @@ module.exports = {
         throw err;
       }
 
-      // Construct tx object
+      // Insert Transaction
       const tx = {
         _id: txid,
         version,
@@ -501,14 +474,7 @@ module.exports = {
         entityId: topicAddress,
         createdTime: Date.now().toString(),
       };
-
-      // Insert in DB
-      try {
-        await Transactions.insert(tx);
-      } catch (err) {
-        logger.error(`Error inserting Transactions.withdraw: ${err.message}`);
-        throw err;
-      }
+      await insertTransaction(Transactions, tx, tx.type);
 
       return tx;
     },
