@@ -1,9 +1,11 @@
 /* eslint no-underscore-dangle: [2, { "allow": ["_id"] }] */
 
 const _ = require('lodash');
-const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
+
+const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const decentralizedOracle = require('../api/decentralized_oracle');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -365,6 +367,51 @@ module.exports = {
         await Transactions.insert(tx);
       } catch (err) {
         logger.error(`Error insert Transactions: ${err.message}`);
+        throw err;
+      }
+
+      return tx;
+    },
+
+    createVote: async (root, data, { db: { Transactions } }) => {
+      const version = data.version;
+      const senderAddress = data.senderAddress;
+      const oracleAddress = data.oracleAddress;
+      const amount = data.amount;
+      const optionIdx = data.optionIdx;
+
+      // Send tx
+      let execTx;
+      try {
+        execTx = decentralizedOracle.vote({
+          contractAddress: oracleAddress,
+          resultIndex: optionIdx,
+          botAmount: amount,
+          senderAddress,
+        });
+      } catch (err) {
+        logger.error(`Error calling /vote: ${err.message}`);
+        throw err;
+      }
+
+      // Construct tx object
+      const tx = {
+        _id: txid,
+        version,
+        type: 'APPROVEVOTE',
+        txStatus: 'PENDING',
+        senderAddress,
+        entityId: oracleAddress,
+        optionIdx: resultIdx,
+        token: 'BOT',
+        amount,
+        createdTime: Date.now().toString(),
+      };
+
+      try {
+        await Transactions.insert(tx);
+      } catch (err) {
+        logger.error(`Error inserting Transactions.createVote: ${err.message}`);
         throw err;
       }
 
