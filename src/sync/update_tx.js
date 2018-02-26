@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 
 const config = require('../config/config');
 const logger = require('../utils/logger');
+const centralizedOracle = require('../api/centralized_oracle');
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
@@ -79,18 +80,14 @@ async function updateApprovedTx(approveTx, db) {
   if (approveTx.type === 'APPROVESETRESULT') {
     let setResultTxid;
     try {
-      const resp = await fetch('http://localhost:5555/set-result', {
-        method: 'POST',
-        body: JSON.stringify({
-          contractAddress: approveTx.entityId,
-          resultIndex: approveTx.optionIdx,
-          senderAddress: approveTx.senderAddress,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      }).then(res => res.json());
-      setResultTxid = resp.result.txid;
+      const tx = await centralizedOracle.setResult({
+        contractAddress: approveTx.entityId,
+        resultIndex: approveTx.optionIdx,
+        senderAddress: approveTx.senderAddress,
+      });
+      setResultTxid = tx.result.txid;
     } catch (err) {
-      logger.error(`Error call /set-result: ${err.message}`);
+      logger.error(`Error calling /set-result: ${err.message}`);
       throw err;
     }
 
@@ -98,7 +95,7 @@ async function updateApprovedTx(approveTx, db) {
       _id: setResultTxid,
       version: approveTx.version,
       type: 'SETRESULT',
-      txStatus: 'PENDING',
+      status: 'PENDING',
       senderAddress: approveTx.senderAddress,
       entityId: approveTx.entityId,
       optionIdx: approveTx.optionIdx,
