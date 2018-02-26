@@ -8,6 +8,7 @@ const fetch = require('node-fetch');
 
 const config = require('../config/config');
 const connectDB = require('../db/nedb');
+const updateTxDB = require('./update_tx');
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
@@ -30,6 +31,7 @@ const RPC_BATCH_SIZE = 20;
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
+  updateTxDB(db);
 };
 
 function sequentialLoop(iterations, process, exit) {

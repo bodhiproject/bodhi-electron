@@ -33,10 +33,10 @@ type Oracle {
   amounts: [String!]!
   resultIdx: Int
   blockNum: Int!
-  startTime: Int!
-  endTime: Int!
-  resultSetStartTime: Int
-  resultSetEndTime: Int
+  startTime: String!
+  endTime: String!
+  resultSetStartTime: String
+  resultSetEndTime: String
   consensusThreshold: String
 }
 
@@ -55,29 +55,26 @@ type Transaction {
   version: Int!
   txid: String
   type: _TransactionType!
-  Status: _TransactionStatus!
-  approveTxid: String
+  status: _TransactionStatus!
   senderAddress: String!
   senderQAddress: String!
-  EntityId: String
-  OptionIdx: Int
+  entityId: String
+  optionIdx: Int
   token: _TokenType
-  Amount: String
+  amount: String
   gasUsed: Int
   blockNum: Int
-  blockTime: String
-  createTime: String!
-  createBlockNum: Int!
+  createdTime: String!
 }
 
 type Block {
   blockNum: Int!
-  blockTime: Int!
+  blockTime: String!
 }
 
 type syncInfo {
   syncBlockNum: Int
-  syncBlockTime: Int
+  syncBlockTime: String
   chainBlockNum: Int
 }
 
@@ -122,10 +119,10 @@ type Mutation {
     name: String!
     options: [String!]!
     resultSetterAddress: String!
-    bettingStartTime: String!
-    bettingEndTime: String!
-    resultSettingStartTime: String!
-    resultSettingEndTime: String!
+    bettingStartTime: Int!
+    bettingEndTime: Int!
+    resultSettingStartTime: Int!
+    resultSettingEndTime: Int!
   ): Transaction
 
   setResult(
@@ -211,14 +208,15 @@ enum _OrderDirection {
 enum _TransactionType {
   CREATEEVENT
   BET
-  VOTE
+  APPROVESETRESULT
   SETRESULT
+  APPROVEVOTE
+  VOTE
   FINALIZEEVENT
   WITHDRAW
 }
 
 enum _TransactionStatus {
-   APPROVING
    PENDING
    FAIL
    SUCCESS

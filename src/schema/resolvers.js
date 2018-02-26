@@ -252,11 +252,13 @@ module.exports = {
       };
 
       const tx = {
+        _id: txid,
         txid,
         version,
         type: 'CREATEEVENT',
         txStatus: 'PENDING',
         senderAddress,
+        createdTime: Date.now().toString(),
       };
 
       try {
@@ -298,15 +300,16 @@ module.exports = {
       }
 
       const tx = {
+        _id: approveTxid,
         version,
-        type: 'SETRESULT',
-        txStatus: 'APPROVING',
-        approveTxid,
+        type: 'APPROVESETRESULT',
+        txStatus: 'PENDING',
         senderAddress,
         entityId: oracleAddress,
         optionIdx: resultIdx,
-        token: 'BOT',
+        token: 'QTUM',
         amount: consensusThreshold,
+        createdTime: Date.now().toString(),
       };
 
       try {
@@ -331,10 +334,10 @@ module.exports = {
         const resp = await fetch('http://localhost:5555/bet', {
           method: 'POST',
           body: JSON.stringify({
-            oracleAddress, // address
-            index: optionIdx, // number
-            amount, // number (Satoshi)
-            senderAddress, // address
+            oracleAddress,
+            index: optionIdx,
+            amount,
+            senderAddress,
           }),
           headers: { 'Content-Type': 'application/json' },
         }).then(res => res.json());
@@ -346,6 +349,7 @@ module.exports = {
       }
 
       const tx = {
+        _id: txid,
         version,
         txid,
         type: 'BET',
@@ -365,11 +369,6 @@ module.exports = {
       }
 
       return tx;
-    },
-
-    createVote: async (root, data, { db: { Votes } }) => {
-      const response = await Votes.insert(data);
-      return Object.assign({ id: response.insertedIds[0] }, data);
     },
   },
 
