@@ -319,7 +319,7 @@ module.exports = {
         version,
         topicAddress,
         oracleAddress,
-        resultIdx,
+        optionIdx,
         amount,
         senderAddress,
       } = data;
@@ -348,8 +348,8 @@ module.exports = {
         senderAddress,
         topicAddress,
         oracleAddress,
-        optionIdx: resultIdx,
-        token: 'QTUM',
+        optionIdx,
+        token: 'BOT',
         amount,
         createdTime: Date.now().toString(),
       };
