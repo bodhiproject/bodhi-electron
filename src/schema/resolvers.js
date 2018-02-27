@@ -308,6 +308,7 @@ module.exports = {
         optionIdx,
         token: 'QTUM',
         amount,
+        createdTime: Date.now().toString(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
