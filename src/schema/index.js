@@ -82,7 +82,7 @@ type Block {
 
 type syncInfo {
   syncBlockNum: Int
-  syncBlockTime: String
+  syncBlockTime: Int
   chainBlockNum: Int
 }
 
