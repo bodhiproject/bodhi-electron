@@ -196,9 +196,9 @@ module.exports = {
     createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
       const {
         version,
-        resultSetterAddress,
         name,
         options,
+        resultSetterAddress,
         bettingStartTime,
         bettingEndTime,
         resultSettingStartTime,
@@ -228,8 +228,8 @@ module.exports = {
       // Insert Topic
       const topic = {
         _id: txid,
-        version,
         txid,
+        version,
         status: 'CREATED',
         name,
         options,
@@ -241,10 +241,10 @@ module.exports = {
       // Insert Oracle
       const oracle = {
         _id: txid,
-        version,
         txid,
-        resultSetterAddress,
+        version,
         status: 'CREATED',
+        resultSetterAddress,
         token: 'QTUM',
         name,
         options,
@@ -255,7 +255,7 @@ module.exports = {
         resultSettingStartTime,
         resultSettingEndTime,
       };
-      await DBHelper.insertOracle(oracle);
+      await DBHelper.insertOracle(Oracles, oracle);
 
       // Insert Transaction
       const tx = {

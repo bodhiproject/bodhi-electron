@@ -75,11 +75,14 @@ async function executeFollowUpTx(tx, db) {
     return;
   }
 
+  console.log('tx1', tx);
+
   const Transactions = db.Transactions;
   let txid;
   switch (tx.type) {
     case 'APPROVESETRESULT': {
       try {
+        console.log('tx2', tx);
         const setResultTx = await centralizedOracle.setResult({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
@@ -91,7 +94,7 @@ async function executeFollowUpTx(tx, db) {
         throw err;
       }
 
-      const tx = {
+      const setResultDB = {
         _id: txid,
         txid,
         version: tx.version,
@@ -104,7 +107,7 @@ async function executeFollowUpTx(tx, db) {
         amount: tx.amount,
         createdTime: Date.now().toString(),
       };
-      await DBHelper.insertTransaction(Transactions, tx);
+      await DBHelper.insertTransaction(Transactions, setResultDB);
       break;
     }
     case 'APPROVEVOTE': {
