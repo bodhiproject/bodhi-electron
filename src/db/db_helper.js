@@ -1,3 +1,5 @@
+const logger = require('../utils/logger');
+
 class DBHelper {
   static async insertTopic(db, topic) {
     try {
