@@ -393,7 +393,7 @@ module.exports = {
         senderAddress,
         topicAddress,
         oracleAddress,
-        optionIdx: resultIdx,
+        optionIdx,
         token: 'BOT',
         amount,
         createdTime: Date.now().toString(),
