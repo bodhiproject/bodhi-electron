@@ -10,7 +10,7 @@ const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
-const DBHelper = require('../db/db_helper');
+const DBHelper = require('../db/nedb').DBHelper;
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
