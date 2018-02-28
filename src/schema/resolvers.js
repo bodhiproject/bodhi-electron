@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const fetch = require('node-fetch');
+const Web3Utils = require('web3-utils');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
@@ -123,6 +124,22 @@ function buildVoteFilters({
     filters = filters.concat(buildVoteFilters(OR[i]));
   }
   return filters;
+}
+
+async function isAllowanceEnough(owner, spender, amount) {
+  try {
+    const res = await bodhiToken.allowance({
+      owner,
+      spender,
+      senderAddress: owner,
+    });
+    const allowance = Web3Utils.toBN(res.result.remaining);
+    const amountBN = Web3Utils.toBN(amount);
+    return allowance.gte(amountBN);
+  } catch (err) {
+    logger.error(`Error checking allowance: ${err.message}`);
+    throw err;
+  }
 }
 
 module.exports = {
@@ -325,12 +342,23 @@ module.exports = {
         senderAddress,
       } = data;
 
+      // Make sure allowance is 0, or it needs to be reset
+      let approveAmount;
+      let type;
+      if (isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        approveAmount = amount;
+        type = 'RESETAPPROVESETRESULT';
+      } else {
+        approveAmount = 0;
+        type = 'RESETAPPROVEVOTE';
+      }
+
       // Send approve tx
       let txid;
       try {
         const tx = await bodhiToken.approve({
           spender: topicAddress,
-          value: amount,
+          value: approveAmount,
           senderAddress,
         });
         txid = tx.txid;
@@ -344,7 +372,7 @@ module.exports = {
         _id: txid,
         txid,
         version,
-        type: 'APPROVESETRESULT',
+        type,
         status: 'PENDING',
         senderAddress,
         topicAddress,
