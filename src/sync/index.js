@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const fetch = require('node-fetch');
 
 const config = require('../config/config');
-const connectDB = require('../db/nedb');
+const connectDB = require('../db/nedb').connectDB;
 const updateTxDB = require('./update_tx');
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
