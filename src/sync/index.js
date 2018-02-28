@@ -20,13 +20,11 @@ const FinalResultSet = require('./models/finalResultSet');
 
 const Contracts = require('../config/contract_metadata');
 
+const rpcBatchSize = 20;
 const batchSize = 200;
-
 const contractDeployedBlockNum = 78893;
-
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
-const RPC_BATCH_SIZE = 20;
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
@@ -98,12 +96,9 @@ async function sync(db) {
   }
 
   // Calculate the num of iterations
-  let numOfIterations = Math.ceil((currentBlockCount - startBlock) / batchSize);
-  if (numOfIterations === 0 && startBlock === currentBlockCount) {
-    // Once initial sync is done, the startBlock will be 1 block ahead of the currentBlockchainHeight
-    // so we need to set the iterations to 1 to parse the latest block
-    numOfIterations = 1;
-  }
+  // Once initial sync is done, the startBlock will be 1 block ahead of the currentBlockCount
+  // so we need to set the iterations to 1 to parse the latest block
+  const numOfIterations = startBlock === currentBlockCount ? 1 : Math.ceil((currentBlockCount - startBlock) / batchSize);
 
   sequentialLoop(
     numOfIterations,
@@ -145,7 +140,7 @@ async function sync(db) {
       loop.next();
     },
     async () => {
-      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
+      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), rpcBatchSize);
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
         const oracleIteration = loop.iteration();
@@ -156,8 +151,8 @@ async function sync(db) {
 
         // Oracle balance update completed
         if (oracleIteration === oracleAddressBatches.length - 1) {
-        // two rpc call per topic balance so batch_size = RPC_BATCH_SIZE/2
-          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
+        // two rpc call per topic balance so batch_size = rpcBatchSize/2
+          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(rpcBatchSize / 2));
           sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
             const topicIteration = topicLoop.iteration();
             logger.debug(`topic batch: ${topicIteration}`);
