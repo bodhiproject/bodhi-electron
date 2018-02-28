@@ -33,6 +33,7 @@ async function connectDB() {
 class DBHelper {
   static async insertTopic(db, topic) {
     try {
+      logger.debug(`Insert pending Topic txid:${topic.txid}`);
       await db.insert(topic);
     } catch (err) {
       logger.error(`Error inserting Topic ${topic.txid}: ${err.message}`);
@@ -42,6 +43,7 @@ class DBHelper {
 
   static async insertOracle(db, oracle) {
     try {
+      logger.debug(`Insert pending Oracle txid:${oracle.txid}`);
       await db.insert(oracle);
     } catch (err) {
       logger.error(`Error inserting Oracle ${oracle.txid}: ${err.message}`);
@@ -51,6 +53,7 @@ class DBHelper {
 
   static async insertTransaction(db, tx) {
     try {
+      logger.debug(`Insert pending Transaction ${tx.type} txid:${tx.txid}`);
       await db.insert(tx);
     } catch (err) {
       logger.error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);

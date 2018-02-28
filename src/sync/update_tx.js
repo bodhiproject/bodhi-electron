@@ -48,10 +48,9 @@ async function updateTx(tx) {
 // Update the DB with new Transaction info
 async function updateDB(tx, db) {
   if (tx.status !== 'PENDING') {
-    let updatedTx;
     try {
       logger.debug(`Update: Transaction ${tx.type} txid:${tx._id}`);
-      updatedTx = await db.Transactions.update(
+      const updateRes = await db.Transactions.update(
         { _id: tx._id },
         {
           $set: {
@@ -64,6 +63,7 @@ async function updateDB(tx, db) {
           returnUpdatedDocs: true,
         },
       );
+      const updatedTx = updateRes[1];
 
       // Execute follow up tx
       if (updatedTx.status === 'SUCCESS') {
@@ -94,7 +94,7 @@ async function executeFollowUpTx(tx, db) {
         throw err;
       }
 
-      const setResultDB = {
+      await DBHelper.insertTransaction(Transactions, {
         _id: txid,
         txid,
         version: tx.version,
@@ -106,30 +106,25 @@ async function executeFollowUpTx(tx, db) {
         token: 'BOT',
         amount: tx.amount,
         createdTime: Date.now().toString(),
-      };
-      await DBHelper.insertTransaction(Transactions, setResultDB);
+      });
       break;
     }
     case 'APPROVEVOTE': {
       try {
-        const contractAddress = tx.oracleAddress;
-        const resultIndex = tx.optionIdx;
-        const botAmount = tx.amount;
-        const senderAddress = tx.senderAddress;
-
         const voteTx = await decentralizedOracle.vote({
-          contractAddress,
-          resultIndex,
-          botAmount,
-          senderAddress,
+          contractAddress: tx.oracleAddress,
+          resultIndex: tx.optionIdx,
+          botAmount: tx.amount,
+          senderAddress: tx.senderAddress,
         });
         txid = voteTx.txid;
+        console.log('txid', txid);
       } catch (err) {
         logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
         throw err;
       }
 
-      const tx = {
+      await DBHelper.insertTransaction(Transactions, {
         _id: txid,
         txid,
         version: tx.version,
@@ -141,8 +136,7 @@ async function executeFollowUpTx(tx, db) {
         token: 'BOT',
         amount: tx.amount,
         createdTime: Date.now().toString(),
-      };
-      await DBHelper.insertTransaction(Transactions, tx);
+      });
       break;
     }
     default: {
