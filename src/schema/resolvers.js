@@ -133,7 +133,8 @@ async function isAllowanceEnough(owner, spender, amount) {
       spender,
       senderAddress: owner,
     });
-    const allowance = Web3Utils.toBN(res.result.remaining);
+
+    const allowance = Web3Utils.toBN(res.remaining);
     const amountBN = Web3Utils.toBN(amount);
     return allowance.gte(amountBN);
   } catch (err) {
@@ -345,7 +346,7 @@ module.exports = {
       // Make sure allowance is 0, or it needs to be reset
       let approveAmount;
       let type;
-      if (isAllowanceEnough(senderAddress, topicAddress, amount)) {
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
         approveAmount = amount;
         type = 'APPROVESETRESULT';
       } else {
@@ -400,7 +401,7 @@ module.exports = {
       // Make sure allowance is 0, or it needs to be reset
       let approveAmount;
       let type;
-      if (isAllowanceEnough(senderAddress, topicAddress, amount)) {
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
         approveAmount = amount;
         type = 'APPROVEVOTE';
       } else {
