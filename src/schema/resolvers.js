@@ -347,10 +347,10 @@ module.exports = {
       let type;
       if (isAllowanceEnough(senderAddress, topicAddress, amount)) {
         approveAmount = amount;
-        type = 'RESETAPPROVESETRESULT';
+        type = 'APPROVESETRESULT';
       } else {
         approveAmount = 0;
-        type = 'RESETAPPROVEVOTE';
+        type = 'RESETAPPROVESETRESULT';
       }
 
       // Send approve tx
@@ -397,12 +397,23 @@ module.exports = {
         senderAddress,
       } = data;
 
+      // Make sure allowance is 0, or it needs to be reset
+      let approveAmount;
+      let type;
+      if (isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        approveAmount = amount;
+        type = 'APPROVEVOTE';
+      } else {
+        approveAmount = 0;
+        type = 'RESETAPPROVEVOTE';
+      }
+
       // Send approve tx
       let txid;
       try {
         const tx = await bodhiToken.approve({
           spender: topicAddress,
-          value: amount,
+          value: approveAmount,
           senderAddress,
         });
         txid = tx.txid;
@@ -416,7 +427,7 @@ module.exports = {
         _id: txid,
         txid,
         version,
-        type: 'APPROVEVOTE',
+        type,
         status: 'PENDING',
         senderAddress,
         topicAddress,
