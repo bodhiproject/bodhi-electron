@@ -28,6 +28,12 @@ async function updatePendingTxs(db) {
   await Promise.all(updatePromises);
 }
 
+// If current allowance != 0 when trying to approve, the transaction will fail
+// Need to reset the allowance to 0, by calling approve with value: 0
+async function resetAllowance(tx) {
+
+}
+
 // Update the Transaction info
 async function updateTx(tx) {
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
