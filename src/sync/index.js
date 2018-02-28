@@ -95,10 +95,7 @@ async function sync(db) {
     logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
   }
 
-  // Calculate the num of iterations
-  // Once initial sync is done, the startBlock will be 1 block ahead of the currentBlockCount
-  // so we need to set the iterations to 1 to parse the latest block
-  const numOfIterations = startBlock === currentBlockCount ? 1 : Math.ceil((currentBlockCount - startBlock) / batchSize);
+  const numOfIterations = Math.ceil((currentBlockCount - startBlock + 1) / batchSize);
 
   sequentialLoop(
     numOfIterations,
