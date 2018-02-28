@@ -206,7 +206,6 @@ async function executeFollowUpTx(tx, db) {
     }
 
     default: {
-      logger.error(`Trying to exec follow up unknown Transaction ${tx.type} txid:${tx.txid}`);
       break;
     }
   }
