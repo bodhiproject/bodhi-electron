@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
-const DBHelper = require('../db/db_helper');
+const DBHelper = require('../db/nedb').DBHelper;
 
 async function updatePendingTxs(db) {
   let pendingTxs;
