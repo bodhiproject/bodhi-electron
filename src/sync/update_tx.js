@@ -2,6 +2,7 @@ const _ = require('lodash');
 
 const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
+const bodhiToken = require('../api/bodhi_token');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
@@ -26,12 +27,6 @@ async function updatePendingTxs(db) {
     }));
   })
   await Promise.all(updatePromises);
-}
-
-// If current allowance != 0 when trying to approve, the transaction will fail
-// Need to reset the allowance to 0, by calling approve with value: 0
-async function resetAllowance(tx) {
-
 }
 
 // Update the Transaction info
@@ -87,6 +82,38 @@ async function executeFollowUpTx(tx, db) {
   const Transactions = db.Transactions;
   let txid;
   switch (tx.type) {
+    // Approve was reset to 0. Sending approve for consensusThreshold.
+    case 'RESETAPPROVESETRESULT': {
+      try {
+        const approveTx = await bodhiToken.approve({
+          spender: tx.topicAddress,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        txid = approveTx.txid;
+      } catch (err) {
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+
+      await DBHelper.insertTransaction(Transactions, {
+        _id: txid,
+        txid,
+        version: tx.version,
+        type: 'APPROVESETRESULT',
+        status: 'PENDING',
+        senderAddress: tx.senderAddress,
+        topicAddress: tx.topicAddress,
+        oracleAddress: tx.oracleAddress,
+        optionIdx: tx.optionIdx,
+        token: 'BOT',
+        amount: tx.amount,
+        createdTime: Date.now().toString(),
+      });
+      break;
+    }
+
+    // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {
         const setResultTx = await centralizedOracle.setResult({
@@ -115,6 +142,39 @@ async function executeFollowUpTx(tx, db) {
       });
       break;
     }
+
+    // Approve was reset to 0. Sending approve for vote amount.
+    case 'RESETAPPROVEVOTE': {
+      try {
+        const approveTx = await bodhiToken.approve({
+          spender: tx.topicAddress,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        txid = approveTx.txid;
+      } catch (err) {
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+
+      await DBHelper.insertTransaction(Transactions, {
+        _id: txid,
+        txid,
+        version: tx.version,
+        type: 'APPROVEVOTE',
+        status: 'PENDING',
+        senderAddress: tx.senderAddress,
+        topicAddress: tx.topicAddress,
+        oracleAddress: tx.oracleAddress,
+        optionIdx: tx.optionIdx,
+        token: 'BOT',
+        amount,
+        createdTime: Date.now().toString(),
+      });
+      break;
+    }
+
+    // Approve was accepted. Sending vote.
     case 'APPROVEVOTE': {
       try {
         const voteTx = await decentralizedOracle.vote({
@@ -144,7 +204,9 @@ async function executeFollowUpTx(tx, db) {
       });
       break;
     }
+
     default: {
+      logger.error(`Trying to exec follow up unknown Transaction ${tx.type} txid:${tx.txid}`);
       break;
     }
   }
