@@ -12,7 +12,7 @@ const transactions = datastore({ filename: `${basePath}/transactions.db`, autolo
 
 const dbPromises = [topics, oracles, votes, blocks, transactions];
 
-module.exports = async () => {
+async function connectDB() {
   try {
     await Promise.all(dbPromises);
   } catch (err) {
@@ -27,4 +27,8 @@ module.exports = async () => {
     Blocks: blocks,
     Transactions: transactions,
   };
+}
+
+module.exports = {
+  connectDB,
 };
