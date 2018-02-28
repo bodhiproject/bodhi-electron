@@ -74,19 +74,20 @@ async function sync(db) {
   const removeHexPrefix = true;
   const topicsNeedBalanceUpdate = new Set();
   const oraclesNeedBalanceUpdate = new Set();
-  let currentBlockChainHeight = await qclient.getBlockCount();
-  currentBlockChainHeight = Math.max(0, currentBlockChainHeight - 1);
 
-  const currentBlockHash = await qclient.getBlockHash(currentBlockChainHeight);
+  const currentBlockCount = Math.max(0, await qclient.getBlockCount());
+  const currentBlockHash = await qclient.getBlockHash(currentBlockCount);
   const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
 
+  // Start sync based on last block written to DB
   let startBlock = contractDeployedBlockNum;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
-
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
-
+  
+  // Get the latest block num based on Qtum master node via Insight API
+  // Used to determine if local chain is fully synced
   let chainBlockNum = null;
   try {
     const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
@@ -95,9 +96,19 @@ async function sync(db) {
   } catch (err) {
     logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
   }
+
+  // Calculate the num of iterations
+  let numOfIterations = Math.ceil((currentBlockCount - startBlock) / batchSize);
+  if (numOfIterations === 0 && startBlock === currentBlockCount) {
+    // Once initial sync is done, the startBlock will be 1 block ahead of the currentBlockchainHeight
+    // so we need to set the iterations to 1 to parse the latest block
+    numOfIterations = 1;
+  }
+
   sequentialLoop(
-    Math.ceil((currentBlockChainHeight - startBlock) / batchSize), async (loop) => {
-      const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
+    numOfIterations,
+    async (loop) => {
+      const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockCount);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
       logger.debug('Synced Topics');
@@ -171,8 +182,15 @@ async function sync(db) {
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
         } else if (startBlock >= chainBlockNum) {
-          pubsub.publish('OnSyncInfo', { OnSyncInfo: { syncBlockNum: currentBlockChainHeight, syncBlockTime: currentBlockTime, chainBlockNum } });
+          pubsub.publish('OnSyncInfo', { 
+            OnSyncInfo: { 
+              syncBlockNum: currentBlockCount,
+              syncBlockTime: currentBlockTime,
+              chainBlockNum 
+            }
+          });
         }
+
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
         logger.debug('sleep');
