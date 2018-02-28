@@ -10,7 +10,7 @@ async function updatePendingTxs(db) {
   let pendingTxs;
   try {
     pendingTxs = await db.Transactions.cfind({ status: 'PENDING' })
-      .sort({ createTime: -1 }).exec();
+      .sort({ createTimed: -1 }).exec();
   } catch (err) {
     logger.error(`Error: get pending Transactions: ${err.message}`);
     throw err;
@@ -22,7 +22,6 @@ async function updatePendingTxs(db) {
     updatePromises.push(new Promise(async (resolve) => {
       await updateTx(tx);
       await updateDB(tx, db);
-      await executeFollowUpTx(tx, db);
       resolve();
     }));
   })
@@ -49,9 +48,10 @@ async function updateTx(tx) {
 // Update the DB with new Transaction info
 async function updateDB(tx, db) {
   if (tx.status !== 'PENDING') {
+    let updatedTx;
     try {
       logger.debug(`Update: Transaction ${tx.type} txid:${tx._id}`);
-      await db.Transactions.update(
+      updatedTx = await db.Transactions.update(
         { _id: tx._id },
         {
           $set: {
@@ -60,8 +60,15 @@ async function updateDB(tx, db) {
             blockNum: tx.blockNum,
           },
         }, 
-        {},
+        {
+          returnUpdatedDocs: true,
+        },
       );
+
+      // Execute follow up tx
+      if (updatedTx.status === 'SUCCESS') {
+        await executeFollowUpTx(updatedTx, db);
+      }
     } catch (err) {
       logger.error(`Error: Update Transaction ${tx.type} txid:${tx._id}: ${err.message}`);
       throw err;
@@ -71,18 +78,11 @@ async function updateDB(tx, db) {
 
 // Execute follow-up transaction
 async function executeFollowUpTx(tx, db) {
-  if (tx.status !== 'SUCCESS') {
-    return;
-  }
-
-  console.log('tx1', tx);
-
   const Transactions = db.Transactions;
   let txid;
   switch (tx.type) {
     case 'APPROVESETRESULT': {
       try {
-        console.log('tx2', tx);
         const setResultTx = await centralizedOracle.setResult({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
@@ -90,7 +90,7 @@ async function executeFollowUpTx(tx, db) {
         });
         txid = setResultTx.txid;
       } catch (err) {
-        logger.error(`Error calling /set-result: ${err.message}`);
+        logger.error(`Error calling CentralizedOracle.setResult: ${err.message}`);
         throw err;
       }
 
@@ -112,15 +112,20 @@ async function executeFollowUpTx(tx, db) {
     }
     case 'APPROVEVOTE': {
       try {
+        const contractAddress = tx.oracleAddress;
+        const resultIndex = tx.optionIdx;
+        const botAmount = tx.amount;
+        const senderAddress = tx.senderAddress;
+
         const voteTx = await decentralizedOracle.vote({
-          contractAddress: tx.oracleAddress,
-          resultIndex: tx.optionIdx,
-          botAmount: tx.amount,
-          senderAddress: tx.senderAddress,
+          contractAddress,
+          resultIndex,
+          botAmount,
+          senderAddress,
         });
         txid = voteTx.txid;
       } catch (err) {
-        logger.error(`Error calling /vote: ${err.message}`);
+        logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
         throw err;
       }
 

@@ -221,7 +221,7 @@ module.exports = {
         });
         txid = tx.txid;
       } catch (err) {
-        logger.error(`Error calling /create-topic: ${err.message}`);
+        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
         throw err;
       }
 
@@ -292,7 +292,7 @@ module.exports = {
         });
         txid = tx.txid;
       } catch (err) {
-        logger.error(`Error calling /create-bet: ${err.message}`);
+        logger.error(`Error calling CentralizedOracle.bet: ${err.message}`);
         throw err;
       }
 
@@ -335,7 +335,7 @@ module.exports = {
         });
         txid = tx.txid;
       } catch (err) {
-        logger.error(`Error calling /approve: ${err.message}`);
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
         throw err;
       }
 
@@ -379,7 +379,7 @@ module.exports = {
         });
         txid = tx.txid;
       } catch (err) {
-        logger.error(`Error calling /approve: ${err.message}`);
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
         throw err;
       }
 
@@ -417,9 +417,9 @@ module.exports = {
           contractAddress: oracleAddress,
           senderAddress,
         });
-        txid = tx.txid;lt.txid;
+        txid = tx.txid;
       } catch (err) {
-        logger.error(`Error calling /finalizeResult: ${err.message}`);
+        logger.error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
         throw err;
       }
 
@@ -455,7 +455,7 @@ module.exports = {
         });
         txid = tx.txid;
       } catch (err) {
-        logger.error(`Error calling /withdraw: ${err.message}`);
+        logger.error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
         throw err;
       }
 
