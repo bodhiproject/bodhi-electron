@@ -10,7 +10,7 @@ async function updatePendingTxs(db) {
   let pendingTxs;
   try {
     pendingTxs = await db.Transactions.cfind({ status: 'PENDING' })
-      .sort({ createTimed: -1 }).exec();
+      .sort({ createdTime: -1 }).exec();
   } catch (err) {
     logger.error(`Error: get pending Transactions: ${err.message}`);
     throw err;
@@ -66,7 +66,7 @@ async function updateDB(tx, db) {
       const updatedTx = updateRes[1];
 
       // Execute follow up tx
-      if (updatedTx.status === 'SUCCESS') {
+      if (updatedTx && updatedTx.status === 'SUCCESS') {
         await executeFollowUpTx(updatedTx, db);
       }
     } catch (err) {
@@ -118,7 +118,6 @@ async function executeFollowUpTx(tx, db) {
           senderAddress: tx.senderAddress,
         });
         txid = voteTx.txid;
-        console.log('txid', txid);
       } catch (err) {
         logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
         throw err;
