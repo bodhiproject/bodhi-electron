@@ -20,13 +20,11 @@ const FinalResultSet = require('./models/finalResultSet');
 
 const Contracts = require('../config/contract_metadata');
 
+const rpcBatchSize = 20;
 const batchSize = 200;
-
 const contractDeployedBlockNum = 78893;
-
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
-const RPC_BATCH_SIZE = 20;
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
@@ -74,19 +72,20 @@ async function sync(db) {
   const removeHexPrefix = true;
   const topicsNeedBalanceUpdate = new Set();
   const oraclesNeedBalanceUpdate = new Set();
-  let currentBlockChainHeight = await qclient.getBlockCount();
-  currentBlockChainHeight = Math.max(0, currentBlockChainHeight - 1);
 
-  const currentBlockHash = await qclient.getBlockHash(currentBlockChainHeight);
+  const currentBlockCount = Math.max(0, await qclient.getBlockCount());
+  const currentBlockHash = await qclient.getBlockHash(currentBlockCount);
   const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
 
+  // Start sync based on last block written to DB
   let startBlock = contractDeployedBlockNum;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
-
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
-
+  
+  // Get the latest block num based on Qtum master node via Insight API
+  // Used to determine if local chain is fully synced
   let chainBlockNum = null;
   try {
     const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
@@ -95,9 +94,16 @@ async function sync(db) {
   } catch (err) {
     logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
   }
+
+  // Calculate the num of iterations
+  // Once initial sync is done, the startBlock will be 1 block ahead of the currentBlockCount
+  // so we need to set the iterations to 1 to parse the latest block
+  const numOfIterations = startBlock === currentBlockCount ? 1 : Math.ceil((currentBlockCount - startBlock) / batchSize);
+
   sequentialLoop(
-    Math.ceil((currentBlockChainHeight - startBlock) / batchSize), async (loop) => {
-      const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockChainHeight);
+    numOfIterations,
+    async (loop) => {
+      const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockCount);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
       logger.debug('Synced Topics');
@@ -134,7 +140,7 @@ async function sync(db) {
       loop.next();
     },
     async () => {
-      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
+      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), rpcBatchSize);
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
         const oracleIteration = loop.iteration();
@@ -145,8 +151,8 @@ async function sync(db) {
 
         // Oracle balance update completed
         if (oracleIteration === oracleAddressBatches.length - 1) {
-        // two rpc call per topic balance so batch_size = RPC_BATCH_SIZE/2
-          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
+        // two rpc call per topic balance so batch_size = rpcBatchSize/2
+          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(rpcBatchSize / 2));
           sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
             const topicIteration = topicLoop.iteration();
             logger.debug(`topic batch: ${topicIteration}`);
@@ -171,8 +177,15 @@ async function sync(db) {
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
         } else if (startBlock >= chainBlockNum) {
-          pubsub.publish('OnSyncInfo', { OnSyncInfo: { syncBlockNum: currentBlockChainHeight, syncBlockTime: currentBlockTime, chainBlockNum } });
+          pubsub.publish('OnSyncInfo', { 
+            OnSyncInfo: { 
+              syncBlockNum: currentBlockCount,
+              syncBlockTime: currentBlockTime,
+              chainBlockNum 
+            }
+          });
         }
+
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
         logger.debug('sleep');
