@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
+const Web3Utils = require('web3-utils');
 
 class CentralizedOracle {
   constructor(blockNum, txid, rawLog) {
@@ -23,7 +24,7 @@ class CentralizedOracle {
     this.bettingEndTime = this.rawLog._bettingEndTime.toNumber();
     this.resultSettingStartTime = this.rawLog._resultSettingStartTime.toNumber();
     this.resultSettingEndTime = this.rawLog._resultSettingEndTime.toNumber();
-    this.consensusThreshold = this.rawLog._consensusThreshold.toJSON();
+    this.consensusThreshold = Web3Utils.hexToNumberString(this.rawLog._consensusThreshold);
   }
 
   translate() {

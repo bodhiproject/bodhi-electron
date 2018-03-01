@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
+const Web3Utils = require('web3-utils');
 
 class Vote {
   constructor(blockNum, txid, rawLog) {
@@ -18,7 +19,7 @@ class Vote {
     this.oracleAddress = this.rawLog._oracleAddress;
     this.participant = this.rawLog._participant;
     this.resultIndex = this.rawLog._resultIndex.toNumber();
-    this.votedAmount = this.rawLog._votedAmount.toJSON();
+    this.votedAmount = Web3Utils.hexToNumberString(this.rawLog._votedAmount);
   }
 
   translate() {
