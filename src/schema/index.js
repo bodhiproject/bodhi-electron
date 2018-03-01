@@ -56,7 +56,7 @@ type Transaction {
   txid: String
   blockNum: Int
   gasUsed: Int
-  createdTime: Int!
+  createdTime: String!
   type: _TransactionType!
   status: _TransactionStatus!
   senderAddress: String!

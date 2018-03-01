@@ -164,7 +164,7 @@ async function sync(db) {
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
         } else if (numOfIterations > 0) {
-          sendSyncInfo(currentBlockChainHeight, currentBlockTime, chainBlockNum);
+          sendSyncInfo(currentBlockCount, currentBlockTime, chainBlockNum);
         }
 
         // nedb doesnt require close db, leave the comment as a reminder
