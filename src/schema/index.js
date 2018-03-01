@@ -7,7 +7,7 @@ const typeDefs = `
 type Topic {
   txid: String!
   version: Int!
-  blockNum: String
+  blockNum: Int
   status: _OracleStatusType!
   address: String
   name: String!
@@ -21,7 +21,7 @@ type Topic {
 type Oracle {
   txid: String!
   version: Int!
-  blockNum: String
+  blockNum: Int
   status: _OracleStatusType!
   address: String
   topicAddress: String
@@ -43,7 +43,7 @@ type Oracle {
 type Vote {
   txid: String!
   version: Int!
-  blockNum: String!
+  blockNum: Int!
   voterAddress: String!
   voterQAddress: String!
   oracleAddress: String!
@@ -54,7 +54,7 @@ type Vote {
 type Transaction {
   version: Int!
   txid: String
-  blockNum: String
+  blockNum: Int
   gasUsed: Int
   createdTime: String!
   type: _TransactionType!
@@ -76,14 +76,14 @@ type Transaction {
 }
 
 type Block {
-  blockNum: String!
+  blockNum: Int!
   blockTime: String!
 }
 
 type syncInfo {
-  syncBlockNum: String
+  syncBlockNum: Int
   syncBlockTime: String
-  chainBlockNum: String
+  chainBlockNum: Int
 }
 
 type Query {
