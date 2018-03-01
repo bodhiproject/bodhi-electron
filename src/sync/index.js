@@ -161,7 +161,7 @@ async function sync(db) {
 
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
-        } else if (startBlock >= chainBlockNum) {
+        } else if (numOfIterations > 0) {
           sendSyncInfo(currentBlockChainHeight, currentBlockTime, chainBlockNum);
         }
 
