@@ -82,7 +82,7 @@ async function sync(db) {
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
-  
+
   // Get the latest block num based on Qtum master node via Insight API
   // Used to determine if local chain is fully synced
   let chainBlockNum = null;
