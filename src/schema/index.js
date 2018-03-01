@@ -33,10 +33,10 @@ type Oracle {
   optionIdxs: [Int!]!
   amounts: [String!]!
   resultIdx: Int
-  startTime: String!
-  endTime: String!
-  resultSetStartTime: String
-  resultSetEndTime: String
+  startTime: Int!
+  endTime: Int!
+  resultSetStartTime: Int
+  resultSetEndTime: Int
   consensusThreshold: String
 }
 
@@ -56,7 +56,7 @@ type Transaction {
   txid: String
   blockNum: Int
   gasUsed: Int
-  createdTime: String!
+  createdTime: Int!
   type: _TransactionType!
   status: _TransactionStatus!
   senderAddress: String!
@@ -66,10 +66,10 @@ type Transaction {
   name: String
   options: [String!]
   resultSetterAddress: String
-  bettingStartTime: String
-  bettingEndTime: String
-  resultSettingStartTime: String
-  resultSettingEndTime: String
+  bettingStartTime: Int
+  bettingEndTime: Int
+  resultSettingStartTime: Int
+  resultSettingEndTime: Int
   optionIdx: Int
   token: _TokenType
   amount: String
@@ -77,7 +77,7 @@ type Transaction {
 
 type Block {
   blockNum: Int!
-  blockTime: String!
+  blockTime: Int!
 }
 
 type syncInfo {
@@ -127,10 +127,10 @@ type Mutation {
     name: String!
     options: [String!]!
     resultSetterAddress: String!
-    bettingStartTime: String!
-    bettingEndTime: String!
-    resultSettingStartTime: String!
-    resultSettingEndTime: String!
+    bettingStartTime: Int!
+    bettingEndTime: Int!
+    resultSettingStartTime: Int!
+    resultSettingEndTime: Int!
   ): Transaction
 
   createBet(
