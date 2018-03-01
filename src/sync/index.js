@@ -17,7 +17,6 @@ const DecentralizedOracle = require('./models/decentralizedOracle');
 const Vote = require('./models/vote');
 const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
-
 const Contracts = require('../config/contract_metadata');
 
 const rpcBatchSize = 20;
@@ -83,7 +82,7 @@ async function sync(db) {
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
-  
+
   // Get the latest block num based on Qtum master node via Insight API
   // Used to determine if local chain is fully synced
   let chainBlockNum = null;
@@ -118,19 +117,8 @@ async function sync(db) {
       ]);
       logger.debug('Synced Result Set');
 
-      const updateBlockPromises = [];
-      for (let i = startBlock; i <= endBlock; i++) {
-        const updateBlockPromise = new Promise(async (resolve) => {
-          await db.Blocks.insert({
-            _id: i,
-            blockNum: i,
-            blockTime: currentBlockTime,
-          });
-          resolve();
-        });
-        updateBlockPromises.push(updateBlockPromise);
-      }
-      await Promise.all(updateBlockPromises);
+      const { insertBlockPromises, endBlockTime } = await getInsertBlockPromises(db, startBlock, endBlock);
+      await Promise.all(insertBlockPromises);
       logger.debug('Inserted Blocks');
 
       startBlock = endBlock + 1;
@@ -173,14 +161,8 @@ async function sync(db) {
 
         if (_.isNil(chainBlockNum)) {
           logger.warn('chainBlockNum should not be null');
-        } else if (startBlock >= chainBlockNum) {
-          pubsub.publish('OnSyncInfo', { 
-            OnSyncInfo: { 
-              syncBlockNum: currentBlockCount,
-              syncBlockTime: currentBlockTime,
-              chainBlockNum 
-            }
-          });
+        } else if (numOfIterations > 0) {
+          sendSyncInfo(currentBlockChainHeight, currentBlockTime, chainBlockNum);
         }
 
         // nedb doesnt require close db, leave the comment as a reminder
@@ -464,6 +446,48 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
   });
 
   await Promise.all(updateFinalResultSetPromises);
+}
+
+// Gets all promises for new blocks to insert
+async function getInsertBlockPromises(db, startBlock, endBlock) {
+  let blockHash;
+  let blockTime;
+  const insertBlockPromises = [];
+
+  for (let i = startBlock; i <= endBlock; i++) {
+    try {
+      blockHash = await qclient.getBlockHash(i);
+      blockTime = (await qclient.getBlock(blockHash)).time;
+    } catch (err) {
+      logger.error(err);
+    }
+
+    insertBlockPromises.push(new Promise(async (resolve) => {
+      try {
+        await db.Blocks.insert({
+          _id: i,
+          blockNum: i,
+          blockTime,
+        });
+      } catch (err) {
+        logger.error(err);
+      }
+      resolve();
+    }));
+  }
+
+  return { insertBlockPromises, endBlockTime: blockTime };
+}
+
+// Send syncInfo subscription
+function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
+  pubsub.publish('onSyncInfo', {
+    onSyncInfo: {
+      syncBlockNum,
+      syncBlockTime,
+      chainBlockNum,
+    },
+  });
 }
 
 // all central & decentral oracles with VOTING status and endTime less than currentBlockTime

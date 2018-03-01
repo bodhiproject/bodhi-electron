@@ -123,7 +123,7 @@ type Mutation {
 }
 
 type Subscription {
-  OnSyncInfo : syncInfo
+  onSyncInfo : syncInfo
 }
 
 input topicSubscriptionFilter {
