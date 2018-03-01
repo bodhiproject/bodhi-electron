@@ -1,8 +1,17 @@
 /* eslint no-underscore-dangle: [2, { "allow": ["_id"] }] */
 
 const _ = require('lodash');
-const pubsub = require('../pubsub');
 const fetch = require('node-fetch');
+const Web3Utils = require('web3-utils');
+
+const pubsub = require('../pubsub');
+const logger = require('../utils/logger');
+const bodhiToken = require('../api/bodhi_token');
+const eventFactory = require('../api/event_factory');
+const topicEvent = require('../api/topic_event');
+const centralizedOracle = require('../api/centralized_oracle');
+const decentralizedOracle = require('../api/decentralized_oracle');
+const DBHelper = require('../db/nedb').DBHelper;
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -117,6 +126,23 @@ function buildVoteFilters({
   return filters;
 }
 
+async function isAllowanceEnough(owner, spender, amount) {
+  try {
+    const res = await bodhiToken.allowance({
+      owner,
+      spender,
+      senderAddress: owner,
+    });
+
+    const allowance = Web3Utils.toBN(res.remaining);
+    const amountBN = Web3Utils.toBN(amount);
+    return allowance.gte(amountBN);
+  } catch (err) {
+    logger.error(`Error checking allowance: ${err.message}`);
+    throw err;
+  }
+}
+
 module.exports = {
   Query: {
     allTopics: async (root, {
@@ -163,7 +189,7 @@ module.exports = {
       try {
         blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
       } catch (err) {
-        console.error(`Error query latest block from db: ${err.message}`);
+        logger.error(`Error query latest block from db: ${err.message}`);
       }
 
       if (blocks.length > 0) {
@@ -177,7 +203,7 @@ module.exports = {
         const json = await resp.json();
         chainBlockNum = json.info.blocks;
       } catch (err) {
-        console.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
+        logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
       }
 
       return { syncBlockNum, syncBlockTime, chainBlockNum };
@@ -185,31 +211,308 @@ module.exports = {
   },
 
   Mutation: {
-    createTopic: async (root, data, { db: { Topics } }) => {
-      data.status = 'CREATED';
-      data.qtumAmount = Array(data.options.length).fill(0);
-      data.botAmount = Array(data.options.length).fill(0);
+    createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
+      const {
+        version,
+        name,
+        options,
+        resultSetterAddress,
+        bettingStartTime,
+        bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+        senderAddress,
+      } = data;
 
-      const response = await Topics.insert(data);
-      const newTopic = Object.assign({ id: response.insertedIds[0] }, data);
+      // Send createTopic tx
+      let txid;
+      try {
+        const tx = await eventFactory.createTopic({
+          oracleAddress: resultSetterAddress,
+          eventName: name,
+          resultNames: options,
+          bettingStartTime,
+          bettingEndTime,
+          resultSettingStartTime,
+          resultSettingEndTime,
+          senderAddress,
+        });
+        txid = tx.txid;
+      } catch (err) {
+        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+        throw err;
+      }
 
-      pubsub.publish('Topic', { Topic: { mutation: 'CREATED', node: newTopic } });
-      return newTopic;
+      // Insert Topic
+      const topic = {
+        _id: txid,
+        txid,
+        version,
+        status: 'CREATED',
+        name,
+        options,
+        qtumAmount: _.fill(Array(options), '0'),
+        botAmount: _.fill(Array(options), '0'),
+      };
+      await DBHelper.insertTopic(Topics, topic);
+
+      // Insert Oracle
+      const oracle = {
+        _id: txid,
+        txid,
+        version,
+        status: 'CREATED',
+        resultSetterAddress,
+        token: 'QTUM',
+        name,
+        options,
+        optionIdxs: Array.from(Array(options).keys()),
+        amounts: _.fill(Array(options), '0'),
+        startTime: bettingStartTime,
+        endTime: bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+      };
+      await DBHelper.insertOracle(Oracles, oracle);
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type: 'CREATEEVENT',
+        status: 'PENDING',
+        senderAddress,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
     },
 
-    createOracle: async (root, data, { db: { Oracles } }) => {
-      data.status = 'CREATED';
-      data.amounts = Array(data.options.length).fill(0);
+    createBet: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        oracleAddress,
+        optionIdx,
+        amount,
+        senderAddress,
+      } = data;
 
-      const response = await Oracles.insert(data);
-      const newOracle = Object.assign({ id: response.insertedIds[0] }, data);
+      // Send bet tx
+      let txid;
+      try {
+        const tx = await centralizedOracle.bet({
+          contractAddress: oracleAddress,
+          index: optionIdx,
+          amount,
+          senderAddress,
+        });
+        txid = tx.txid;
+      } catch (err) {
+        logger.error(`Error calling CentralizedOracle.bet: ${err.message}`);
+        throw err;
+      }
 
-      return newOracle;
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type: 'BET',
+        status: 'PENDING',
+        senderAddress,
+        oracleAddress,
+        optionIdx,
+        token: 'QTUM',
+        amount,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
     },
 
-    createVote: async (root, data, { db: { Votes } }) => {
-      const response = await Votes.insert(data);
-      return Object.assign({ id: response.insertedIds[0] }, data);
+    setResult: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        topicAddress,
+        oracleAddress,
+        optionIdx,
+        amount,
+        senderAddress,
+      } = data;
+
+      // Make sure allowance is 0, or it needs to be reset
+      let approveAmount;
+      let type;
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        approveAmount = amount;
+        type = 'APPROVESETRESULT';
+      } else {
+        approveAmount = 0;
+        type = 'RESETAPPROVESETRESULT';
+      }
+
+      // Send approve tx
+      let txid;
+      try {
+        const tx = await bodhiToken.approve({
+          spender: topicAddress,
+          value: approveAmount,
+          senderAddress,
+        });
+        txid = tx.txid;
+      } catch (err) {
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type,
+        status: 'PENDING',
+        senderAddress,
+        topicAddress,
+        oracleAddress,
+        optionIdx,
+        token: 'BOT',
+        amount,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
+    },
+
+    createVote: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        topicAddress,
+        oracleAddress,
+        optionIdx,
+        amount,
+        senderAddress,
+      } = data;
+
+      // Make sure allowance is 0, or it needs to be reset
+      let approveAmount;
+      let type;
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        approveAmount = amount;
+        type = 'APPROVEVOTE';
+      } else {
+        approveAmount = 0;
+        type = 'RESETAPPROVEVOTE';
+      }
+
+      // Send approve tx
+      let txid;
+      try {
+        const tx = await bodhiToken.approve({
+          spender: topicAddress,
+          value: approveAmount,
+          senderAddress,
+        });
+        txid = tx.txid;
+      } catch (err) {
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type,
+        status: 'PENDING',
+        senderAddress,
+        topicAddress,
+        oracleAddress,
+        optionIdx,
+        token: 'BOT',
+        amount,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
+    },
+
+    finalizeResult: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        oracleAddress,
+        senderAddress,
+      } = data;
+
+      // Send finalizeResult tx
+      let txid;
+      try {
+        const tx = await decentralizedOracle.finalizeResult({
+          contractAddress: oracleAddress,
+          senderAddress,
+        });
+        txid = tx.txid;
+      } catch (err) {
+        logger.error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
+        throw err;
+      }
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type: 'FINALIZERESULT',
+        status: 'PENDING',
+        senderAddress,
+        oracleAddress,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
+    },
+
+    withdraw: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        topicAddress,
+        senderAddress,
+      } = data;
+
+      // Send withdraw tx
+      let txid;
+      try {
+        const tx = await topicEvent.withdrawWinnings({
+          contractAddress: topicAddress,
+          senderAddress,
+        });
+        txid = tx.txid;
+      } catch (err) {
+        logger.error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
+        throw err;
+      }
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type: 'WITHDRAW',
+        status: 'PENDING',
+        senderAddress,
+        topicAddress,
+        createdTime: Date.now().toString(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
     },
   },
 

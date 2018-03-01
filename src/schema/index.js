@@ -5,34 +5,34 @@ const resolvers = require('./resolvers');
 const typeDefs = `
 
 type Topic {
-  version: Int!
-  address: String!
   txid: String!
+  version: Int!
+  blockNum: Int
   status: _OracleStatusType!
+  address: String
   name: String!
   options: [String!]!
   resultIdx: Int
   qtumAmount: [String!]!
   botAmount: [String!]!
-  blockNum: Int!
-  oracles: [Oracle]!
+  oracles: [Oracle]
 }
 
 type Oracle {
-  version: Int!
-  address: String!
   txid: String!
-  topicAddress: String!
+  version: Int!
+  blockNum: Int
+  status: _OracleStatusType!
+  address: String
+  topicAddress: String
   resultSetterAddress: String
   resultSetterQAddress: String
-  status: _OracleStatusType!
   token: String!
   name: String!
   options: [String!]!
   optionIdxs: [Int!]!
   amounts: [String!]!
   resultIdx: Int
-  blockNum: Int!
   startTime: Int!
   endTime: Int!
   resultSetStartTime: Int
@@ -41,14 +41,38 @@ type Oracle {
 }
 
 type Vote {
-  version: Int!
   txid: String!
+  version: Int!
+  blockNum: Int!
   voterAddress: String!
   voterQAddress: String!
   oracleAddress: String!
   optionIdx: Int!
   amount: String!
-  blockNum: Int!
+}
+
+type Transaction {
+  version: Int!
+  txid: String
+  blockNum: Int
+  gasUsed: Int
+  createdTime: Int!
+  type: _TransactionType!
+  status: _TransactionStatus!
+  senderAddress: String!
+  senderQAddress: String!
+  topicAddress: String
+  oracleAddress: String
+  name: String
+  options: [String!]
+  resultSetterAddress: String
+  bettingStartTime: Int
+  bettingEndTime: Int
+  resultSettingStartTime: Int
+  resultSettingEndTime: Int
+  optionIdx: Int
+  token: _TokenType
+  amount: String
 }
 
 type Block {
@@ -67,6 +91,7 @@ type Query {
   allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
   searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
+  allTransactions(orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
   syncInfo: syncInfo!
 }
 
@@ -97,29 +122,54 @@ input VoteFilter {
 
 type Mutation {
   createTopic(
-    address: String!
+    version: Int!
+    senderAddress: String!
     name: String!
     options: [String!]!
-    blockNum: Int
-  ): Topic
+    resultSetterAddress: String!
+    bettingStartTime: Int!
+    bettingEndTime: Int!
+    resultSettingStartTime: Int!
+    resultSettingEndTime: Int!
+  ): Transaction
 
-  createOracle(
-    address: String!
-    topicAddress: String!
-    token: _TokenType!
-    optionIdxs: [Int!]!
-    blockNum: Int!
-    endBlock: Int!
-  ): Oracle
-
-  createVote(
-    address: String!
-    voterAddress: String!
+  createBet(
+    version: Int!
+    senderAddress: String!
     oracleAddress: String!
     optionIdx: Int!
-    amount: Int!
-    blockNum: Int!
-  ): Vote
+    amount: String!
+  ): Transaction
+
+  setResult(
+    version: Int!
+    senderAddress: String!
+    topicAddress: String!
+    oracleAddress: String!
+    amount: String!
+    optionIdx: Int!
+  ): Transaction
+
+  createVote(
+    version: Int!
+    senderAddress: String!
+    topicAddress: String!
+    oracleAddress: String!
+    optionIdx: Int!
+    amount: String!
+  ): Transaction
+
+  finalizeResult(
+    version: Int!
+    senderAddress: String!
+    oracleAddress: String!
+  ): Transaction
+
+  withdraw(
+    version: Int!
+    senderAddress: String!
+    topicAddress: String!
+  ): Transaction
 }
 
 type Subscription {
@@ -163,6 +213,25 @@ enum _TokenType {
 enum _OrderDirection {
   DESC
   ASC
+}
+
+enum _TransactionType {
+  CREATEEVENT
+  BET
+  RESETAPPROVESETRESULT
+  APPROVESETRESULT
+  SETRESULT
+  RESETAPPROVEVOTE
+  APPROVEVOTE
+  VOTE
+  FINALIZERESULT
+  WITHDRAW
+}
+
+enum _TransactionStatus {
+   PENDING
+   FAIL
+   SUCCESS
 }
 `;
 

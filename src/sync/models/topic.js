@@ -26,7 +26,7 @@ class Topic {
 
   translate() {
     return {
-      _id: this.topicAddress,
+      _id: this.txid,
       version: this.version,
       address: this.topicAddress,
       txid: this.txid,

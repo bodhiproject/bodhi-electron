@@ -7,7 +7,8 @@ const logger = require('../utils/logger');
 const fetch = require('node-fetch');
 
 const config = require('../config/config');
-const connectDB = require('../db/nedb');
+const connectDB = require('../db/nedb').connectDB;
+const updateTxDB = require('./update_tx');
 
 const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
@@ -27,6 +28,7 @@ const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender a
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
+  updateTxDB(db);
 };
 
 function sequentialLoop(iterations, process, exit) {
@@ -175,7 +177,7 @@ async function sync(db) {
 }
 
 async function fetchNameOptionsFromTopic(db, address) {
-  const topic = await db.Topics.findOne({ _id: address }, { name: 1, options: 1 });
+  const topic = await db.Topics.findOne({ address }, { name: 1, options: 1 });
   if (!topic) {
     throw Error(`could not find Topic ${address} in db`);
   } else {
@@ -381,7 +383,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
             oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
 
             await db.Oracles.update(
-              { _id: oracleResult.oracleAddress },
+              { address: oracleResult.oracleAddress },
               { $set: { resultIdx: oracleResult.resultIdx, status: 'PENDING' } }, {},
             );
             resolve();
@@ -425,7 +427,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
             topicsNeedBalanceUpdate.add(topicResult.topicAddress);
 
             await db.Topics.update(
-              { _id: topicResult.topicAddress },
+              { address: topicResult.topicAddress },
               { $set: { resultIdx: topicResult.resultIdx, status: 'WITHDRAW' } },
             );
 
@@ -520,7 +522,7 @@ async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, 
 async function updateOracleBalance(oracleAddress, topicSet, db) {
   let oracle;
   try {
-    oracle = await db.Oracles.findOne({ _id: oracleAddress });
+    oracle = await db.Oracles.findOne({ address: oracleAddress });
     if (!oracle) {
       logger.error(`find 0 oracle ${oracleAddress} in db to update`);
       return;
@@ -556,7 +558,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   const balances = _.map(value[0].slice(0, oracle.numOfResults), balanceBN => balanceBN.toJSON());
 
   try {
-    await db.Oracles.update({ _id: oracleAddress }, { $set: { amounts: balances } });
+    await db.Oracles.update({ address: oracleAddress }, { $set: { amounts: balances } });
     logger.debug(`Update oracle ${oracleAddress} amounts ${balances}`);
   } catch (err) {
     logger.error(`update oracle ${oracleAddress}, ${err.message}`);
@@ -566,7 +568,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 async function updateTopicBalance(topicAddress, db) {
   let topic;
   try {
-    topic = await db.Topics.findOne({ _id: topicAddress });
+    topic = await db.Topics.findOne({ address: topicAddress });
     if (!topic) {
       logger.error(`find 0 topic ${topicAddress} in db to update`);
       return;
@@ -595,7 +597,7 @@ async function updateTopicBalance(topicAddress, db) {
 
   try {
     await db.Topics.update(
-      { _id: topicAddress },
+      { address: topicAddress },
       { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances } },
     );
     logger.debug(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
