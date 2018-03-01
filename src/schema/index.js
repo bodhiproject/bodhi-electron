@@ -7,7 +7,7 @@ const typeDefs = `
 type Topic {
   txid: String!
   version: Int!
-  blockNum: Int
+  blockNum: String
   status: _OracleStatusType!
   address: String
   name: String!
@@ -21,7 +21,7 @@ type Topic {
 type Oracle {
   txid: String!
   version: Int!
-  blockNum: Int
+  blockNum: String
   status: _OracleStatusType!
   address: String
   topicAddress: String
@@ -33,17 +33,17 @@ type Oracle {
   optionIdxs: [Int!]!
   amounts: [String!]!
   resultIdx: Int
-  startTime: Int!
-  endTime: Int!
-  resultSetStartTime: Int
-  resultSetEndTime: Int
+  startTime: String!
+  endTime: String!
+  resultSetStartTime: String
+  resultSetEndTime: String
   consensusThreshold: String
 }
 
 type Vote {
   txid: String!
   version: Int!
-  blockNum: Int!
+  blockNum: String!
   voterAddress: String!
   voterQAddress: String!
   oracleAddress: String!
@@ -54,7 +54,7 @@ type Vote {
 type Transaction {
   version: Int!
   txid: String
-  blockNum: Int
+  blockNum: String
   gasUsed: Int
   createdTime: String!
   type: _TransactionType!
@@ -66,24 +66,24 @@ type Transaction {
   name: String
   options: [String!]
   resultSetterAddress: String
-  bettingStartTime: Int
-  bettingEndTime: Int
-  resultSettingStartTime: Int
-  resultSettingEndTime: Int
+  bettingStartTime: String
+  bettingEndTime: String
+  resultSettingStartTime: String
+  resultSettingEndTime: String
   optionIdx: Int
   token: _TokenType
   amount: String
 }
 
 type Block {
-  blockNum: Int!
-  blockTime: Int!
+  blockNum: String!
+  blockTime: String!
 }
 
 type syncInfo {
-  syncBlockNum: Int
-  syncBlockTime: Int
-  chainBlockNum: Int
+  syncBlockNum: String
+  syncBlockTime: String
+  chainBlockNum: String
 }
 
 type Query {
@@ -127,10 +127,10 @@ type Mutation {
     name: String!
     options: [String!]!
     resultSetterAddress: String!
-    bettingStartTime: Int!
-    bettingEndTime: Int!
-    resultSettingStartTime: Int!
-    resultSettingEndTime: Int!
+    bettingStartTime: String!
+    bettingEndTime: String!
+    resultSettingStartTime: String!
+    resultSettingEndTime: String!
   ): Transaction
 
   createBet(
