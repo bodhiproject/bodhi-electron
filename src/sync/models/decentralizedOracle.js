@@ -1,6 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 
 const _ = require('lodash');
+const Web3Utils = require('web3-utils');
 
 class DecentralizedOracle {
   constructor(blockNum, txid, rawLog) {
@@ -19,7 +20,7 @@ class DecentralizedOracle {
     this.numOfResults = this.rawLog._numOfResults.toNumber();
     this.lastResultIndex = this.rawLog._lastResultIndex.toNumber();
     this.arbitrationEndTime = this.rawLog._arbitrationEndTime.toNumber();
-    this.consensusThreshold = this.rawLog._consensusThreshold.toJSON();
+    this.consensusThreshold = Web3Utils.hexToNumberString(this.rawLog._consensusThreshold);
   }
 
   translate() {
