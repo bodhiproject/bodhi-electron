@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const fetch = require('node-fetch');
 const Web3Utils = require('web3-utils');
+const moment = require('moment');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
@@ -283,7 +284,7 @@ module.exports = {
         type: 'CREATEEVENT',
         status: 'PENDING',
         senderAddress,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
@@ -326,7 +327,7 @@ module.exports = {
         optionIdx,
         token: 'QTUM',
         amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
@@ -381,7 +382,7 @@ module.exports = {
         optionIdx,
         token: 'BOT',
         amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
@@ -436,7 +437,7 @@ module.exports = {
         optionIdx,
         token: 'BOT',
         amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
@@ -472,7 +473,7 @@ module.exports = {
         status: 'PENDING',
         senderAddress,
         oracleAddress,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
@@ -508,7 +509,7 @@ module.exports = {
         status: 'PENDING',
         senderAddress,
         topicAddress,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 

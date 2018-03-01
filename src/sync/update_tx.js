@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 
 const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
@@ -108,7 +109,7 @@ async function executeFollowUpTx(tx, db) {
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       });
       break;
     }
@@ -138,7 +139,7 @@ async function executeFollowUpTx(tx, db) {
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       });
       break;
     }
@@ -169,7 +170,7 @@ async function executeFollowUpTx(tx, db) {
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       });
       break;
     }
@@ -200,7 +201,7 @@ async function executeFollowUpTx(tx, db) {
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: Date.now().toString(),
+        createdTime: moment().unix(),
       });
       break;
     }
