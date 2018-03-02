@@ -6,11 +6,9 @@ const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
 const fetch = require('node-fetch');
 
-const config = require('../config/config');
+const { Config, getContractMetadata } = require('../config/config');
 const connectDB = require('../db/nedb').connectDB;
 const updateTxDB = require('./update_tx');
-
-const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
 
 const Topic = require('./models/topic');
 const CentralizedOracle = require('./models/centralizedOracle');
@@ -18,11 +16,13 @@ const DecentralizedOracle = require('./models/decentralizedOracle');
 const Vote = require('./models/vote');
 const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
-const Contracts = require('../config/testnet/v0/contract_metadata');
+
+const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
+const contractMetadata = getContractMetadata(0, true);
 
 const rpcBatchSize = 20;
 const batchSize = 200;
-const contractDeployedBlockNum = Contracts.contractDeployedBlock;
+const contractDeployedBlockNum = contractMetadata.contractDeployedBlock;
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
 const startSync = async () => {
@@ -189,8 +189,8 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
     result = await qclient.searchLogs(
-      startBlock, endBlock, Contracts.EventFactory.address,
-      [Contracts.EventFactory.TopicCreated], Contracts, removeHexPrefix,
+      startBlock, endBlock, contractMetadata.EventFactory.address,
+      [contractMetadata.EventFactory.TopicCreated], contractMetadata, removeHexPrefix,
     );
     logger.debug('searchlog TopicCreated');
   } catch (err) {
@@ -229,8 +229,8 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
   let result;
   try {
     result = await qclient.searchLogs(
-      startBlock, endBlock, Contracts.EventFactory.address,
-      [Contracts.OracleFactory.CentralizedOracleCreated], Contracts, removeHexPrefix,
+      startBlock, endBlock, contractMetadata.EventFactory.address,
+      [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, removeHexPrefix,
     );
     logger.debug('searchlog CentralizedOracleCreated');
   } catch (err) {
@@ -274,8 +274,8 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
   let result;
   try {
     result = await qclient.searchLogs(
-      startBlock, endBlock, [], Contracts.OracleFactory.DecentralizedOracleCreated,
-      Contracts, removeHexPrefix,
+      startBlock, endBlock, [], contractMetadata.OracleFactory.DecentralizedOracleCreated,
+      contractMetadata, removeHexPrefix,
     );
     logger.debug('searchlog DecentralizedOracleCreated');
   } catch (err) {
@@ -319,8 +319,8 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
   let result;
   try {
     result = await qclient.searchLogs(
-      startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultVoted,
-      Contracts, removeHexPrefix,
+      startBlock, endBlock, [], contractMetadata.CentralizedOracle.OracleResultVoted,
+      contractMetadata, removeHexPrefix,
     );
     logger.debug('searchlog OracleResultVoted');
   } catch (err) {
@@ -361,7 +361,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
   let result;
   try {
     result = await qclient.searchLogs(
-      startBlock, endBlock, [], Contracts.CentralizedOracle.OracleResultSet, Contracts,
+      startBlock, endBlock, [], contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata,
       removeHexPrefix,
     );
     logger.debug('searchlog OracleResultSet');
@@ -405,7 +405,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
   let result;
   try {
     result = await qclient.searchLogs(
-      startBlock, endBlock, [], Contracts.TopicEvent.FinalResultSet, Contracts,
+      startBlock, endBlock, [], contractMetadata.TopicEvent.FinalResultSet, contractMetadata,
       removeHexPrefix,
     );
     logger.debug('searchlog FinalResultSet');
@@ -537,7 +537,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   let value;
   if (oracle.token === 'QTUM') {
     // centrailized
-    const contract = new Contract(config.QTUM_RPC_ADDRESS, oracleAddress, Contracts.CentralizedOracle.abi);
+    const contract = new Contract(Config.QTUM_RPC_ADDRESS, oracleAddress, contractMetadata.CentralizedOracle.abi);
     try {
       value = await contract.call('getTotalBets', { methodArgs: [], senderAddress });
     } catch (err) {
@@ -546,7 +546,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     }
   } else {
     // decentralized
-    const contract = new Contract(config.QTUM_RPC_ADDRESS, oracleAddress, Contracts.DecentralizedOracle.abi);
+    const contract = new Contract(Config.QTUM_RPC_ADDRESS, oracleAddress, contractMetadata.DecentralizedOracle.abi);
     try {
       value = await contract.call('getTotalVotes', { methodArgs: [], senderAddress });
     } catch (err) {
@@ -578,7 +578,7 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  const contract = new Contract(config.QTUM_RPC_ADDRESS, topicAddress, Contracts.TopicEvent.abi);
+  const contract = new Contract(Config.QTUM_RPC_ADDRESS, topicAddress, contractMetadata.TopicEvent.abi);
   let totalBetsValue;
   let totalVotesValue;
   try {

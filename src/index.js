@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
 
-const config = require('./config/config');
+const { Config } = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -17,13 +17,13 @@ const apiRouter = require('./route/api');
 const startSync = require('./sync');
 const Utils = require('./utils/utils');
 
-const qClient = new Qweb3(config.QTUM_RPC_ADDRESS);
+const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 const emitter = new EventEmitter();
 
 let qtumProcess;
 let checkInterval;
 
-const qclient = new Qweb3(config.QTUM_RPC_ADDRESS);
+const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 
 // Restify setup
 const server = restify.createServer({
@@ -140,12 +140,12 @@ async function startAPI() {
     maxAge: 0,
   }));
 
-  server.listen(config.PORT, () => {
+  server.listen(Config.PORT, () => {
     SubscriptionServer.create(
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    logger.info(`Bodhi App is running on http://${config.HOSTNAME}:${config.PORT}.`);
+    logger.info(`Bodhi App is running on http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
 }
 

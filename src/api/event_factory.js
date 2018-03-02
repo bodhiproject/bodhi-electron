@@ -1,15 +1,12 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const Config = require('../config/config');
-const ContractMetadata = require('../config/testnet/v0/contract_metadata');
+const { Config, getContractMetadata } = require('../config/config');
 
 const GAS_LIMIT_CREATE_TOPIC = 3500000;
 
-const contract = new Contract(
-  Config.QTUM_RPC_ADDRESS, ContractMetadata.EventFactory.address,
-  ContractMetadata.EventFactory.abi,
-);
+const metadata = getContractMetadata(0, true);
+const contract = new Contract(Config.QTUM_RPC_ADDRESS, metadata.EventFactory.address, metadata.EventFactory.abi);
 
 const EventFactory = {
   async createTopic(args) {

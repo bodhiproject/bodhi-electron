@@ -4,7 +4,7 @@ const moment = require('moment');
 const winston = require('winston');
 
 const Utils = require('./utils');
-const config = require('../config/config');
+const { Config } = require('../config/config');
 
 const LOG_DIR = `${Utils.getDataDir()}/logs`;
 
@@ -37,7 +37,7 @@ const logger = new (winston.Logger)({
   exitOnError: false,
 });
 
-const loglvl = process.env.loglvl || config.DEFAULT_LOGLVL;
+const loglvl = process.env.loglvl || Config.DEFAULT_LOGLVL;
 logger.level = loglvl;
 
 module.exports = logger;
