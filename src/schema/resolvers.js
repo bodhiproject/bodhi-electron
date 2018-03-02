@@ -214,7 +214,6 @@ module.exports = {
   Mutation: {
     createTopic: async (root, data, { db: { Topics, Oracles, Transactions } }) => {
       const {
-        version,
         name,
         options,
         resultSetterAddress,
@@ -243,6 +242,11 @@ module.exports = {
         logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
         throw err;
       }
+
+      // Fetch version number
+      const version = await eventFactory.version({
+        senderAddress,
+      });
 
       // Insert Topic
       const topic = {
