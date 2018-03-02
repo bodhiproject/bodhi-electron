@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const mainnettMetadata = require('./mainnet/contract_metadata');
+const mainnetMetadata = require('./mainnet/contract_metadata');
 const testnetMetadata = require('./testnet/contract_metadata');
 
 const Config = {
@@ -26,7 +26,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet =
   if (testnet) {
     return testnetMetadata[versionNum];
   }
-  return mainnet[versionNum];
+  return mainnetMetadata[versionNum];
 }
 
 module.exports = {
