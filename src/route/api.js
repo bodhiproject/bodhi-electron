@@ -4,6 +4,7 @@ const { Qweb3 } = require('qweb3');
 const { Config } = require('../config/config');
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
+const AddressManager = require('../api/address_manager');
 const BodhiToken = require('../api/bodhi_token');
 const BaseContract = require('../api/base_contract');
 const EventFactory = require('../api/event_factory');
@@ -94,6 +95,25 @@ apiRouter.post('/get-transaction-receipt', (req, res, next) => {
 
 apiRouter.post('/search-logs', (req, res, next) => {
   Blockchain.searchLogs(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+/* AddressManager */
+apiRouter.post('/last-event-factory-index', (req, res, next) => {
+  AddressManager.getLastEventFactoryIndex(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/last-oracle-factory-index', (req, res, next) => {
+  AddressManager.getLastOracleFactoryIndex(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
