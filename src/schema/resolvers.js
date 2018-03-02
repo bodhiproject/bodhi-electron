@@ -244,9 +244,14 @@ module.exports = {
       }
 
       // Fetch version number
-      const version = await eventFactory.version({
-        senderAddress,
-      });
+      let version;
+      try {
+        const res = await eventFactory.version({ senderAddress });
+        version = Number(res[0]);
+      } catch (err) {
+        logger.error(`Error calling EventFactory.version: ${err.message}`);
+        throw err;
+      }
 
       // Insert Topic
       const topic = {

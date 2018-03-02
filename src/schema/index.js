@@ -122,7 +122,6 @@ input VoteFilter {
 
 type Mutation {
   createTopic(
-    version: Int!
     senderAddress: String!
     name: String!
     options: [String!]!
