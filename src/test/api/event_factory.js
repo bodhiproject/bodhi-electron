@@ -12,7 +12,6 @@ const assert = Chai.assert;
 const expect = Chai.expect;
 
 describe('EventFactory', () => {
-  
   describe('createTopic()', () => {
     it('returns a tx receipt', () => {
       const res = Mocks.createTopic.result;

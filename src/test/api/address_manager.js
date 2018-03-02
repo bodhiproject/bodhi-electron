@@ -10,7 +10,6 @@ const assert = Chai.assert;
 const expect = Chai.expect;
 
 describe('AddressManager', () => {
-
   describe('getLastEventFactoryIndex()', () => {
     it('returns the lastEventFactoryIndex', async () => {
       const res = await AddressManager.getLastEventFactoryIndex({
