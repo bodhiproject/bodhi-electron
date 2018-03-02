@@ -53,6 +53,21 @@ const EventFactory = {
       senderAddress,
     });
   },
+
+  async version(args) {
+    const {
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    return contract.call('version', {
+      methodArgs: [],
+      senderAddress,
+    });
+  },
 };
 
 module.exports = EventFactory;
