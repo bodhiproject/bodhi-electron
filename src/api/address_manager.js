@@ -21,6 +21,21 @@ const AddressManager = {
       senderAddress,
     });
   },
+
+  async getLastOracleFactoryIndex(args) {
+    const {
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    return contract.call('getLastOracleFactoryIndex', {
+      methodArgs: [],
+      senderAddress,
+    });
+  },
 };
 
 module.exports = AddressManager;
