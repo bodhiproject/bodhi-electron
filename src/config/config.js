@@ -28,4 +28,7 @@ function getContractMetadata(versionNum, testnet = true) {
   }
 }
 
-module.exports = config;
+module.exports = {
+  Config: config,
+  getContractMetadata,
+};
