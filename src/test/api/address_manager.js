@@ -3,7 +3,7 @@ const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
 const AddressManager = require('../../api/address_manager');
-const Mocks = require('./mock/address_manager');
+const TestConfig = require('./config/test_config');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;
@@ -13,7 +13,9 @@ describe('AddressManager', () => {
 
   describe('getLastEventFactoryIndex()', () => {
     it('returns the lastEventFactoryIndex', async () => {
-      const res = Mocks.getLastEventFactoryIndex.result;
+      const res = await AddressManager.getLastEventFactoryIndex({
+        senderAddress: TestConfig.SENDER_ADDRESS,
+      });
       assert.isDefined(res.lastEventFactoryIndex);
       assert.isTrue(_.isNumber(Number(res.lastEventFactoryIndex)));
     });
@@ -25,7 +27,9 @@ describe('AddressManager', () => {
 
   describe('getLastOracleFactoryIndex()', () => {
     it('returns the lastOracleFactoryIndex', async () => {
-      const res = Mocks.getLastOracleFactoryIndex.result;
+      const res = await AddressManager.getLastOracleFactoryIndex({
+        senderAddress: TestConfig.SENDER_ADDRESS,
+      });
       assert.isDefined(res.lastOracleFactoryIndex);
       assert.isTrue(_.isNumber(Number(res.lastOracleFactoryIndex)));
     });
