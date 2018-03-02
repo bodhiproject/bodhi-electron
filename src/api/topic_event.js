@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const Config = require('../config/config');
-const ContractMetadata = require('../config/contract_metadata');
+const ContractMetadata = require('../config/testnet/v0/contract_metadata');
 
 function getContract(contractAddress) {
   return new Contract(Config.QTUM_RPC_ADDRESS, contractAddress, ContractMetadata.TopicEvent.abi);

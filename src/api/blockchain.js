@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { Qweb3 } = require('qweb3');
 
 const Config = require('../config/config');
-const ContractMetadata = require('../config/contract_metadata');
+const ContractMetadata = require('../config/testnet/v0/contract_metadata');
 
 const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 

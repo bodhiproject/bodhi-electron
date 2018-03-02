@@ -2,7 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const Config = require('../config/config');
-const ContractMetadata = require('../config/contract_metadata');
+const ContractMetadata = require('../config/testnet/v0/contract_metadata');
 
 const GAS_LIMIT_VOTE = 1500000;
 

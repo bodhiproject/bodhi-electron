@@ -18,11 +18,11 @@ const DecentralizedOracle = require('./models/decentralizedOracle');
 const Vote = require('./models/vote');
 const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
-const Contracts = require('../config/contract_metadata');
+const Contracts = require('../config/testnet/v0/contract_metadata');
 
 const rpcBatchSize = 20;
 const batchSize = 200;
-const contractDeployedBlockNum = 78893;
+const contractDeployedBlockNum = Contracts.contractDeployedBlock;
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
 const startSync = async () => {
