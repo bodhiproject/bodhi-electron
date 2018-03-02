@@ -26,7 +26,7 @@ async function updatePendingTxs(db) {
       await updateDB(tx, db);
       resolve();
     }));
-  })
+  });
   await Promise.all(updatePromises);
 }
 
@@ -60,7 +60,7 @@ async function updateDB(tx, db) {
             gasUsed: tx.gasUsed,
             blockNum: tx.blockNum,
           },
-        }, 
+        },
         {
           returnUpdatedDocs: true,
         },
