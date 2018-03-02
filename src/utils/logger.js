@@ -4,7 +4,7 @@ const moment = require('moment');
 const winston = require('winston');
 
 const Utils = require('./utils');
-const Config = require('../config/config');
+const { Config } = require('../config/config');
 
 const LOG_DIR = `${Utils.getDataDir()}/logs`;
 

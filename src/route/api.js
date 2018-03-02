@@ -1,7 +1,7 @@
 const { Router } = require('restify-router');
 const { Qweb3 } = require('qweb3');
 
-const Config = require('../config/config');
+const { Config } = require('../config/config');
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const BodhiToken = require('../api/bodhi_token');

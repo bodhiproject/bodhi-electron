@@ -10,7 +10,6 @@ const Config = {
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
   TESTNET: true,
-  CONTRACT_METADATA: getContractMetadata(CONTRACT_VERSION_NUM, TESTNET),
 };
 
 /*
@@ -19,15 +18,18 @@ const Config = {
 * @param testnet {Boolean} Whether on testnet env or not.
 * @return {Object} The contract metadata.
 */
-function getContractMetadata(versionNum, testnet = true) {
+function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet = Config.TESTNET) {
   if (!_.isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
 
   if (testnet) {
-    return testnetMetadata.versionNum;
+    return testnetMetadata[versionNum];
   }
-  return mainnet.versionNum;
+  return mainnet[versionNum];
 }
 
-module.exports = Config;
+module.exports = {
+  Config,
+  getContractMetadata,
+};

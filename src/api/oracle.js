@@ -1,13 +1,13 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const Config = require('../config/config');
+const { Config, getContractMetadata } = require('../config/config');
 
 const ORACLE_CENTRALIZED = 'centralized';
 const ORACLE_DECENTRALIZED = 'decentralized';
 
 function getContract(oracleType, contractAddress) {
-  const metadata = Config.CONTRACT_METADATA;
+  const metadata = getContractMetadata();
 
   switch (oracleType) {
     case ORACLE_CENTRALIZED: {

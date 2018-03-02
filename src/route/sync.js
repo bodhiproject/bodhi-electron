@@ -3,7 +3,7 @@ const Router = require('restify-router').Router;
 
 const connectDB = require('../db/nedb').connectDB;
 const schema = require('../schema');
-const Config = require('../config/config');
+const { Config } = require('../config/config');
 
 const syncRouter = new Router();
 
