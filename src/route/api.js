@@ -214,6 +214,15 @@ apiRouter.post('/create-topic', (req, res, next) => {
     });
 });
 
+apiRouter.post('/event-factory-version', (req, res, next) => {
+  EventFactory.version(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 /* TopicEvent */
 apiRouter.post('/withdraw', (req, res, next) => {
   TopicEvent.withdrawWinnings(req.params)
