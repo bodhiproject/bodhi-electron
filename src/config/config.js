@@ -3,11 +3,14 @@ const _ = require('lodash');
 const mainnettMetadata = require('./mainnet/contract_metadata');
 const testnetMetadata = require('./testnet/contract_metadata');
 
-const config = {
+const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
   QTUM_RPC_ADDRESS: 'http://bodhi:bodhi@localhost:13889',
   DEFAULT_LOGLVL: 'info',
+  CONTRACT_VERSION_NUM: 0,
+  TESTNET: true,
+  CONTRACT_METADATA: getContractMetadata(CONTRACT_VERSION_NUM, TESTNET),
 };
 
 /*
@@ -23,12 +26,8 @@ function getContractMetadata(versionNum, testnet = true) {
 
   if (testnet) {
     return testnetMetadata.versionNum;
-  } else {
-    return mainnet.versionNum;
   }
+  return mainnet.versionNum;
 }
 
-module.exports = {
-  Config: config,
-  getContractMetadata,
-};
+module.exports = Config;

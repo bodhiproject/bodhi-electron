@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
 
-const { Config } = require('./config/config');
+const Config = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');

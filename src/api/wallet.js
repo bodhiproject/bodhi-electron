@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { Qweb3 } = require('qweb3');
 
-const { Config } = require('../config/config');
+const Config = require('../config/config');
 
 const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 

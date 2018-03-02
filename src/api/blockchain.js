@@ -1,10 +1,10 @@
 const _ = require('lodash');
 const { Qweb3 } = require('qweb3');
 
-const { Config, getContractMetadata } = require('../config/config');
+const Config = require('../config/config');
 
 const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);
-const metadata = getContractMetadata(0, true);
+const metadata = Config.CONTRACT_METADATA;
 
 const Blockchain = {
   async getBlock(args) {

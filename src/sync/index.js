@@ -6,7 +6,7 @@ const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
 const fetch = require('node-fetch');
 
-const { Config, getContractMetadata } = require('../config/config');
+const Config = require('../config/config');
 const connectDB = require('../db/nedb').connectDB;
 const updateTxDB = require('./update_tx');
 
@@ -18,7 +18,7 @@ const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
 
 const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
-const contractMetadata = getContractMetadata(0, true);
+const contractMetadata = Config.CONTRACT_METADATA;
 
 const rpcBatchSize = 20;
 const batchSize = 200;
