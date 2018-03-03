@@ -91,7 +91,7 @@ type Query {
   allOracles(filter: OracleFilter, orderBy: [Order!], limit: Int, skip: Int ): [Oracle]!
   searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
-  allTransactions(orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
+  allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
   syncInfo: syncInfo!
 }
 
@@ -118,6 +118,16 @@ input VoteFilter {
   voterAddress: String
   voterQAddress: String
   optionIdx: Int
+}
+
+input TransactionFilter {
+  OR: [TransactionFilter!]
+  type: _TransactionType
+  status: _TransactionStatus
+  topicAddress: String
+  oracleAddress: String
+  senderAddress: String
+  senderQAddress: String
 }
 
 type Mutation {

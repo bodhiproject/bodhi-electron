@@ -127,6 +127,42 @@ function buildVoteFilters({
   return filters;
 }
 
+function buildTransactionFilters({
+  OR = [], type, status, topicAddress, oracleAddress, senderAddress, senderQAddress,
+}) {
+  const filter = (type || status || topicAddress || oracleAddress || senderAddress || senderQAddress) ? {} : null;
+
+  if (type) {
+    filter.type = type;
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
+
+  if (oracleAddress) {
+    filter.oracleAddress = oracleAddress;
+  }
+
+  if (senderAddress) {
+    filter.senderAddress = senderAddress;
+  }
+
+  if (senderQAddress) {
+    filter.senderQAddress = senderQAddress;
+  }
+
+  let filters = filter ? [filter] : [];
+  for (let i = 0; i < OR.length; i++) {
+    filters = filters.concat(buildTransactionFilters(OR[i]));
+  }
+  return filters;
+}
+
 async function isAllowanceEnough(owner, spender, amount) {
   try {
     const res = await bodhiToken.allowance({
@@ -179,6 +215,15 @@ module.exports = {
     }, { db: { Votes } }) => {
       const query = filter ? { $or: buildVoteFilters(filter) } : {};
       let cursor = Votes.cfind(query);
+      cursor = buildCursorOptions(cursor, orderBy, limit, skip);
+      return cursor.exec();
+    },
+
+    allTransactions: async(root, {
+      filter, orderBy, limit, skip,
+    }, { db: { Transactions } }) => {
+      const query = filter ? { $or: buildTransactionFilters(filter) } : {};
+      let cursor = Transactions.cfind(query);
       cursor = buildCursorOptions(cursor, orderBy, limit, skip);
       return cursor.exec();
     },
