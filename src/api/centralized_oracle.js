@@ -1,13 +1,13 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const Config = require('../config/config');
-const ContractMetadata = require('../config/contract_metadata');
+const { Config, getContractMetadata } = require('../config/config');
 
 const GAS_LIMIT_SET_RESULT = 1500000;
 
 function getContract(contractAddress) {
-  return new Contract(Config.QTUM_RPC_ADDRESS, contractAddress, ContractMetadata.CentralizedOracle.abi);
+  const metadata = getContractMetadata();
+  return new Contract(Config.QTUM_RPC_ADDRESS, contractAddress, metadata.CentralizedOracle.abi);
 }
 
 const CentralizedOracle = {

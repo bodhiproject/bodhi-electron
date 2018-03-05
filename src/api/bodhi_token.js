@@ -1,13 +1,10 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const Config = require('../config/config');
-const ContractMetadata = require('../config/contract_metadata');
+const { Config, getContractMetadata } = require('../config/config');
 
-const contract = new Contract(
-  Config.QTUM_RPC_ADDRESS, ContractMetadata.BodhiToken.address,
-  ContractMetadata.BodhiToken.abi,
-);
+const metadata = getContractMetadata();
+const contract = new Contract(Config.QTUM_RPC_ADDRESS, metadata.BodhiToken.address, metadata.BodhiToken.abi);
 
 const BodhiToken = {
   async approve(args) {

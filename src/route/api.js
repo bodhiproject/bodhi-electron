@@ -1,9 +1,10 @@
 const { Router } = require('restify-router');
 const { Qweb3 } = require('qweb3');
 
-const Config = require('../config/config');
+const { Config } = require('../config/config');
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
+const AddressManager = require('../api/address_manager');
 const BodhiToken = require('../api/bodhi_token');
 const BaseContract = require('../api/base_contract');
 const EventFactory = require('../api/event_factory');
@@ -101,6 +102,25 @@ apiRouter.post('/search-logs', (req, res, next) => {
     });
 });
 
+/* AddressManager */
+apiRouter.post('/last-event-factory-index', (req, res, next) => {
+  AddressManager.getLastEventFactoryIndex(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/last-oracle-factory-index', (req, res, next) => {
+  AddressManager.getLastOracleFactoryIndex(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 /* BodhiToken */
 apiRouter.post('/approve', (req, res, next) => {
   BodhiToken.approve(req.params)
@@ -187,6 +207,15 @@ apiRouter.post('/total-votes', (req, res, next) => {
 /* EventFactory */
 apiRouter.post('/create-topic', (req, res, next) => {
   EventFactory.createTopic(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/event-factory-version', (req, res, next) => {
+  EventFactory.version(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

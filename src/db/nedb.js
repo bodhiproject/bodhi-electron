@@ -64,5 +64,5 @@ class DBHelper {
 
 module.exports = {
   connectDB,
-  DBHelper
+  DBHelper,
 };

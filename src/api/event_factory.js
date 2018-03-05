@@ -1,15 +1,12 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const Config = require('../config/config');
-const ContractMetadata = require('../config/contract_metadata');
+const { Config, getContractMetadata } = require('../config/config');
 
 const GAS_LIMIT_CREATE_TOPIC = 3500000;
 
-const contract = new Contract(
-  Config.QTUM_RPC_ADDRESS, ContractMetadata.EventFactory.address,
-  ContractMetadata.EventFactory.abi,
-);
+const metadata = getContractMetadata();
+const contract = new Contract(Config.QTUM_RPC_ADDRESS, metadata.EventFactory.address, metadata.EventFactory.abi);
 
 const EventFactory = {
   async createTopic(args) {
@@ -53,6 +50,21 @@ const EventFactory = {
       methodArgs: [oracleAddress, eventName, resultNames, bettingStartTime, bettingEndTime, resultSettingStartTime,
         resultSettingEndTime],
       gasLimit: GAS_LIMIT_CREATE_TOPIC,
+      senderAddress,
+    });
+  },
+
+  async version(args) {
+    const {
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    return contract.call('version', {
+      methodArgs: [],
       senderAddress,
     });
   },
