@@ -309,7 +309,8 @@ module.exports = {
         qtumAmount: _.fill(Array(options), '0'),
         botAmount: _.fill(Array(options), '0'),
       };
-      await DBHelper.insertTopic(Topics, topic);
+      logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
+      await DBHelper.insertOrUpdateTopic(Topics, topic);
 
       // Insert Oracle
       const oracle = {
@@ -325,10 +326,11 @@ module.exports = {
         amounts: _.fill(Array(options), '0'),
         startTime: bettingStartTime,
         endTime: bettingEndTime,
-        resultSettingStartTime,
-        resultSettingEndTime,
+        resultSetStartTime: resultSettingStartTime,
+        resultSetEndTime: resultSettingEndTime,
       };
-      await DBHelper.insertOracle(Oracles, oracle);
+      logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
+      await DBHelper.insertOrUpdateCOracle(Oracles, oracle);
 
       // Insert Transaction
       const tx = {

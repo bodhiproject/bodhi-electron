@@ -31,23 +31,64 @@ async function connectDB() {
 }
 
 class DBHelper {
-  static async insertTopic(db, topic) {
+  static async insertOrUpdateTopic(db, topic) {
     try {
-      logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
-      await db.insert(topic);
+      await db.update(
+        { _id: topic._id },
+        { 
+          $set: {
+            _id: topic._id,
+            txid: topic.txid,
+            blockNum: topic.blockNum,
+            status: topic.status,
+            version: topic.version,
+            address: topic.address,
+            name: topic.name,
+            options: topic.options,
+            qtumAmount: topic.qtumAmount,
+            botAmount: topic.botAmount,
+            resultIdx: topic.resultIdx,
+          }
+        },
+        { upsert: true },
+      );
     } catch (err) {
-      logger.error(`Error inserting Topic ${topic.txid}: ${err.message}`);
-      throw err;
+      logger.error(`Error upserting Topic txid:${topic.txid}: ${err.message}`);
     }
   }
 
-  static async insertOracle(db, oracle) {
+  static async insertOrUpdateCOracle(db, oracle) {
     try {
-      logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
-      await db.insert(oracle);
+      await db.update(
+        { _id: oracle._id },
+        { 
+          $set: {
+            _id: oracle._id,
+            txid: oracle.txid,
+            blockNum: oracle.blockNum,
+            status: oracle.status,
+            version: oracle.version,
+            address: oracle.address,
+            topicAddress: oracle.topicAddress,
+            resultSetterAddress: oracle.resultSetterAddress,
+            resultSetterQAddress: oracle.resultSetterQAddress,
+            token: oracle.token,
+            name: oracle.name,
+            options: oracle.options,
+            optionIdxs: oracle.optionIdxs,
+            amounts: oracle.amounts,
+            resultIdx: oracle.resultIdx,
+            startTime: oracle.startTime,
+            endTime: oracle.endTime,
+            resultSetStartTime: oracle.resultSetStartTime,
+            resultSetEndTime: oracle.resultSetEndTime,
+            consensusThreshold: oracle.consensusThreshold,
+          }
+        },
+        { upsert: true },
+      );
     } catch (err) {
-      logger.error(`Error inserting Oracle ${oracle.txid}: ${err.message}`);
-      throw err;
+      logger.error(`Error upserting COracle txid:${oracle.txid}: ${err.message}`);
     }
   }
 

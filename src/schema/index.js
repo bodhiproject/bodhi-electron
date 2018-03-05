@@ -60,7 +60,6 @@ type Transaction {
   type: _TransactionType!
   status: _TransactionStatus!
   senderAddress: String!
-  senderQAddress: String!
   topicAddress: String
   oracleAddress: String
   name: String
