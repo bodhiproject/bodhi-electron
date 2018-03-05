@@ -266,7 +266,7 @@ module.exports = {
         bettingEndTime,
         resultSettingStartTime,
         resultSettingEndTime,
-        senderAddress,
+        senderQAddress,
       } = data;
 
       // Send createTopic tx
@@ -280,7 +280,7 @@ module.exports = {
           bettingEndTime,
           resultSettingStartTime,
           resultSettingEndTime,
-          senderAddress,
+          senderQAddress,
         });
         txid = tx.txid;
       } catch (err) {
@@ -337,7 +337,7 @@ module.exports = {
         version,
         type: 'CREATEEVENT',
         status: 'PENDING',
-        senderAddress,
+        senderQAddress,
         createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
