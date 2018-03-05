@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const fetch = require('node-fetch');
 
 const { Config, getContractMetadata } = require('../config/config');
-const connectDB = require('../db/nedb').connectDB;
+const { connectDB, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
 
 const Topic = require('./models/topic');
@@ -209,7 +209,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
         const insertTopicDB = new Promise(async (resolve) => {
           try {
             const topic = new Topic(blockNum, txid, rawLog).translate();
-            await db.Topics.insert(topic);
+            DBHelper.insertOrUpdateTopic(db, topic);
             resolve();
           } catch (err) {
             logger.error(`ERROR: ${err.message}`);

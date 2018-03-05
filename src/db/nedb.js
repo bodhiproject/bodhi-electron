@@ -31,6 +31,28 @@ async function connectDB() {
 }
 
 class DBHelper {
+  static async insertOrUpdateTopic(db, topic) {
+    try {
+      await db.Topics.update(
+        { txid },
+        { $set: { 
+            version: topic.version,
+            address: topic.address,
+            status: topic.status,
+            name: topic.name,
+            options: topic.options,
+            qtumAmount: topic.qtumAmount,
+            botAmount: topic.botAmount,
+            blockNum: topic.blockNum,
+          }
+        },
+        { upsert: true },
+      );
+    } catch (err) {
+      logger.error(`Error inserting/updating Topic ${topic.txid}: ${err.message}`);
+    }
+  }
+
   static async insertTopic(db, topic) {
     try {
       logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
