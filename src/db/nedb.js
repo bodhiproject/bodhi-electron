@@ -80,8 +80,8 @@ class DBHelper {
             resultIdx: oracle.resultIdx,
             startTime: oracle.startTime,
             endTime: oracle.endTime,
-            resultSetStartTime: oracle.resultSettingStartTime,
-            resultSetEndTime: oracle.resultSettingEndTime,
+            resultSetStartTime: oracle.resultSetStartTime,
+            resultSetEndTime: oracle.resultSetEndTime,
             consensusThreshold: oracle.consensusThreshold,
           }
         },

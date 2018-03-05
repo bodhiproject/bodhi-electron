@@ -326,8 +326,8 @@ module.exports = {
         amounts: _.fill(Array(options), '0'),
         startTime: bettingStartTime,
         endTime: bettingEndTime,
-        resultSettingStartTime,
-        resultSettingEndTime,
+        resultSetStartTime: resultSettingStartTime,
+        resultSetEndTime: resultSettingEndTime,
       };
       logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
       await DBHelper.insertOrUpdateCOracle(Oracles, oracle);
