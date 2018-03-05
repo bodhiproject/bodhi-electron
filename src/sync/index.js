@@ -250,11 +250,10 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
           try {
             const centralOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
             const topic = await fetchNameOptionsFromTopic(db, centralOracle.topicAddress);
-
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
 
-            await db.Oracles.insert(centralOracle);
+            DBHelper.insertOrUpdateCOracle(db, centralOracle);
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);

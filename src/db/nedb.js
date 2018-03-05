@@ -34,7 +34,7 @@ class DBHelper {
   static async insertOrUpdateTopic(db, topic) {
     try {
       await db.Topics.update(
-        { txid },
+        { _id: topic._id },
         { $set: { 
             version: topic.version,
             address: topic.address,
@@ -49,7 +49,39 @@ class DBHelper {
         { upsert: true },
       );
     } catch (err) {
-      logger.error(`Error inserting/updating Topic ${topic.txid}: ${err.message}`);
+      logger.error(`Error upserting Topic txid:${topic.txid}: ${err.message}`);
+    }
+  }
+
+  static async insertOrUpdateCOracle(db, oracle) {
+    try {
+      await db.Oracles.update(
+        { _id: oracle._id },
+        { $set: {
+            version: oracle.version,
+            address: oracle.address,
+            topicAddress: oracle.topicAddress,
+            resultSetterAddress: oracle.resultSetterAddress,
+            resultSetterQAddress: oracle.resultSetterQAddress,
+            status: oracle.status,
+            token: oracle.token,
+            name: oracle.name,
+            options: oracle.options,
+            optionIdxs: oracle.optionIdxs,
+            amounts: oracle.amounts,
+            resultIdx: oracle.resultIdx,
+            blockNum: oracle.blockNum,
+            startTime: oracle.startTime,
+            endTime: oracle.endTime,
+            resultSetStartTime: oracle.resultSettingStartTime,
+            resultSetEndTime: oracle.resultSettingEndTime,
+            consensusThreshold: oracle.consensusThreshold,
+          }
+        },
+        { upsert: true },
+      );
+    } catch (err) {
+      logger.error(`Error upserting COracle txid:${oracle.txid}: ${err.message}`);
     }
   }
 
