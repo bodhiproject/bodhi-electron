@@ -59,8 +59,7 @@ type Transaction {
   createdTime: String!
   type: _TransactionType!
   status: _TransactionStatus!
-  senderAddress: String
-  senderQAddress: String!
+  senderAddress: String!
   topicAddress: String
   oracleAddress: String
   name: String
