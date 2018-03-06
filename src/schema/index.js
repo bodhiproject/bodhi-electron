@@ -181,7 +181,6 @@ type Mutation {
   ): Transaction
 
   transfer(
-    version: Int!
     senderAddress: String!
     receiverAddress: String!
     token: _TokenType!
