@@ -571,6 +571,69 @@ module.exports = {
 
       return tx;
     },
+
+    transfer: async (root, data, { db: { Transactions } }) => {
+      const {
+        version,
+        senderAddress,
+        receiverAddress,
+        token,
+        amount,
+      } = data;
+
+      let txid;
+      switch (token) {
+        case 'QTUM': {
+          // Send sendToAddress tx
+          try {
+            const tx = await wallet.sendToAddress({
+              contractAddress: topicAddress,
+              senderAddress,
+            });
+            txid = tx.txid;
+          } catch (err) {
+            logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
+            throw err;
+          }
+          break;
+        }
+        case 'BOT': {
+          // Send transfer tx
+          try {
+            const tx = await bodhiToken.transfer({
+              contractAddress: topicAddress,
+              senderAddress,
+            });
+            txid = tx.txid;
+          } catch (err) {
+            logger.error(`Error calling BodhiToken.transfer: ${err.message}`);
+            throw err;
+          }
+          break;
+        }
+        default: {
+          throw new Error(`Invalid token transfer type: ${token}`);
+        }
+      }
+      txid = tx.txid;
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type: 'TRANSFER',
+        status: 'PENDING',
+        senderAddress,
+        receiverAddress,
+        token,
+        amount,
+        createdTime: moment().unix(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
+    },
   },
 
   Topic: {
