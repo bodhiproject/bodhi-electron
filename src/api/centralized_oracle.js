@@ -15,7 +15,7 @@ const CentralizedOracle = {
     const {
       contractAddress, // address
       index, // number
-      amount, // number (Satoshi)
+      amount, // string: Satoshi
       senderAddress, // address
     } = args;
 

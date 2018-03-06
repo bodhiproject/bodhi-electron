@@ -10,7 +10,7 @@ const BodhiToken = {
   async approve(args) {
     const {
       spender, // address
-      value, // number (Botoshi)
+      value, // string: Botoshi
       senderAddress, // address
     } = args;
 
@@ -33,7 +33,7 @@ const BodhiToken = {
   async transfer(args) {
     const {
       to, // address
-      value, // number (Botoshi)
+      value, // string: Botoshi
       senderAddress, // address
     } = args;
 
