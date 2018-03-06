@@ -30,6 +30,29 @@ const BodhiToken = {
     });
   },
 
+  async transfer(args) {
+    const {
+      to, // address
+      value, // number (Botoshi)
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(to)) {
+      throw new TypeError('to needs to be defined');
+    }
+    if (_.isUndefined(value)) {
+      throw new TypeError('value needs to be defined');
+    }
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    return contract.send('transfer', {
+      methodArgs: [to, value],
+      senderAddress,
+    });
+  },
+
   async allowance(args) {
     const {
       owner, // address

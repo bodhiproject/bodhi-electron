@@ -601,7 +601,8 @@ module.exports = {
           // Send transfer tx
           try {
             const tx = await bodhiToken.transfer({
-              contractAddress: topicAddress,
+              to: receiverAddress,
+              value: amount,
               senderAddress,
             });
             txid = tx.txid;
@@ -615,7 +616,6 @@ module.exports = {
           throw new Error(`Invalid token transfer type: ${token}`);
         }
       }
-      txid = tx.txid;
 
       // Insert Transaction
       const tx = {
