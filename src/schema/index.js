@@ -184,7 +184,7 @@ type Mutation {
     senderAddress: String!
     receiverAddress: String!
     token: _TokenType!
-    amount: Int!
+    amount: String!
   ): Transaction
 }
 

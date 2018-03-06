@@ -25,7 +25,7 @@ const Wallet = {
   async sendToAddress(args) {
     const {
       address, // string: QTUM address
-      amount, // number
+      amount, // string: QTUM decimal
       comment, // string
       commentTo, // string
       subtractFeeFromAmount, // boolean
@@ -36,9 +36,6 @@ const Wallet = {
     }
     if (_.isUndefined(amount)) {
       throw new TypeError('amount needs to be defined');
-    }
-    if (!_.isNumber(amount)) {
-      throw new TypeError('amount needs to be a number');
     }
 
     return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount);

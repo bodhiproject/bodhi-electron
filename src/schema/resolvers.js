@@ -7,6 +7,7 @@ const moment = require('moment');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
 const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
@@ -592,7 +593,7 @@ module.exports = {
               address: receiverAddress,
               amount,
             });
-            txid = tx.txid;
+            txid = tx;
           } catch (err) {
             logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
             throw err;
