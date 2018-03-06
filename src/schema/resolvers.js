@@ -587,8 +587,8 @@ module.exports = {
           // Send sendToAddress tx
           try {
             const tx = await wallet.sendToAddress({
-              contractAddress: topicAddress,
-              senderAddress,
+              address: receiverAddress,
+              amount,
             });
             txid = tx.txid;
           } catch (err) {
