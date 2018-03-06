@@ -23,7 +23,6 @@ const Wallet = {
   },
 
   async sendToAddress(args) {
-    address, amount, comment = '', commentTo = '', subtractFeeFromAmount = false) {
     const {
       address, // string: QTUM address
       amount, // number
