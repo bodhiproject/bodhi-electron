@@ -52,14 +52,14 @@ type Vote {
 }
 
 type Transaction {
-  version: Int!
+  type: _TransactionType!
+  status: _TransactionStatus!
   txid: String
+  createdTime: String!
   blockNum: Int
   blockTime: String
   gasUsed: Int
-  createdTime: String!
-  type: _TransactionType!
-  status: _TransactionStatus!
+  version: Int!
   senderAddress: String!
   receiverAddress: String
   topicAddress: String
@@ -74,6 +74,7 @@ type Transaction {
   optionIdx: Int
   token: _TokenType
   amount: String
+  topic: Topic
 }
 
 type Block {
