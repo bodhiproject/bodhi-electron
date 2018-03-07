@@ -55,6 +55,7 @@ type Transaction {
   version: Int!
   txid: String
   blockNum: Int
+  blockTime: String
   gasUsed: Int
   createdTime: String!
   type: _TransactionType!
