@@ -60,6 +60,7 @@ type Transaction {
   type: _TransactionType!
   status: _TransactionStatus!
   senderAddress: String!
+  receiverAddress: String
   topicAddress: String
   oracleAddress: String
   name: String
@@ -178,6 +179,13 @@ type Mutation {
     senderAddress: String!
     topicAddress: String!
   ): Transaction
+
+  transfer(
+    senderAddress: String!
+    receiverAddress: String!
+    token: _TokenType!
+    amount: String!
+  ): Transaction
 }
 
 type Subscription {
@@ -234,6 +242,7 @@ enum _TransactionType {
   VOTE
   FINALIZERESULT
   WITHDRAW
+  TRANSFER
 }
 
 enum _TransactionStatus {

@@ -10,7 +10,7 @@ const BodhiToken = {
   async approve(args) {
     const {
       spender, // address
-      value, // number (Botoshi)
+      value, // string: Botoshi
       senderAddress, // address
     } = args;
 
@@ -26,6 +26,29 @@ const BodhiToken = {
 
     return contract.send('approve', {
       methodArgs: [spender, value],
+      senderAddress,
+    });
+  },
+
+  async transfer(args) {
+    const {
+      to, // address
+      value, // string: Botoshi
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(to)) {
+      throw new TypeError('to needs to be defined');
+    }
+    if (_.isUndefined(value)) {
+      throw new TypeError('value needs to be defined');
+    }
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    return contract.send('transfer', {
+      methodArgs: [to, value],
       senderAddress,
     });
   },

@@ -21,6 +21,25 @@ const Wallet = {
   async listUnspent() {
     return qClient.listUnspent();
   },
+
+  async sendToAddress(args) {
+    const {
+      address, // string: QTUM address
+      amount, // string: QTUM decimal
+      comment, // string
+      commentTo, // string
+      subtractFeeFromAmount, // boolean
+    } = args;
+
+    if (_.isUndefined(address)) {
+      throw new TypeError('address needs to be defined');
+    }
+    if (_.isUndefined(amount)) {
+      throw new TypeError('amount needs to be defined');
+    }
+
+    return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount);
+  }
 };
 
 module.exports = Wallet;

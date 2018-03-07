@@ -7,12 +7,14 @@ const moment = require('moment');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
 const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
+const { Config } = require('../config/config');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -565,6 +567,70 @@ module.exports = {
         status: 'PENDING',
         senderAddress,
         topicAddress,
+        createdTime: moment().unix(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
+
+      return tx;
+    },
+
+    transfer: async (root, data, { db: { Transactions } }) => {
+      const {
+        senderAddress,
+        receiverAddress,
+        token,
+        amount,
+      } = data;
+
+      const version = Config.CONTRACT_VERSION_NUM;
+
+      let txid;
+      switch (token) {
+        case 'QTUM': {
+          // Send sendToAddress tx
+          try {
+            const tx = await wallet.sendToAddress({
+              address: receiverAddress,
+              amount,
+            });
+            txid = tx;
+          } catch (err) {
+            logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
+            throw err;
+          }
+          break;
+        }
+        case 'BOT': {
+          // Send transfer tx
+          try {
+            const tx = await bodhiToken.transfer({
+              to: receiverAddress,
+              value: amount,
+              senderAddress,
+            });
+            txid = tx.txid;
+          } catch (err) {
+            logger.error(`Error calling BodhiToken.transfer: ${err.message}`);
+            throw err;
+          }
+          break;
+        }
+        default: {
+          throw new Error(`Invalid token transfer type: ${token}`);
+        }
+      }
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type: 'TRANSFER',
+        status: 'PENDING',
+        senderAddress,
+        receiverAddress,
+        token,
+        amount,
         createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);

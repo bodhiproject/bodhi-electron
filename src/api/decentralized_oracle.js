@@ -15,7 +15,7 @@ const DecentralizedOracle = {
     const {
       contractAddress, // address
       resultIndex, // number
-      botAmount, // number (Botoshi)
+      botAmount, // string: Botoshi
       gasLimit, // number
       senderAddress, // address
     } = args;
