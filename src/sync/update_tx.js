@@ -8,12 +8,12 @@ const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 
-const Constants = require('../constants');
+const { txState } = require('../constants');
 
 async function updatePendingTxs(db) {
   let pendingTxs;
   try {
-    pendingTxs = await db.Transactions.cfind({ status: Constants.PENDING })
+    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING })
       .sort({ createdTime: -1 }).exec();
   } catch (err) {
     logger.error(`Error: get pending Transactions: ${err.message}`);
@@ -37,11 +37,11 @@ async function updateTx(tx) {
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
 
   if (_.isEmpty(resp)) {
-    tx.status = Constants.PENDING;
+    tx.status = txState.PENDING;
   } else {
     const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
 
-    tx.status = _.isEmpty(resp[0].log) ? Constants.FAIL : Constants.SUCCESS;
+    tx.status = _.isEmpty(resp[0].log) ? txState.FAIL : txState.SUCCESS;
     tx.gasUsed = resp[0].gasUsed;
     tx.blockNum = resp[0].blockNumber;
     tx.blockTime = blockInfo.time;
@@ -50,7 +50,7 @@ async function updateTx(tx) {
 
 // Update the DB with new Transaction info
 async function updateDB(tx, db) {
-  if (tx.status !== Constants.PENDING) {
+  if (tx.status !== txState.PENDING) {
     try {
       logger.debug(`Update: Transaction ${tx.type} txid:${tx._id}`);
       const updateRes = await db.Transactions.update(
@@ -71,11 +71,11 @@ async function updateDB(tx, db) {
       // Execute follow up tx
       if (updatedTx) {
         switch (updatedTx.status) {
-          case Constants.SUCCESS: {
+          case txState.SUCCESS: {
             await onSuccessfulTx(updatedTx, db);
             break;
           }
-          case Constants.FAIL: {
+          case txState.FAIL: {
             await onFailedTx(updatedTx, db);
             break;
           }
@@ -116,7 +116,7 @@ async function onSuccessfulTx(tx, db) {
         txid,
         version: tx.version,
         type: 'SETRESULT',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress: tx.senderAddress,
         oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
@@ -147,7 +147,7 @@ async function onSuccessfulTx(tx, db) {
         txid,
         version: tx.version,
         type: 'VOTE',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress: tx.senderAddress,
         oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
@@ -189,7 +189,7 @@ async function onFailedTx(tx, db) {
         _id: txid,
         txid,
         type: 'RESETAPPROVE',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         createdTime: moment().unix(),
         version: tx.version,
         senderAddress: tx.senderAddress,
@@ -201,7 +201,7 @@ async function onFailedTx(tx, db) {
       });
       break;
     }
-    
+
     default: {
       break;
     }

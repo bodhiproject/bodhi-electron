@@ -15,7 +15,7 @@ const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 const { Config } = require('../config/config');
-const Constants = require('../constants');
+const { txState } = require('../constants');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -351,7 +351,7 @@ module.exports = {
         txid,
         version,
         type: 'CREATEEVENT',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress,
         name,
         createdTime: moment().unix(),
@@ -392,7 +392,7 @@ module.exports = {
         txid,
         version,
         type: 'BET',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress,
         topicAddress,
         oracleAddress,
@@ -454,7 +454,7 @@ module.exports = {
         _id: txid,
         txid,
         type,
-        status: Constants.PENDING,
+        status: txState.PENDING,
         createdTime: moment().unix(),
         version,
         senderAddress,
@@ -518,7 +518,7 @@ module.exports = {
         _id: txid,
         txid,
         type,
-        status: Constants.PENDING,
+        status: txState.PENDING,
         createdTime: moment().unix(),
         version,
         senderAddress,
@@ -560,7 +560,7 @@ module.exports = {
         txid,
         version,
         type: 'FINALIZERESULT',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress,
         topicAddress,
         oracleAddress,
@@ -597,7 +597,7 @@ module.exports = {
         txid,
         version,
         type: 'WITHDRAW',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress,
         topicAddress,
         createdTime: moment().unix(),
@@ -659,7 +659,7 @@ module.exports = {
         txid,
         version,
         type: 'TRANSFER',
-        status: Constants.PENDING,
+        status: txState.PENDING,
         senderAddress,
         receiverAddress,
         token,

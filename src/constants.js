@@ -1,5 +1,5 @@
 module.exports = {
-  TX_STATE: {
+  txState: {
     PENDING: 'PENDING',
     SUCCESS: 'SUCCESS',
     FAIL: 'FAIL',
