@@ -8,10 +8,12 @@ const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 
+const { txState } = require('../constants');
+
 async function updatePendingTxs(db) {
   let pendingTxs;
   try {
-    pendingTxs = await db.Transactions.cfind({ status: 'PENDING' })
+    pendingTxs = await db.Transactions.cfind({ status: txState.PENDING })
       .sort({ createdTime: -1 }).exec();
   } catch (err) {
     logger.error(`Error: get pending Transactions: ${err.message}`);
@@ -35,11 +37,11 @@ async function updateTx(tx) {
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
 
   if (_.isEmpty(resp)) {
-    tx.status = 'PENDING';
+    tx.status = txState.PENDING;
   } else {
     const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
 
-    tx.status = _.isEmpty(resp[0].log) ? 'FAIL' : 'SUCCESS';
+    tx.status = _.isEmpty(resp[0].log) ? txState.FAIL : txState.SUCCESS;
     tx.gasUsed = resp[0].gasUsed;
     tx.blockNum = resp[0].blockNumber;
     tx.blockTime = blockInfo.time;
@@ -48,7 +50,7 @@ async function updateTx(tx) {
 
 // Update the DB with new Transaction info
 async function updateDB(tx, db) {
-  if (tx.status !== 'PENDING') {
+  if (tx.status !== txState.PENDING) {
     try {
       logger.debug(`Update: Transaction ${tx.type} txid:${tx._id}`);
       const updateRes = await db.Transactions.update(
@@ -67,8 +69,20 @@ async function updateDB(tx, db) {
       const updatedTx = updateRes[1];
 
       // Execute follow up tx
-      if (updatedTx && updatedTx.status === 'SUCCESS') {
-        await executeFollowUpTx(updatedTx, db);
+      if (updatedTx) {
+        switch (updatedTx.status) {
+          case txState.SUCCESS: {
+            await onSuccessfulTx(updatedTx, db);
+            break;
+          }
+          case txState.FAIL: {
+            await onFailedTx(updatedTx, db);
+            break;
+          }
+          default: {
+            break;
+          }
+        }
       }
     } catch (err) {
       logger.error(`Error: Update Transaction ${tx.type} txid:${tx._id}: ${err.message}`);
@@ -77,42 +91,12 @@ async function updateDB(tx, db) {
   }
 }
 
-// Execute follow-up transaction
-async function executeFollowUpTx(tx, db) {
+// Execute follow-up transaction for successful txs
+async function onSuccessfulTx(tx, db) {
   const Transactions = db.Transactions;
   let txid;
+
   switch (tx.type) {
-    // Approve was reset to 0. Sending approve for consensusThreshold.
-    case 'RESETAPPROVESETRESULT': {
-      try {
-        const approveTx = await bodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        txid = approveTx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
-        txid,
-        version: tx.version,
-        type: 'APPROVESETRESULT',
-        status: 'PENDING',
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount: tx.amount,
-        createdTime: moment().unix(),
-      });
-      break;
-    }
-
     // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {
@@ -132,43 +116,12 @@ async function executeFollowUpTx(tx, db) {
         txid,
         version: tx.version,
         type: 'SETRESULT',
-        status: 'PENDING',
+        status: txState.PENDING,
         senderAddress: tx.senderAddress,
         oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: moment().unix(),
-      });
-      break;
-    }
-
-    // Approve was reset to 0. Sending approve for vote amount.
-    case 'RESETAPPROVEVOTE': {
-      try {
-        const approveTx = await bodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        txid = approveTx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
-        txid,
-        version: tx.version,
-        type: 'APPROVEVOTE',
-        status: 'PENDING',
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount,
         createdTime: moment().unix(),
       });
       break;
@@ -194,13 +147,57 @@ async function executeFollowUpTx(tx, db) {
         txid,
         version: tx.version,
         type: 'VOTE',
-        status: 'PENDING',
+        status: txState.PENDING,
         senderAddress: tx.senderAddress,
         oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
         createdTime: moment().unix(),
+      });
+      break;
+    }
+
+    default: {
+      break;
+    }
+  }
+}
+
+// Execute follow-up transaction for failed txs
+async function onFailedTx(tx, db) {
+  const Transactions = db.Transactions;
+  let txid;
+
+  switch (tx.type) {
+    // Approve failed. Reset allowance.
+    case 'APPROVESETRESULT':
+    case 'APPROVEVOTE': {
+      try {
+        const approveTx = await bodhiToken.approve({
+          spender: tx.topicAddress,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        txid = approveTx.txid;
+      } catch (err) {
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+
+      await DBHelper.insertTransaction(Transactions, {
+        _id: txid,
+        txid,
+        type: 'RESETAPPROVE',
+        status: txState.PENDING,
+        createdTime: moment().unix(),
+        version: tx.version,
+        senderAddress: tx.senderAddress,
+        topicAddress: tx.topicAddress,
+        oracleAddress: tx.oracleAddress,
+        optionIdx: tx.optionIdx,
+        token: 'BOT',
+        amount: tx.amount,
       });
       break;
     }
