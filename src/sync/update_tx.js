@@ -33,7 +33,7 @@ async function updatePendingTxs(db) {
 // Update the Transaction info
 async function updateTx(tx) {
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
-  const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash })
+  const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
 
   if (_.isEmpty(resp)) {
     tx.status = 'PENDING';

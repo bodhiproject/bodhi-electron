@@ -643,6 +643,17 @@ module.exports = {
     oracles: async ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
   },
 
+  Transaction: {
+    topic: async ({ txid }, data, { db: { Topics } }) => {
+      Topics.findOne({ txid }, (err, doc) => {
+        if (!err) {
+          return doc;
+        }
+        return null;
+      });
+    },
+  },
+
   Subscription: {
     onSyncInfo: {
       subscribe: () => pubsub.asyncIterator('onSyncInfo'),
