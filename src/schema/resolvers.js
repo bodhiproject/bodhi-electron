@@ -35,10 +35,14 @@ function buildCursorOptions(cursor, orderBy, limit, skip) {
   return cursor;
 }
 
-function buildTopicFilters({ OR = [], address, status }) {
-  const filter = (address || status) ? {} : null;
+function buildTopicFilters({ OR = [], txid, address, status }) {
+  const filter = (address || status || txid) ? {} : null;
+  if (txid) {
+    filter.txid = txid;
+  }
+
   if (address) {
-    filter._id = address;
+    filter.address = address;
   }
 
   if (status) {
@@ -53,11 +57,15 @@ function buildTopicFilters({ OR = [], address, status }) {
 }
 
 function buildOracleFilters({
-  OR = [], address, topicAddress, resultSetterQAddress, status, token,
+  OR = [], txid, address, topicAddress, resultSetterQAddress, status, token,
 }) {
-  const filter = (address || topicAddress || resultSetterQAddress || status || token) ? {} : null;
+  const filter = (txid || address || topicAddress || resultSetterQAddress || status || token) ? {} : null;
+  if (txid) {
+    filter.txid = txid;
+  }
+  
   if (address) {
-    filter._id = address;
+    filter.address = address;
   }
 
   if (topicAddress) {
@@ -221,7 +229,7 @@ module.exports = {
       return cursor.exec();
     },
 
-    allTransactions: async(root, {
+    allTransactions: async (root, {
       filter, orderBy, limit, skip,
     }, { db: { Transactions } }) => {
       const query = filter ? { $or: buildTransactionFilters(filter) } : {};
@@ -352,6 +360,7 @@ module.exports = {
     createBet: async (root, data, { db: { Transactions } }) => {
       const {
         version,
+        topicAddress,
         oracleAddress,
         optionIdx,
         amount,
@@ -381,6 +390,7 @@ module.exports = {
         type: 'BET',
         status: 'PENDING',
         senderAddress,
+        topicAddress,
         oracleAddress,
         optionIdx,
         token: 'QTUM',
@@ -644,13 +654,29 @@ module.exports = {
   },
 
   Transaction: {
-    topic: async ({ txid }, data, { db: { Topics } }) => {
-      Topics.findOne({ txid }, (err, doc) => {
-        if (!err) {
-          return doc;
-        }
+    topic: async ({ topicAddress, oracleAddress }, data, { db: { Topics, Oracles } }) => {
+      if (!topicAddress && !oracleAddress) {
         return null;
-      });
+      }
+
+      let queryAddress;
+      if (!_.isEmpty(topicAddress)) {
+        queryAddress = topicAddress;
+      } else {
+        const oracles = await Oracles.find({ address: oracleAddress });
+
+        if (!_.isEmpty(oracles)) {
+          queryAddress = oracles[0].topicAddress;
+        } else {
+          return null;
+        }
+      }
+
+      let topics = await Topics.find({ address: queryAddress });
+      if (!_.isEmpty(topics)) {
+        return topics[0];
+      }
+      return null;
     },
   },
 
