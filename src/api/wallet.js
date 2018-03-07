@@ -39,7 +39,7 @@ const Wallet = {
     }
 
     return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount);
-  }
+  },
 };
 
 module.exports = Wallet;

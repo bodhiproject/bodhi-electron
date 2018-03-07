@@ -36,14 +36,13 @@ async function updateTx(tx) {
 
   if (_.isEmpty(resp)) {
     tx.status = 'PENDING';
-  } else if (_.isEmpty(resp[0].log)) {
-    tx.status = 'FAIL';
-    tx.gasUsed = resp[0].gasUsed;
-    tx.blockNum = resp[0].blockNumber;
   } else {
-    tx.status = 'SUCCESS';
+    const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
+
+    tx.status = _.isEmpty(resp[0].log) ? 'FAIL' : 'SUCCESS';
     tx.gasUsed = resp[0].gasUsed;
     tx.blockNum = resp[0].blockNumber;
+    tx.blockTime = blockInfo.time;
   }
 }
 
