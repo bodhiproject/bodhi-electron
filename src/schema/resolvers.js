@@ -419,7 +419,7 @@ module.exports = {
       let type;
       let txid;
       if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        // Call setResult since the allowance is enough
+        // Send setResult since the allowance is enough
         type = 'SETRESULT';
         try {
           const setResultTx = await centralizedOracle.setResult({
@@ -433,7 +433,7 @@ module.exports = {
           throw err;
         }
       } else {
-        // Call approve first since allowance is not enough
+        // Send approve first since allowance is not enough
         type = 'APPROVESETRESULT';
         try {
           const approveTx = await bodhiToken.approve({
@@ -478,45 +478,54 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Make sure allowance is 0, or it needs to be reset
-      let approveAmount;
+      // Check allowance
       let type;
-      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        approveAmount = amount;
-        type = 'APPROVEVOTE';
-      } else {
-        approveAmount = 0;
-        type = 'RESETAPPROVEVOTE';
-      }
-
-      // Send approve tx
       let txid;
-      try {
-        const tx = await bodhiToken.approve({
-          spender: topicAddress,
-          value: approveAmount,
-          senderAddress,
-        });
-        txid = tx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        // Send vote since allowance is enough
+        type = 'VOTE';
+        try {
+          const voteTx = await decentralizedOracle.vote({
+            contractAddress: oracleAddress,
+            resultIndex: optionIdx,
+            botAmount: amount,
+            senderAddress,
+          });
+          txid = voteTx.txid;
+        } catch (err) {
+          logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
+          throw err;
+        }
+      } else {
+        // Send approve first because allowance is not enough
+        type = 'APPROVEVOTE';
+        try {
+          const approveTx = await bodhiToken.approve({
+            spender: topicAddress,
+            value: approveAmount,
+            senderAddress,
+          });
+          txid = approveTx.txid;
+        } catch (err) {
+          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          throw err;
+        }
+      }      
 
       // Insert Transaction
       const tx = {
         _id: txid,
         txid,
-        version,
         type,
         status: 'PENDING',
+        createdTime: moment().unix(),
+        version,
         senderAddress,
         topicAddress,
         oracleAddress,
         optionIdx,
         token: 'BOT',
         amount,
-        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
