@@ -33,17 +33,13 @@ async function updatePendingTxs(db) {
 // Update the Transaction info
 async function updateTx(tx) {
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
-  const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
 
   if (_.isEmpty(resp)) {
     tx.status = 'PENDING';
-  } else if (_.isEmpty(resp[0].log)) {
-    tx.status = 'FAIL';
-    tx.gasUsed = resp[0].gasUsed;
-    tx.blockNum = resp[0].blockNumber;
-    tx.blockTime = blockInfo.time;
   } else {
-    tx.status = 'SUCCESS';
+    const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
+
+    tx.status = _.isEmpty(resp[0].log) ? 'FAIL': 'SUCCESS';
     tx.gasUsed = resp[0].gasUsed;
     tx.blockNum = resp[0].blockNumber;
     tx.blockTime = blockInfo.time;
