@@ -97,37 +97,6 @@ async function onSuccessfulTx(tx, db) {
   let txid;
 
   switch (tx.type) {
-    // Approve was reset to 0. Sending approve for consensusThreshold.
-    case 'RESETAPPROVESETRESULT': {
-      try {
-        const approveTx = await bodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        txid = approveTx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
-        txid,
-        version: tx.version,
-        type: 'APPROVESETRESULT',
-        status: Constants.PENDING,
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount: tx.amount,
-        createdTime: moment().unix(),
-      });
-      break;
-    }
-
     // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {
@@ -153,37 +122,6 @@ async function onSuccessfulTx(tx, db) {
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: moment().unix(),
-      });
-      break;
-    }
-
-    // Approve was reset to 0. Sending approve for vote amount.
-    case 'RESETAPPROVEVOTE': {
-      try {
-        const approveTx = await bodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        txid = approveTx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
-        txid,
-        version: tx.version,
-        type: 'APPROVEVOTE',
-        status: Constants.PENDING,
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount,
         createdTime: moment().unix(),
       });
       break;
@@ -263,6 +201,7 @@ async function onFailedTx(tx, db) {
       });
       break;
     }
+    
     default: {
       break;
     }
