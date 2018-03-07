@@ -147,6 +147,7 @@ type Mutation {
   createBet(
     version: Int!
     senderAddress: String!
+    topicAddress: String!
     oracleAddress: String!
     optionIdx: Int!
     amount: String!
@@ -173,6 +174,7 @@ type Mutation {
   finalizeResult(
     version: Int!
     senderAddress: String!
+    topicAddress: String!
     oracleAddress: String!
   ): Transaction
 
