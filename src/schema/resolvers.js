@@ -415,45 +415,53 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Make sure allowance is 0, or it needs to be reset
-      let approveAmount;
+      // Check the allowance first
       let type;
-      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
-        approveAmount = amount;
-        type = 'APPROVESETRESULT';
-      } else {
-        approveAmount = 0;
-        type = 'RESETAPPROVESETRESULT';
-      }
-
-      // Send approve tx
       let txid;
-      try {
-        const tx = await bodhiToken.approve({
-          spender: topicAddress,
-          value: approveAmount,
-          senderAddress,
-        });
-        txid = tx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
+      if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        // Call setResult since the allowance is enough
+        type = 'SETRESULT';
+        try {
+          const setResultTx = await centralizedOracle.setResult({
+            contractAddress: oracleAddress,
+            resultIndex: optionIdx,
+            senderAddress,
+          });
+          txid = setResultTx.txid;
+        } catch (err) {
+          logger.error(`Error calling CentralizedOracle.setResult: ${err.message}`);
+          throw err;
+        }
+      } else {
+        // Call approve first since allowance is not enough
+        type = 'APPROVESETRESULT';
+        try {
+          const approveTx = await bodhiToken.approve({
+            spender: topicAddress,
+            value: approveAmount,
+            senderAddress,
+          });
+          txid = approveTx.txid;
+        } catch (err) {
+          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          throw err;
+        }
       }
 
       // Insert Transaction
       const tx = {
         _id: txid,
         txid,
-        version,
         type,
         status: 'PENDING',
+        createdTime: moment().unix(),
+        version,
         senderAddress,
         topicAddress,
         oracleAddress,
         optionIdx,
         token: 'BOT',
         amount,
-        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
