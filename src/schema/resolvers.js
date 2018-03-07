@@ -438,7 +438,7 @@ module.exports = {
         try {
           const approveTx = await bodhiToken.approve({
             spender: topicAddress,
-            value: approveAmount,
+            value: amount,
             senderAddress,
           });
           txid = approveTx.txid;
@@ -502,7 +502,7 @@ module.exports = {
         try {
           const approveTx = await bodhiToken.approve({
             spender: topicAddress,
-            value: approveAmount,
+            value: amount,
             senderAddress,
           });
           txid = approveTx.txid;

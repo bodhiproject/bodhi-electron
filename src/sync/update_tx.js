@@ -72,7 +72,7 @@ async function updateDB(tx, db) {
       if (updatedTx) {
         switch (updatedTx.status) {
           case Constants.SUCCESS: {
-            await executeFollowUpTx(updatedTx, db);
+            await onSuccessfulTx(updatedTx, db);
             break;
           }
           case Constants.FAIL: {
@@ -92,9 +92,10 @@ async function updateDB(tx, db) {
 }
 
 // Execute follow-up transaction for successful txs
-async function executeFollowUpTx(tx, db) {
+async function onSuccessfulTx(tx, db) {
   const Transactions = db.Transactions;
   let txid;
+
   switch (tx.type) {
     // Approve was reset to 0. Sending approve for consensusThreshold.
     case 'RESETAPPROVESETRESULT': {
@@ -219,6 +220,49 @@ async function executeFollowUpTx(tx, db) {
       break;
     }
 
+    default: {
+      break;
+    }
+  }
+}
+
+// Execute follow-up transaction for failed txs
+async function onFailedTx(tx, db) {
+  const Transactions = db.Transactions;
+  let txid;
+
+  switch (tx.type) {
+    // Approve failed. Reset allowance.
+    case 'APPROVESETRESULT':
+    case 'APPROVEVOTE': {
+      try {
+        const approveTx = await bodhiToken.approve({
+          spender: tx.topicAddress,
+          value: tx.amount,
+          senderAddress: tx.senderAddress,
+        });
+        txid = approveTx.txid;
+      } catch (err) {
+        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+        throw err;
+      }
+
+      await DBHelper.insertTransaction(Transactions, {
+        _id: txid,
+        txid,
+        type: 'RESETAPPROVE',
+        status: Constants.PENDING,
+        createdTime: moment().unix(),
+        version: tx.version,
+        senderAddress: tx.senderAddress,
+        topicAddress: tx.topicAddress,
+        oracleAddress: tx.oracleAddress,
+        optionIdx: tx.optionIdx,
+        token: 'BOT',
+        amount: tx.amount,
+      });
+      break;
+    }
     default: {
       break;
     }
