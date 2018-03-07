@@ -352,6 +352,7 @@ module.exports = {
         type: 'CREATEEVENT',
         status: 'PENDING',
         senderAddress,
+        name,
         createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
@@ -517,6 +518,7 @@ module.exports = {
     finalizeResult: async (root, data, { db: { Transactions } }) => {
       const {
         version,
+        topicAddress,
         oracleAddress,
         senderAddress,
       } = data;
@@ -542,6 +544,7 @@ module.exports = {
         type: 'FINALIZERESULT',
         status: 'PENDING',
         senderAddress,
+        topicAddress,
         oracleAddress,
         createdTime: moment().unix(),
       };
