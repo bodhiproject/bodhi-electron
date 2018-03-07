@@ -659,25 +659,12 @@ module.exports = {
   },
 
   Transaction: {
-    topic: async ({ topicAddress, oracleAddress }, data, { db: { Topics, Oracles } }) => {
-      if (!topicAddress && !oracleAddress) {
+    topic: async ({ topicAddress }, data, { db: { Topics } }) => {
+      if (_.isEmpty(topicAddress)) {
         return null;
       }
 
-      let queryAddress;
-      if (!_.isEmpty(topicAddress)) {
-        queryAddress = topicAddress;
-      } else {
-        const oracles = await Oracles.find({ address: oracleAddress });
-
-        if (!_.isEmpty(oracles)) {
-          queryAddress = oracles[0].topicAddress;
-        } else {
-          return null;
-        }
-      }
-
-      const topics = await Topics.find({ address: queryAddress });
+      const topics = await Topics.find({ address: topicAddress });
       if (!_.isEmpty(topics)) {
         return topics[0];
       }
