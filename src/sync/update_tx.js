@@ -39,7 +39,7 @@ async function updateTx(tx) {
   } else {
     const blockInfo = await blockchain.getBlock({ blockHash: resp[0].blockHash });
 
-    tx.status = _.isEmpty(resp[0].log) ? 'FAIL': 'SUCCESS';
+    tx.status = _.isEmpty(resp[0].log) ? 'FAIL' : 'SUCCESS';
     tx.gasUsed = resp[0].gasUsed;
     tx.blockNum = resp[0].blockNumber;
     tx.blockTime = blockInfo.time;

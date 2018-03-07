@@ -35,7 +35,7 @@ class DBHelper {
     try {
       await db.update(
         { _id: topic._id },
-        { 
+        {
           $set: {
             _id: topic._id,
             txid: topic.txid,
@@ -48,7 +48,7 @@ class DBHelper {
             qtumAmount: topic.qtumAmount,
             botAmount: topic.botAmount,
             resultIdx: topic.resultIdx,
-          }
+          },
         },
         { upsert: true },
       );
@@ -61,7 +61,7 @@ class DBHelper {
     try {
       await db.update(
         { _id: oracle._id },
-        { 
+        {
           $set: {
             _id: oracle._id,
             txid: oracle.txid,
@@ -83,7 +83,7 @@ class DBHelper {
             resultSetStartTime: oracle.resultSetStartTime,
             resultSetEndTime: oracle.resultSetEndTime,
             consensusThreshold: oracle.consensusThreshold,
-          }
+          },
         },
         { upsert: true },
       );

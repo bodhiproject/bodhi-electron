@@ -35,7 +35,9 @@ function buildCursorOptions(cursor, orderBy, limit, skip) {
   return cursor;
 }
 
-function buildTopicFilters({ OR = [], txid, address, status }) {
+function buildTopicFilters({
+  OR = [], txid, address, status,
+}) {
   const filter = (address || status || txid) ? {} : null;
   if (txid) {
     filter.txid = txid;
@@ -63,7 +65,7 @@ function buildOracleFilters({
   if (txid) {
     filter.txid = txid;
   }
-  
+
   if (address) {
     filter.address = address;
   }
@@ -672,7 +674,7 @@ module.exports = {
         }
       }
 
-      let topics = await Topics.find({ address: queryAddress });
+      const topics = await Topics.find({ address: queryAddress });
       if (!_.isEmpty(topics)) {
         return topics[0];
       }
