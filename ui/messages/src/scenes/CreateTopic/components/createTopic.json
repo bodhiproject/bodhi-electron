@@ -1,0 +1,138 @@
+[
+  {
+    "id": "create.betStartBlockMsg",
+    "defaultMessage": "Betting Start Time cannot be empty"
+  },
+  {
+    "id": "create.betEndBlocksMsg",
+    "defaultMessage": "Betting End Time cannot be empty"
+  },
+  {
+    "id": "create.resultSetStartBlockMsg",
+    "defaultMessage": "Result Setting Start Time cannot be empty"
+  },
+  {
+    "id": "create.resultSetEndBlockMsg",
+    "defaultMessage": "Result Setting End Time cannot be empty"
+  },
+  {
+    "id": "create.resultsMsg",
+    "defaultMessage": "Result name cannot be empty."
+  },
+  {
+    "id": "create.evtNotEmpty",
+    "defaultMessage": "Event name cannot be empty."
+  },
+  {
+    "id": "create.namePlaceholder",
+    "defaultMessage": "e.g. Who will be the next president of the United States?"
+  },
+  {
+    "id": "create.COnotEmpty",
+    "defaultMessage": "Centralized Oracle cannot be empty."
+  },
+  {
+    "id": "create.dateTime",
+    "defaultMessage": "Select Date & Time"
+  },
+  {
+    "id": "create.resultIndex",
+    "defaultMessage": "Result"
+  },
+  {
+    "id": "create.nameLong",
+    "defaultMessage": "Event name is too long."
+  },
+  {
+    "id": "create.validBetEnd",
+    "defaultMessage": "Must be greater than Betting Start Time"
+  },
+  {
+    "id": "create.validResultSetStart",
+    "defaultMessage": "Must be greater than or equal to Betting End Time"
+  },
+  {
+    "id": "create.validResultSetEnd",
+    "defaultMessage": "Must be greater than Result Setting Start Time"
+  },
+  {
+    "id": "create.resultToolong",
+    "defaultMessage": "Result name is too long."
+  },
+  {
+    "id": "create.alertSuc",
+    "defaultMessage": "The transaction is broadcasted to blockchain. \n You can view details from below link"
+  },
+  {
+    "id": "create.alertFail",
+    "defaultMessage": "Oops, something went wrong"
+  },
+  {
+    "id": "create.title",
+    "defaultMessage": "Create an event"
+  },
+  {
+    "id": "create.name",
+    "defaultMessage": "Name"
+  },
+  {
+    "id": "create.results",
+    "defaultMessage": "RESULTS"
+  },
+  {
+    "id": "create.addResult",
+    "defaultMessage": "Add Result"
+  },
+  {
+    "id": "create.resultSetter",
+    "defaultMessage": "Centralized Oracle"
+  },
+  {
+    "id": "create.resultSetterExtra",
+    "defaultMessage": "This person will set the result."
+  },
+  {
+    "id": "create.publish",
+    "defaultMessage": "Publish"
+  },
+  {
+    "id": "create.back",
+    "defaultMessage": "Back"
+  },
+  {
+    "id": "create.cancel",
+    "defaultMessage": "Cancel"
+  },
+  {
+    "id": "create.betStartBlock",
+    "defaultMessage": "BETTING START BLOCK"
+  },
+  {
+    "id": "create.betStartBlockExtra",
+    "defaultMessage": "The time when users can start betting."
+  },
+  {
+    "id": "create.betEndBlock",
+    "defaultMessage": "Betting End Block"
+  },
+  {
+    "id": "create.betEndBlocksExtra",
+    "defaultMessage": "The time when users can no longer bet."
+  },
+  {
+    "id": "create.resultSetStartBlock",
+    "defaultMessage": "Result Setting Start Block"
+  },
+  {
+    "id": "create.resultSetStartBlockExtra",
+    "defaultMessage": "The time when the Centralized Oracle can set the result."
+  },
+  {
+    "id": "create.resultSetEndBlock",
+    "defaultMessage": "Result Setting End Block"
+  },
+  {
+    "id": "create.resultSetEndBlockExtra",
+    "defaultMessage": "The time when anyone can set the result."
+  }
+]

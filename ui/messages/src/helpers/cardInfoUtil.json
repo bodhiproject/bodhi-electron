@@ -1,0 +1,30 @@
+[
+  {
+    "id": "cardInfo.topic",
+    "defaultMessage": "Topic Created"
+  },
+  {
+    "id": "cardInfo.betting",
+    "defaultMessage": "Betting"
+  },
+  {
+    "id": "cardInfo.orResultSet",
+    "defaultMessage": "Oracle Result Setting"
+  },
+  {
+    "id": "cardInfo.opResultSet",
+    "defaultMessage": "Open Result Setting"
+  },
+  {
+    "id": "cardInfo.vote",
+    "defaultMessage": "Voting"
+  },
+  {
+    "id": "cardInfo.final",
+    "defaultMessage": "Finalizing"
+  },
+  {
+    "id": "cardInfo.withdraw",
+    "defaultMessage": "Withdraw"
+  }
+]

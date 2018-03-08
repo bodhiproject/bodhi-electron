@@ -1,0 +1,18 @@
+[
+  {
+    "id": "bottombutton.placebet",
+    "defaultMessage": "Place Bet"
+  },
+  {
+    "id": "bottombutton.setresult",
+    "defaultMessage": "Set Result"
+  },
+  {
+    "id": "bottombutton.vote",
+    "defaultMessage": "Place Vote"
+  },
+  {
+    "id": "bottombutton.final",
+    "defaultMessage": "Finalize Result"
+  }
+]

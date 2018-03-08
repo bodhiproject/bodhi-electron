@@ -1,0 +1,18 @@
+[
+  {
+    "id": "activitiesTab.Set",
+    "defaultMessage": "Result Setting"
+  },
+  {
+    "id": "activitiesTab.Finalize",
+    "defaultMessage": "Finalize"
+  },
+  {
+    "id": "activitiesTab.Withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "activitiesTab.History",
+    "defaultMessage": "Activities History"
+  }
+]

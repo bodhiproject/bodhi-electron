@@ -1,0 +1,14 @@
+[
+  {
+    "id": "str.RAISE",
+    "defaultMessage": "RAISED"
+  },
+  {
+    "id": "str.outcome",
+    "defaultMessage": "OUTCOMES"
+  },
+  {
+    "id": "cardInfo.withdraw",
+    "defaultMessage": "Withdraw"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "str.to",
+    "defaultMessage": "To"
+  },
+  {
+    "id": "str.amount",
+    "defaultMessage": "Amount"
+  },
+  {
+    "id": "withdrawDialog.youCanWithdraw",
+    "defaultMessage": "You can withdraw up to:"
+  }
+]

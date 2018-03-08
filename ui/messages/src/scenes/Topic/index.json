@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cardFinish.withdraw",
+    "defaultMessage": "You can withdraw"
+  },
+  {
+    "id": "topBar.event",
+    "defaultMessage": "Event"
+  },
+  {
+    "id": "topBar.completed",
+    "defaultMessage": "Completed"
+  }
+]
