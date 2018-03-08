@@ -1,0 +1,14 @@
+[
+  {
+    "id": "predictInfo.endDate",
+    "defaultMessage": "ENDING DATE"
+  },
+  {
+    "id": "predictInfo.fund",
+    "defaultMessage": "FUNDING"
+  },
+  {
+    "id": "predictInfo.resultSetter",
+    "defaultMessage": "RESULT SETTER"
+  }
+]

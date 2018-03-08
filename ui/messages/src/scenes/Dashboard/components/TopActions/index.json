@@ -1,0 +1,18 @@
+[
+  {
+    "id": "create.title",
+    "defaultMessage": "Create an event"
+  },
+  {
+    "id": "sort.label",
+    "defaultMessage": "Sort By"
+  },
+  {
+    "id": "sort.asc",
+    "defaultMessage": "Ascending"
+  },
+  {
+    "id": "sort.desc",
+    "defaultMessage": "Descending"
+  }
+]
