@@ -555,7 +555,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     }
   }
 
-  const balances = _.map(value[0].slice(0, oracle.numOfResults), balanceBN => balanceBN.toJSON());
+  const balances = _.map(value[0].slice(0, oracle.numOfResults), balanceBN => balanceBN.toString(10));
 
   try {
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts: balances } });
@@ -591,9 +591,11 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length), balanceBN => balanceBN.toJSON());
+  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length),
+    balanceBN => balanceBN.toString(10));
 
-  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), balanceBN => balanceBN.toJSON());
+  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), 
+    balanceBN => balanceBN.toString(10));
 
   try {
     await db.Topics.update(
