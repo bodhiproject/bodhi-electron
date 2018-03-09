@@ -595,7 +595,7 @@ async function updateTopicBalance(topicAddress, db) {
     balanceBN => balanceBN.toString(10));
 
   const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), 
-    balanceBN => balanceBN.toString(10)));
+    balanceBN => balanceBN.toString(10));
 
   try {
     await db.Topics.update(
