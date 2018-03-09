@@ -5,6 +5,7 @@ const { Qweb3, Contract } = require('qweb3');
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
 const fetch = require('node-fetch');
+const Web3Utils = require('web3-utils');
 
 const { Config, getContractMetadata } = require('../config/config');
 const { connectDB, DBHelper } = require('../db/nedb');
@@ -555,7 +556,8 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     }
   }
 
-  const balances = _.map(value[0].slice(0, oracle.numOfResults), balanceBN => balanceBN.toJSON());
+  const balances = _.map(value[0].slice(0, oracle.numOfResults),
+    balanceBN => Web3Utils.hexToNumberString(balanceBN.toJSON()));
 
   try {
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts: balances } });
@@ -591,9 +593,11 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length), balanceBN => balanceBN.toJSON());
+  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length),
+    balanceBN => Web3Utils.hexToNumberString(balanceBN.toJSON()));
 
-  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), balanceBN => balanceBN.toJSON());
+  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), 
+    balanceBN => Web3Utils.hexToNumberString(balanceBN.toJSON()));
 
   try {
     await db.Topics.update(
