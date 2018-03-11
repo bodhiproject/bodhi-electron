@@ -99,15 +99,16 @@ type Query {
 
 input TopicFilter {
   OR: [TopicFilter!]
+  txid: String
   address: String
   status: _OracleStatusType
 }
 
 input OracleFilter {
   OR: [OracleFilter!]
+  txid: String
   address: String
   topicAddress: String
-  resultSetterAddress: String
   resultSetterQAddress: String
   status: _OracleStatusType
   token: _TokenType
