@@ -18,6 +18,10 @@ const Wallet = {
     return qClient.getAccountAddress(accountName);
   },
 
+  async getWalletInfo() {
+    return qClient.getWalletInfo();
+  }, 
+
   async listUnspent() {
     return qClient.listUnspent();
   },
