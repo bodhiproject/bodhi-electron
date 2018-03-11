@@ -29,7 +29,17 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet =
   return mainnetMetadata[versionNum];
 }
 
+function getBlockChainConstants(testnet=Config.TESTNET) {
+  const BLOCK_0_TIMESTAMP = 1504695029; // same for testnet & mainnet
+
+  return {
+    BLOCK_0_TIMESTAMP,
+  }
+
+}
+
 module.exports = {
   Config,
   getContractMetadata,
+  getBlockChainConstants,
 };

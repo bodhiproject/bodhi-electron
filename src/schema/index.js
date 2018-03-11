@@ -85,7 +85,7 @@ type Block {
 type syncInfo {
   syncBlockNum: Int
   syncBlockTime: String
-  chainBlockNum: Int
+  syncPercent: Int
 }
 
 type Query {

@@ -14,7 +14,7 @@ const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
-const startSync = require('./sync');
+const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
 
 const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);

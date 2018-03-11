@@ -5,8 +5,9 @@ const { Qweb3, Contract } = require('qweb3');
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
 const fetch = require('node-fetch');
+const moment = require('moment');
 
-const { Config, getContractMetadata } = require('../config/config');
+const { Config, getContractMetadata, getBlockChainConstants } = require('../config/config');
 const { connectDB, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
 
@@ -85,17 +86,6 @@ async function sync(db) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
-  // Get the latest block num based on Qtum master node via Insight API
-  // Used to determine if local chain is fully synced
-  let chainBlockNum = null;
-  try {
-    const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
-    const json = await resp.json();
-    chainBlockNum = json.info.blocks;
-  } catch (err) {
-    logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
-  }
-
   const numOfIterations = Math.ceil((currentBlockCount - startBlock + 1) / batchSize);
 
   sequentialLoop(
@@ -161,10 +151,8 @@ async function sync(db) {
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
 
-        if (_.isNil(chainBlockNum)) {
-          logger.warn('chainBlockNum should not be null');
-        } else if (numOfIterations > 0) {
-          sendSyncInfo(currentBlockCount, currentBlockTime, chainBlockNum);
+        if (numOfIterations > 0) {
+          sendSyncInfo(currentBlockCount, currentBlockTime, calculateSyncPercent(currentBlockTime));
         }
 
         // nedb doesnt require close db, leave the comment as a reminder
@@ -481,13 +469,24 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
   return { insertBlockPromises, endBlockTime: blockTime };
 }
 
+function calculateSyncPercent(blockTime) {
+  let syncPercent = 100;
+  const block0Time = getBlockChainConstants.BLOCK_0_TIMESTAMP;
+  // if blockTime is 10 min behind, we are not fully synced
+  if (blockTime < moment().unix() - 600) {
+    syncPercent = Math.floor((blockTime - block0Time)/(moment().unix() - block0Time)*100);
+  }
+
+  return syncPercent;
+}
+
 // Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
+function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent) {
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       syncBlockNum,
       syncBlockTime,
-      chainBlockNum,
+      syncPercent,
     },
   });
 }
@@ -510,7 +509,7 @@ async function updateOraclesPassedEndTime(currentBlockTime, db) {
 async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db) {
   try {
     await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
+      { resultSetEndTime: { $lt: currentBlockTime }, hexToNumberStringken: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } }, { multi: true },
     );
     logger.debug('Updated COracles Passed ResultSetEndBlock');
@@ -608,4 +607,7 @@ async function updateTopicBalance(topicAddress, db) {
   }
 }
 
-module.exports = startSync;
+module.exports = {
+  startSync,
+  calculateSyncPercent,
+};
