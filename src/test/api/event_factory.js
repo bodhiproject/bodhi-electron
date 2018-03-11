@@ -18,7 +18,7 @@ describe('EventFactory', () => {
     });
   });
 
-  describe.only('version()', () => {
+  describe('version()', () => {
     it('returns a version number', () => {
       const res = Mocks.version.result;
       assert.isDefined(res);

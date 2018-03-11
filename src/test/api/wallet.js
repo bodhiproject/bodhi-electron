@@ -22,6 +22,23 @@ describe('Wallet', () => {
     });
   });
 
+  describe('getWalletInfo()', () => {
+    it('returns the wallet info', async () => {
+      const res = await Wallet.getWalletInfo();
+      assert.isDefined(res);
+      assert.isDefined(res.walletversion);
+      assert.isDefined(res.balance);
+      assert.isDefined(res.stake);
+      assert.isDefined(res.unconfirmed_balance);
+      assert.isDefined(res.immature_balance);
+      assert.isDefined(res.txcount);
+      assert.isDefined(res.keypoololdest);
+      assert.isDefined(res.keypoolsize);
+      assert.isDefined(res.paytxfee);
+      assert.isDefined(res.hdmasterkeyid);
+    });
+  });
+
   describe('listUnspent()', () => {
     it('returns the unspent tx outputs array', async () => {
       const res = await Wallet.listUnspent();
