@@ -86,6 +86,7 @@ type syncInfo {
   syncBlockNum: Int
   syncBlockTime: String
   syncPercent: Int
+  addressBalances: [AddressBalance]!
 }
 
 type Query {
@@ -94,7 +95,7 @@ type Query {
   searchOracles(searchPhrase: String, orderBy: [Order!], limit: Int, skip: Int): [Oracle]!
   allVotes(filter: VoteFilter, orderBy: [Order!], limit: Int, skip: Int): [Vote]!
   allTransactions(filter: TransactionFilter, orderBy: [Order!], limit: Int, skip: Int): [Transaction]!
-  syncInfo: syncInfo!
+  syncInfo(includeBalance: Boolean): syncInfo!
 }
 
 input TopicFilter {
@@ -209,6 +210,12 @@ input Order {
 type TopicSubscriptionPayload {
   mutation: _ModelMutationType!
   node: Topic
+}
+
+type AddressBalance {
+  address: String!,
+  qtum: String!,
+  bot: String!,
 }
 
 enum _ModelMutationType {

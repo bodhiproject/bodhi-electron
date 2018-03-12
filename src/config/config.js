@@ -12,6 +12,10 @@ const Config = {
   TESTNET: true,
 };
 
+const BlockChainConstants = {
+  BLOCK_0_TIMESTAMP: 1504695029,
+}
+
 /*
 * Gets the smart contract metadata based on version and environment.
 * @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
@@ -29,17 +33,8 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet =
   return mainnetMetadata[versionNum];
 }
 
-function getBlockChainConstants(testnet=Config.TESTNET) {
-  const BLOCK_0_TIMESTAMP = 1504695029; // same for testnet & mainnet
-
-  return {
-    BLOCK_0_TIMESTAMP,
-  }
-
-}
-
 module.exports = {
   Config,
+  BlockChainConstants,
   getContractMetadata,
-  getBlockChainConstants,
 };

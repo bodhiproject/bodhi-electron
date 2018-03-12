@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const fetch = require('node-fetch');
 const moment = require('moment');
 
-const { Config, getContractMetadata, getBlockChainConstants } = require('../config/config');
+const { Config, getContractMetadata, BlockChainConstants } = require('../config/config');
 const { connectDB, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
 
@@ -20,8 +20,9 @@ const FinalResultSet = require('./models/finalResultSet');
 
 const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 const contractMetadata = getContractMetadata();
+const bodhiToken = require('../api/bodhi_token');
 
-const rpcBatchSize = 20;
+const rpcBatchSize = 10;
 const batchSize = 200;
 const contractDeployedBlockNum = contractMetadata.contractDeployedBlock;
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
@@ -152,7 +153,12 @@ async function sync(db) {
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
 
         if (numOfIterations > 0) {
-          sendSyncInfo(currentBlockCount, currentBlockTime, calculateSyncPercent(currentBlockTime));
+          sendSyncInfo(
+            currentBlockCount,
+            currentBlockTime,
+            calculateSyncPercent(currentBlockTime),
+            await listUnspentBalance(),
+          );
         }
 
         // nedb doesnt require close db, leave the comment as a reminder
@@ -471,22 +477,24 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
 
 function calculateSyncPercent(blockTime) {
   let syncPercent = 100;
-  const block0Time = getBlockChainConstants.BLOCK_0_TIMESTAMP;
+  const block0Time = BlockChainConstants.BLOCK_0_TIMESTAMP;
+  const timestampNow = moment().unix();
   // if blockTime is 10 min behind, we are not fully synced
-  if (blockTime < moment().unix() - 600) {
-    syncPercent = Math.floor((blockTime - block0Time)/(moment().unix() - block0Time)*100);
+  if (blockTime < timestampNow - 600) {
+    syncPercent = Math.floor((blockTime - block0Time) / (timestampNow - block0Time) * 100);
   }
 
   return syncPercent;
 }
 
 // Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent) {
+function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, addressBalances) {
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       syncBlockNum,
       syncBlockTime,
       syncPercent,
+      addressBalances,
     },
   });
 }
@@ -509,7 +517,7 @@ async function updateOraclesPassedEndTime(currentBlockTime, db) {
 async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db) {
   try {
     await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, hexToNumberStringken: 'QTUM', status: 'WAITRESULT' },
+      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } }, { multi: true },
     );
     logger.debug('Updated COracles Passed ResultSetEndBlock');
@@ -607,7 +615,74 @@ async function updateTopicBalance(topicAddress, db) {
   }
 }
 
+async function listUnspentBalance() {
+  let result = [];
+  try {
+    result = await qclient.listUnspent();
+  } catch (err) {
+    logger.error(`ListUnspent: ${err.message}`);
+  }
+
+  const unspentAddressBalanceDict = {};
+  const unspentAddressArray = [];
+  _.forEach(result, (addressInfo) => {
+    const {
+      address,
+      amount,
+    } = addressInfo;
+    if (_.isEmpty(unspentAddressBalanceDict[address])) {
+      unspentAddressBalanceDict[address] = { qtum: amount };
+      unspentAddressArray.push(address);
+    } else {
+      unspentAddressBalanceDict[address].qtum += amount;
+    }
+  });
+
+  const addressBatches = _.chunk(unspentAddressArray, rpcBatchSize);
+  const unspentAddressBalanceArray = [];
+  const getBotBalancesPromise = new Promise(async (resolve) => {
+    sequentialLoop(addressBatches.length, async (loop) => {
+      const getBotBalancePromises = [];
+      _.map(addressBatches[loop.iteration()], async (address) => {
+        const getBotBalancePromise = new Promise(async (resolve) => {
+          let botBalance = null;
+          try {
+            const resp = await bodhiToken.balanceOf({
+              owner: address,
+              senderAddress: address,
+            });
+
+            botBalance = resp.balance.toString(10);
+          } catch (err) {
+            logger.error(`BalanceOf ${address}: ${err.message}`);
+            botBalance = '0';
+          }
+          unspentAddressBalanceDict[address].bot = botBalance;
+          resolve();
+        });
+
+        getBotBalancePromises.push(getBotBalancePromise);
+      });
+
+      await Promise.all(getBotBalancePromises);
+      loop.next();
+    }, () => {
+      _.forEach(unspentAddressBalanceDict, (value, key) => {
+        unspentAddressBalanceArray.push({
+          address: key,
+          qtum: value.qtum,
+          bot: value.bot,
+        });
+      });
+      resolve();
+    });
+  });
+  await getBotBalancesPromise;
+  return unspentAddressBalanceArray;
+}
+
 module.exports = {
   startSync,
   calculateSyncPercent,
+  listUnspentBalance,
 };

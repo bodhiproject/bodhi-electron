@@ -16,7 +16,7 @@ const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 const { Config } = require('../config/config');
 const { txState } = require('../constants');
-const { calculateSyncPercent } = require('../sync');
+const { calculateSyncPercent, listUnspentBalance } = require('../sync');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -242,7 +242,8 @@ module.exports = {
       return cursor.exec();
     },
 
-    syncInfo: async (root, {}, { db: { Blocks } }) => {
+    syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
+      const fetchBalance = includeBalance || false;
       let syncBlockNum = null;
       let syncBlockTime = null;
       let syncPercent = null;
@@ -259,7 +260,18 @@ module.exports = {
         syncPercent = calculateSyncPercent(syncBlockTime);
       }
 
-      return { syncBlockNum, syncBlockTime, syncPercent };
+      let addressBalances = [];
+      if (fetchBalance) {
+        addressBalances = await listUnspentBalance();
+      }
+
+
+      return {
+        syncBlockNum,
+        syncBlockTime,
+        syncPercent,
+        addressBalances,
+      };
     },
   },
 
