@@ -4,10 +4,10 @@ const _ = require('lodash');
 const { Qweb3, Contract } = require('qweb3');
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
-const fetch = require('node-fetch');
 const moment = require('moment');
-
-const { Config, getContractMetadata, BlockChainConstants } = require('../config/config');
+const BigNumber = require('bignumber.js');
+const { Config, getContractMetadata } = require('../config/config');
+const { BLOCK_0_TIMESTAMP, SATOSHI_CONVERSION } = require('../constants');
 const { connectDB, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
 
@@ -477,11 +477,10 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
 
 function calculateSyncPercent(blockTime) {
   let syncPercent = 100;
-  const block0Time = BlockChainConstants.BLOCK_0_TIMESTAMP;
   const timestampNow = moment().unix();
   // if blockTime is 10 min behind, we are not fully synced
   if (blockTime < timestampNow - 600) {
-    syncPercent = Math.floor((blockTime - block0Time) / (timestampNow - block0Time) * 100);
+    syncPercent = Math.floor((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP) * 100);
   }
 
   return syncPercent;
@@ -630,11 +629,13 @@ async function listUnspentBalance() {
       address,
       amount,
     } = addressInfo;
+
+    const amountBN = new BigNumber(amount).multipliedBy(SATOSHI_CONVERSION);
     if (_.isEmpty(unspentAddressBalanceDict[address])) {
-      unspentAddressBalanceDict[address] = { qtum: amount };
+      unspentAddressBalanceDict[address] = { qtum: amountBN };
       unspentAddressArray.push(address);
     } else {
-      unspentAddressBalanceDict[address].qtum += amount;
+      unspentAddressBalanceDict[address].qtum.plus(amountBN);
     }
   });
 
@@ -645,14 +646,14 @@ async function listUnspentBalance() {
       const getBotBalancePromises = [];
       _.map(addressBatches[loop.iteration()], async (address) => {
         const getBotBalancePromise = new Promise(async (resolve) => {
-          let botBalance = null;
+          let botBalance = new BigNumber(0);
           try {
             const resp = await bodhiToken.balanceOf({
               owner: address,
               senderAddress: address,
             });
 
-            botBalance = resp.balance.toString(10);
+            botBalance = resp.balance;
           } catch (err) {
             logger.error(`BalanceOf ${address}: ${err.message}`);
             botBalance = '0';
@@ -670,8 +671,8 @@ async function listUnspentBalance() {
       _.forEach(unspentAddressBalanceDict, (value, key) => {
         unspentAddressBalanceArray.push({
           address: key,
-          qtum: value.qtum,
-          bot: value.bot,
+          qtum: value.qtum.toString(10),
+          bot: value.bot.toString(10),
         });
       });
       resolve();
