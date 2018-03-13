@@ -631,11 +631,11 @@ async function listUnspentBalance() {
     } = addressInfo;
 
     const amountBN = new BigNumber(amount).multipliedBy(SATOSHI_CONVERSION);
-    if (_.isEmpty(unspentAddressBalanceDict[address])) {
+    if (!unspentAddressBalanceDict[address]) {
       unspentAddressBalanceDict[address] = { qtum: amountBN };
       unspentAddressArray.push(address);
     } else {
-      unspentAddressBalanceDict[address].qtum.plus(amountBN);
+      unspentAddressBalanceDict[address].qtum = unspentAddressBalanceDict[address].qtum.plus(amountBN);
     }
   });
 
@@ -679,6 +679,7 @@ async function listUnspentBalance() {
     });
   });
   await getBotBalancesPromise;
+
   return unspentAddressBalanceArray;
 }
 
