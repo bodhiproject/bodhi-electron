@@ -47,8 +47,26 @@ apiRouter.post('/get-account-address', (req, res, next) => {
     });
 });
 
+apiRouter.get('/get-wallet-info', (req, res, next) => {
+  Wallet.getWalletInfo()
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 apiRouter.get('/list-unspent', (req, res, next) => {
   Wallet.listUnspent()
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/wallet-passphrase', (req, res, next) => {
+  Wallet.walletPassphrase(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

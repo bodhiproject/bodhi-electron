@@ -18,6 +18,10 @@ const Wallet = {
     return qClient.getAccountAddress(accountName);
   },
 
+  async getWalletInfo() {
+    return qClient.getWalletInfo();
+  }, 
+
   async listUnspent() {
     return qClient.listUnspent();
   },
@@ -40,6 +44,25 @@ const Wallet = {
 
     return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount);
   },
+
+  async walletPassphrase(args) {
+    const {
+      passphrase, // string
+      timeout, // number: seconds
+    } = args;
+
+    if (_.isUndefined(passphrase)) {
+      throw new TypeError('passphrase needs to be defined');
+    }
+    if (_.isUndefined(timeout)) {
+      throw new TypeError('timeout needs to be defined');
+    }
+    if (!_.isFinite(timeout) || timeout <= 0) {
+      throw new TypeError('timeout needs to be greater than 0');
+    }
+
+    return qClient.walletPassphrase(passphrase, timeout);
+  }
 };
 
 module.exports = Wallet;

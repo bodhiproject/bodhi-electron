@@ -2792,9 +2792,9 @@ query-string@^5.0.1:
     object-assign "^4.1.0"
     strict-uri-encode "^1.0.0"
 
-qweb3@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/qweb3/-/qweb3-0.6.0.tgz#7a4928ddb75a44e3b4331008de2b494f585f23b6"
+qweb3@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/qweb3/-/qweb3-0.7.1.tgz#39bbff7022b1339bd009a447b7d0fd984a5475e2"
   dependencies:
     bignumber.js "^5.0.0"
     bluebird "^3.5.1"
