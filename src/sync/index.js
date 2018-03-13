@@ -4,9 +4,10 @@ const _ = require('lodash');
 const { Qweb3, Contract } = require('qweb3');
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
-const fetch = require('node-fetch');
-
+const moment = require('moment');
+const BigNumber = require('bignumber.js');
 const { Config, getContractMetadata } = require('../config/config');
+const { BLOCK_0_TIMESTAMP, SATOSHI_CONVERSION } = require('../constants');
 const { connectDB, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
 
@@ -19,8 +20,9 @@ const FinalResultSet = require('./models/finalResultSet');
 
 const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 const contractMetadata = getContractMetadata();
+const bodhiToken = require('../api/bodhi_token');
 
-const rpcBatchSize = 20;
+const rpcBatchSize = 10;
 const batchSize = 200;
 const contractDeployedBlockNum = contractMetadata.contractDeployedBlock;
 const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
@@ -83,17 +85,6 @@ async function sync(db) {
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
-  }
-
-  // Get the latest block num based on Qtum master node via Insight API
-  // Used to determine if local chain is fully synced
-  let chainBlockNum = null;
-  try {
-    const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
-    const json = await resp.json();
-    chainBlockNum = json.info.blocks;
-  } catch (err) {
-    logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
   }
 
   const numOfIterations = Math.ceil((currentBlockCount - startBlock + 1) / batchSize);
@@ -161,10 +152,13 @@ async function sync(db) {
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
 
-        if (_.isNil(chainBlockNum)) {
-          logger.warn('chainBlockNum should not be null');
-        } else if (numOfIterations > 0) {
-          sendSyncInfo(currentBlockCount, currentBlockTime, chainBlockNum);
+        if (numOfIterations > 0) {
+          sendSyncInfo(
+            currentBlockCount,
+            currentBlockTime,
+            calculateSyncPercent(currentBlockTime),
+            await listUnspentBalance(),
+          );
         }
 
         // nedb doesnt require close db, leave the comment as a reminder
@@ -481,13 +475,25 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
   return { insertBlockPromises, endBlockTime: blockTime };
 }
 
+function calculateSyncPercent(blockTime) {
+  let syncPercent = 100;
+  const timestampNow = moment().unix();
+  // if blockTime is 10 min behind, we are not fully synced
+  if (blockTime < timestampNow - 600) {
+    syncPercent = Math.floor((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP) * 100);
+  }
+
+  return syncPercent;
+}
+
 // Send syncInfo subscription
-function sendSyncInfo(syncBlockNum, syncBlockTime, chainBlockNum) {
+function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, addressBalances) {
   pubsub.publish('onSyncInfo', {
     onSyncInfo: {
       syncBlockNum,
       syncBlockTime,
-      chainBlockNum,
+      syncPercent,
+      addressBalances,
     },
   });
 }
@@ -608,4 +614,76 @@ async function updateTopicBalance(topicAddress, db) {
   }
 }
 
-module.exports = startSync;
+async function listUnspentBalance() {
+  let result = [];
+  try {
+    result = await qclient.listUnspent();
+  } catch (err) {
+    logger.error(`ListUnspent: ${err.message}`);
+  }
+
+  const unspentAddressBalanceDict = {};
+  const unspentAddressArray = [];
+  _.forEach(result, (addressInfo) => {
+    const {
+      address,
+      amount,
+    } = addressInfo;
+
+    const amountBN = new BigNumber(amount).multipliedBy(SATOSHI_CONVERSION);
+    if (_.isEmpty(unspentAddressBalanceDict[address])) {
+      unspentAddressBalanceDict[address] = { qtum: amountBN };
+      unspentAddressArray.push(address);
+    } else {
+      unspentAddressBalanceDict[address].qtum.plus(amountBN);
+    }
+  });
+
+  const addressBatches = _.chunk(unspentAddressArray, rpcBatchSize);
+  const unspentAddressBalanceArray = [];
+  const getBotBalancesPromise = new Promise(async (resolve) => {
+    sequentialLoop(addressBatches.length, async (loop) => {
+      const getBotBalancePromises = [];
+      _.map(addressBatches[loop.iteration()], async (address) => {
+        const getBotBalancePromise = new Promise(async (resolve) => {
+          let botBalance = new BigNumber(0);
+          try {
+            const resp = await bodhiToken.balanceOf({
+              owner: address,
+              senderAddress: address,
+            });
+
+            botBalance = resp.balance;
+          } catch (err) {
+            logger.error(`BalanceOf ${address}: ${err.message}`);
+            botBalance = '0';
+          }
+          unspentAddressBalanceDict[address].bot = botBalance;
+          resolve();
+        });
+
+        getBotBalancePromises.push(getBotBalancePromise);
+      });
+
+      await Promise.all(getBotBalancePromises);
+      loop.next();
+    }, () => {
+      _.forEach(unspentAddressBalanceDict, (value, key) => {
+        unspentAddressBalanceArray.push({
+          address: key,
+          qtum: value.qtum.toString(10),
+          bot: value.bot.toString(10),
+        });
+      });
+      resolve();
+    });
+  });
+  await getBotBalancesPromise;
+  return unspentAddressBalanceArray;
+}
+
+module.exports = {
+  startSync,
+  calculateSyncPercent,
+  listUnspentBalance,
+};

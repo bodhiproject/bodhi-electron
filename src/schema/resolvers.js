@@ -16,6 +16,7 @@ const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 const { Config } = require('../config/config');
 const { txState } = require('../constants');
+const { calculateSyncPercent, listUnspentBalance } = require('../sync');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -241,9 +242,11 @@ module.exports = {
       return cursor.exec();
     },
 
-    syncInfo: async (root, {}, { db: { Blocks } }) => {
+    syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
+      const fetchBalance = includeBalance || false;
       let syncBlockNum = null;
       let syncBlockTime = null;
+      let syncPercent = null;
       let blocks;
       try {
         blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
@@ -254,18 +257,21 @@ module.exports = {
       if (blocks.length > 0) {
         syncBlockNum = blocks[0].blockNum;
         syncBlockTime = blocks[0].blockTime;
+        syncPercent = calculateSyncPercent(syncBlockTime);
       }
 
-      let chainBlockNum = null;
-      try {
-        const resp = await fetch('https://testnet.qtum.org/insight-api/status?q=getInfo');
-        const json = await resp.json();
-        chainBlockNum = json.info.blocks;
-      } catch (err) {
-        logger.error(`Error GET https://testnet.qtum.org/insight-api/status?q=getInfo: ${err.message}`);
+      let addressBalances = [];
+      if (fetchBalance) {
+        addressBalances = await listUnspentBalance();
       }
 
-      return { syncBlockNum, syncBlockTime, chainBlockNum };
+
+      return {
+        syncBlockNum,
+        syncBlockTime,
+        syncPercent,
+        addressBalances,
+      };
     },
   },
 
@@ -511,7 +517,7 @@ module.exports = {
           logger.error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
         }
-      }      
+      }
 
       // Insert Transaction
       const tx = {
