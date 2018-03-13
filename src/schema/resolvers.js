@@ -265,7 +265,6 @@ module.exports = {
         addressBalances = await listUnspentBalance();
       }
 
-
       return {
         syncBlockNum,
         syncBlockTime,
