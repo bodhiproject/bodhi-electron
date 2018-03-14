@@ -14,5 +14,9 @@
   {
     "id": "str.transactionId",
     "defaultMessage": "Transaction ID"
+  },
+  {
+    "id": "str.ok",
+    "defaultMessage": "OK"
   }
 ]

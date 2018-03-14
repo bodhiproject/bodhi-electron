@@ -1,0 +1,54 @@
+[
+  {
+    "id": "withdrawDetail.returnRate",
+    "defaultMessage": "Return rate:"
+  },
+  {
+    "id": "withdrawDetail.youBet",
+    "defaultMessage": "You bet"
+  },
+  {
+    "id": "withdrawDetail.youVote",
+    "defaultMessage": "You vote"
+  },
+  {
+    "id": "str.winningOutcome",
+    "defaultMessage": "WINNING OUTCOME"
+  },
+  {
+    "id": "topic.didNotBetOrVote",
+    "defaultMessage": "You did not bet or vote on the winning outcome."
+  },
+  {
+    "id": "withdrawDetail.reward",
+    "defaultMessage": "REWARD"
+  },
+  {
+    "id": "withdrawDetail.withdrawTo",
+    "defaultMessage": "WITHDRAW TO"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "str.pendingTransactionDisabledMsg",
+    "defaultMessage": "You have a pending transaction for this event. Please wait until it's confirmed before doing another transaction."
+  },
+  {
+    "id": "withdrawDetail.alreadyWithdrawn",
+    "defaultMessage": "You have already withdrawn with this address."
+  },
+  {
+    "id": "eventInfo.predictionFund",
+    "defaultMessage": "Prediction Fund"
+  },
+  {
+    "id": "eventInfo.voteVolumn",
+    "defaultMessage": "Votting Volume"
+  },
+  {
+    "id": "eventInfo.resultSetter",
+    "defaultMessage": "Result Setter"
+  }
+]

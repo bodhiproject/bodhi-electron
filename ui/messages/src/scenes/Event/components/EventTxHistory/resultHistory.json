@@ -1,0 +1,26 @@
+[
+  {
+    "id": "str.resultHistory",
+    "defaultMessage": "Result History"
+  },
+  {
+    "id": "str.date",
+    "defaultMessage": "Date"
+  },
+  {
+    "id": "str.resultType",
+    "defaultMessage": "Result Type"
+  },
+  {
+    "id": "str.winningOutcome",
+    "defaultMessage": "Winning Outcome"
+  },
+  {
+    "id": "str.amount",
+    "defaultMessage": "Amount"
+  },
+  {
+    "id": "str.emptyTxHistory",
+    "defaultMessage": "You do not have any transactions right now."
+  }
+]

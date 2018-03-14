@@ -10,5 +10,21 @@
   {
     "id": "withdrawDialog.youCanWithdraw",
     "defaultMessage": "You can withdraw up to:"
+  },
+  {
+    "id": "withdrawDialog.title",
+    "defaultMessage": "Withdraw QTUM/BOT"
+  },
+  {
+    "id": "str.close",
+    "defaultMessage": "Close"
+  },
+  {
+    "id": "withdrawDialog.send",
+    "defaultMessage": "Send"
+  },
+  {
+    "id": "str.from",
+    "defaultMessage": "From"
   }
 ]
