@@ -18,6 +18,7 @@ const Vote = require('./models/vote');
 const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
 const bodhiToken = require('../api/bodhi_token');
+const baseContract = require('../api/base_contract');
 
 const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 const contractMetadata = getContractMetadata();
@@ -541,34 +542,39 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 
   // related topic should be updated
   topicSet.add(oracle.topicAddress);
-  let value;
+  let amounts;
   if (oracle.token === 'QTUM') {
-    // centrailized
-    const contract = new Contract(Config.QTUM_RPC_ADDRESS, oracleAddress, contractMetadata.CentralizedOracle.abi);
+    // Centralized Oracle
     try {
-      value = await contract.call('getTotalBets', { methodArgs: [], SENDER_ADDRESS });
+      const res = await baseContract.getTotalBets({
+        contractAddress: oracleAddress,
+        senderAddress: SENDER_ADDRESS,
+      });
+
+      amounts = res[0];
     } catch (err) {
-      logger.error(`getTotalBets for oracle ${oracleAddress}, ${err.message}`);
-      return;
+      logger.error(`BaseContract.getTotalBets: ${err.message}`);
     }
   } else {
-    // decentralized
-    const contract = new Contract(Config.QTUM_RPC_ADDRESS, oracleAddress, contractMetadata.DecentralizedOracle.abi);
+    // DecentralizedOracle
     try {
-      value = await contract.call('getTotalVotes', { methodArgs: [], SENDER_ADDRESS });
+      const res = await baseContract.getTotalVotes({
+        contractAddress: oracleAddress,
+        senderAddress: SENDER_ADDRESS,
+      });
+
+      amounts = res[0];
     } catch (err) {
-      logger.error(`getTotalVotes for oracle ${oracleAddress}, ${err.message}`);
-      return;
+      logger.error(`BaseContract.getTotalVotes: ${err.message}`);
     }
   }
 
-  const balances = _.map(value[0].slice(0, oracle.numOfResults), balanceBN => balanceBN.toString(10));
-
   try {
+    const balances = _.map(amounts.slice(0, oracle.numOfResults), balanceBN => balanceBN.toString(10));
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts: balances } });
-    logger.debug(`Update oracle ${oracleAddress} amounts ${balances}`);
+    logger.debug(`Update Oracle balances ${oracleAddress}, amounts ${balances}`);
   } catch (err) {
-    logger.error(`update oracle ${oracleAddress}, ${err.message}`);
+    logger.error(`Update Oracle balances ${oracleAddress}: ${err.message}`);
   }
 }
 
