@@ -528,7 +528,7 @@ async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, 
 }
 
 async function updateOracleBalance(oracleAddress, topicSet, db) {
-  // Find Oracle to update
+  // Find Oracle
   let oracle;
   try {
     oracle = await db.Oracles.findOne({ address: oracleAddress });
@@ -544,7 +544,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   // related topic should be updated
   topicSet.add(oracle.topicAddress);
 
-  // Update balances
+  // Get balances
   let amounts;
   if (oracle.token === 'QTUM') {
     // Centralized Oracle
@@ -572,6 +572,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     }
   }
 
+  // Update DB
   try {
     const balances = _.map(amounts.slice(0, oracle.numOfResults), balanceBN => balanceBN.toString(10));
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts: balances } });
@@ -582,7 +583,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 }
 
 async function updateTopicBalance(topicAddress, db) {
-  // Find Topic to update
+  // Find Topic
   let topic;
   try {
     topic = await db.Topics.findOne({ address: topicAddress });
@@ -595,7 +596,7 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  // Update balances
+  // Get balances
   let totalBets;
   try {
     const res = await baseContract.getTotalBets({
@@ -620,6 +621,7 @@ async function updateTopicBalance(topicAddress, db) {
     logger.error(`Topic.getTotalVotes: ${err.message}`);
   }
 
+  // Update DB
   try {
     await db.Topics.update(
       { address: topicAddress },
