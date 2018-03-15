@@ -598,11 +598,15 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  const totalBetsBalances = _.map(totalBetsValue[0].slice(0, topic.options.length),
-    balanceBN => balanceBN.toString(10));
+  const totalBetsBalances = _.map(
+    totalBetsValue[0].slice(0, topic.options.length),
+    balanceBN => balanceBN.toString(10),
+  );
 
-  const totalVotesBalances = _.map(totalVotesValue[0].slice(0, topic.options.length), 
-    balanceBN => balanceBN.toString(10));
+  const totalVotesBalances = _.map(
+    totalVotesValue[0].slice(0, topic.options.length),
+    balanceBN => balanceBN.toString(10),
+  );
 
   try {
     await db.Topics.update(
