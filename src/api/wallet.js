@@ -20,7 +20,7 @@ const Wallet = {
 
   async getWalletInfo() {
     return qClient.getWalletInfo();
-  }, 
+  },
 
   async listUnspent() {
     return qClient.listUnspent();
@@ -62,7 +62,7 @@ const Wallet = {
     }
 
     return qClient.walletPassphrase(passphrase, timeout);
-  }
+  },
 };
 
 module.exports = Wallet;
