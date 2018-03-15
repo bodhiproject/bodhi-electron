@@ -528,6 +528,7 @@ async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, 
 }
 
 async function updateOracleBalance(oracleAddress, topicSet, db) {
+  // Find Oracle to update
   let oracle;
   try {
     oracle = await db.Oracles.findOne({ address: oracleAddress });
@@ -542,6 +543,8 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 
   // related topic should be updated
   topicSet.add(oracle.topicAddress);
+
+  // Update balances
   let amounts;
   if (oracle.token === 'QTUM') {
     // Centralized Oracle
@@ -553,7 +556,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 
       amounts = res[0];
     } catch (err) {
-      logger.error(`BaseContract.getTotalBets: ${err.message}`);
+      logger.error(`Oracle.getTotalBets: ${err.message}`);
     }
   } else {
     // DecentralizedOracle
@@ -565,7 +568,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 
       amounts = res[0];
     } catch (err) {
-      logger.error(`BaseContract.getTotalVotes: ${err.message}`);
+      logger.error(`Oracle.getTotalVotes: ${err.message}`);
     }
   }
 
@@ -579,6 +582,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 }
 
 async function updateTopicBalance(topicAddress, db) {
+  // Find Topic to update
   let topic;
   try {
     topic = await db.Topics.findOne({ address: topicAddress });
@@ -591,37 +595,39 @@ async function updateTopicBalance(topicAddress, db) {
     return;
   }
 
-  const contract = new Contract(Config.QTUM_RPC_ADDRESS, topicAddress, contractMetadata.TopicEvent.abi);
-  let totalBetsValue;
-  let totalVotesValue;
+  // Update balances
+  let totalBets;
   try {
-    const getTotalBetsPromise = contract.call('getTotalBets', { methodArgs: [], SENDER_ADDRESS });
-    const getTotalVotesPromise = contract.call('getTotalVotes', { methodArgs: [], SENDER_ADDRESS });
-    totalBetsValue = await getTotalBetsPromise;
-    totalVotesValue = await getTotalVotesPromise;
+    const res = await baseContract.getTotalBets({
+      contractAddress: topicAddress,
+      senderAddress: SENDER_ADDRESS,
+    });
+
+    totalBets = _.map(res[0].slice(0, topic.options.length), balanceBN => balanceBN.toString(10));
   } catch (err) {
-    logger.error(`getTotalBets for topic ${topicAddress}, ${err.message}`);
-    return;
+    logger.error(`Topic.getTotalBets: ${err.message}`);
   }
 
-  const totalBetsBalances = _.map(
-    totalBetsValue[0].slice(0, topic.options.length),
-    balanceBN => balanceBN.toString(10),
-  );
+  let totalVotes;
+  try {
+    const res = await baseContract.getTotalVotes({
+      contractAddress: topicAddress,
+      senderAddress: SENDER_ADDRESS,
+    });
 
-  const totalVotesBalances = _.map(
-    totalVotesValue[0].slice(0, topic.options.length),
-    balanceBN => balanceBN.toString(10),
-  );
+    totalVotes = _.map(res[0].slice(0, topic.options.length), balanceBN => balanceBN.toString(10));
+  } catch (err) {
+    logger.error(`Topic.getTotalVotes: ${err.message}`);
+  }
 
   try {
     await db.Topics.update(
       { address: topicAddress },
-      { $set: { qtumAmount: totalBetsBalances, botAmount: totalVotesBalances } },
+      { $set: { qtumAmount: totalBets, botAmount: totalVotes } },
     );
-    logger.debug(`Update topic ${topicAddress} qtumAmount ${totalBetsBalances} botAmount ${totalVotesBalances}`);
+    logger.debug(`Update Topic balances ${topicAddress}, qtum: ${totalBets} bot: ${totalVotes}`);
   } catch (err) {
-    logger.error(`update topic ${topicAddress} in db, ${err.message}`);
+    logger.error(`Update Topic balances ${topicAddress}: ${err.message}`);
   }
 }
 
