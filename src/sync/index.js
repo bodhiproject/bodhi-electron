@@ -17,10 +17,10 @@ const DecentralizedOracle = require('./models/decentralizedOracle');
 const Vote = require('./models/vote');
 const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
+const bodhiToken = require('../api/bodhi_token');
 
 const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 const contractMetadata = getContractMetadata();
-const bodhiToken = require('../api/bodhi_token');
 
 const RPC_BATCH_SIZE = 10;
 const BLOCK_BATCH_SIZE = 200;
