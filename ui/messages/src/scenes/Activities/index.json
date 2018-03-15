@@ -4,11 +4,11 @@
     "defaultMessage": "Result Setting"
   },
   {
-    "id": "activitiesTab.Finalize",
+    "id": "str.finalize",
     "defaultMessage": "Finalize"
   },
   {
-    "id": "activitiesTab.Withdraw",
+    "id": "str.withdraw",
     "defaultMessage": "Withdraw"
   },
   {

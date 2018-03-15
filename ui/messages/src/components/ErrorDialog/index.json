@@ -1,0 +1,10 @@
+[
+  {
+    "id": "str.error",
+    "defaultMessage": "Error"
+  },
+  {
+    "id": "str.ok",
+    "defaultMessage": "OK"
+  }
+]

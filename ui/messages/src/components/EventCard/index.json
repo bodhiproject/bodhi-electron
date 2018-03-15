@@ -1,0 +1,14 @@
+[
+  {
+    "id": "str.raised",
+    "defaultMessage": "Raised"
+  },
+  {
+    "id": "str.ends",
+    "defaultMessage": "Ends"
+  },
+  {
+    "id": "str.unconfirmed",
+    "defaultMessage": "Unconfirmed"
+  }
+]

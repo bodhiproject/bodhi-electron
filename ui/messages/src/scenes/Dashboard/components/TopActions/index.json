@@ -8,11 +8,11 @@
     "defaultMessage": "Sort By"
   },
   {
-    "id": "sort.asc",
-    "defaultMessage": "Ascending"
+    "id": "sort.ascEndTime",
+    "defaultMessage": "End Earliest"
   },
   {
-    "id": "sort.desc",
-    "defaultMessage": "Descending"
+    "id": "sort.descEndTime",
+    "defaultMessage": "End Latest"
   }
 ]

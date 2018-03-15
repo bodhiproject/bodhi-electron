@@ -4,7 +4,7 @@
     "defaultMessage": "Topic Created"
   },
   {
-    "id": "cardInfo.betting",
+    "id": "str.betting",
     "defaultMessage": "Betting"
   },
   {
@@ -26,5 +26,17 @@
   {
     "id": "cardInfo.withdraw",
     "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "str.block",
+    "defaultMessage": "Block"
+  },
+  {
+    "id": "cardInfo.to",
+    "defaultMessage": "To"
+  },
+  {
+    "id": "str.anytime",
+    "defaultMessage": "anytime"
   }
 ]

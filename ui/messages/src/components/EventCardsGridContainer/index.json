@@ -1,18 +1,22 @@
 [
   {
-    "id": "bottombutton.placebet",
+    "id": "bottomButtonText.placeBet",
     "defaultMessage": "Place Bet"
   },
   {
-    "id": "bottombutton.setresult",
+    "id": "str.setResult",
     "defaultMessage": "Set Result"
   },
   {
-    "id": "bottombutton.vote",
+    "id": "bottomButtonText.vote",
     "defaultMessage": "Place Vote"
   },
   {
-    "id": "bottombutton.final",
+    "id": "bottomButtonText.final",
     "defaultMessage": "Finalize Result"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
   }
 ]
