@@ -655,7 +655,7 @@ async function listUnspentBalance() {
           try {
             const resp = await bodhiToken.balanceOf({
               owner: address,
-              SENDER_ADDRESS: address,
+              senderAddress: address,
             });
 
             botBalance = resp.balance;
