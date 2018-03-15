@@ -22,10 +22,11 @@ const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 const contractMetadata = getContractMetadata();
 const bodhiToken = require('../api/bodhi_token');
 
-const rpcBatchSize = 10;
-const batchSize = 200;
-const contractDeployedBlockNum = contractMetadata.contractDeployedBlock;
-const senderAddress = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
+const RPC_BATCH_SIZE = 10;
+const BLOCK_BATCH_SIZE = 200;
+const SYNC_THRESHOLD_SECS = 1200;
+const CONTRACT_START_BLOCK_NUM = contractMetadata.contractDeployedBlock;
+const SENDER_ADDRESS = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
 
 const startSync = async () => {
   const db = await connectDB();
@@ -81,18 +82,18 @@ async function sync(db) {
   const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
 
   // Start sync based on last block written to DB
-  let startBlock = contractDeployedBlockNum;
+  let startBlock = CONTRACT_START_BLOCK_NUM;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
   }
 
-  const numOfIterations = Math.ceil((currentBlockCount - startBlock + 1) / batchSize);
+  const numOfIterations = Math.ceil((currentBlockCount - startBlock + 1) / BLOCK_BATCH_SIZE);
 
   sequentialLoop(
     numOfIterations,
     async (loop) => {
-      const endBlock = Math.min((startBlock + batchSize) - 1, currentBlockCount);
+      const endBlock = Math.min((startBlock + BLOCK_BATCH_SIZE) - 1, currentBlockCount);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
       logger.debug('Synced Topics');
@@ -118,7 +119,7 @@ async function sync(db) {
       loop.next();
     },
     async () => {
-      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), rpcBatchSize);
+      const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
         const oracleIteration = loop.iteration();
@@ -129,8 +130,8 @@ async function sync(db) {
 
         // Oracle balance update completed
         if (oracleIteration === oracleAddressBatches.length - 1) {
-        // two rpc call per topic balance so batch_size = rpcBatchSize/2
-          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(rpcBatchSize / 2));
+        // two rpc call per topic balance so batch_size = RPC_BATCH_SIZE/2
+          const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
           sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
             const topicIteration = topicLoop.iteration();
             logger.debug(`topic batch: ${topicIteration}`);
@@ -479,7 +480,7 @@ function calculateSyncPercent(blockTime) {
   let syncPercent = 100;
   const timestampNow = moment().unix();
   // if blockTime is 10 min behind, we are not fully synced
-  if (blockTime < timestampNow - 600) {
+  if (blockTime < timestampNow - SYNC_THRESHOLD_SECS) {
     syncPercent = Math.floor((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP) * 100);
   }
 
@@ -545,7 +546,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     // centrailized
     const contract = new Contract(Config.QTUM_RPC_ADDRESS, oracleAddress, contractMetadata.CentralizedOracle.abi);
     try {
-      value = await contract.call('getTotalBets', { methodArgs: [], senderAddress });
+      value = await contract.call('getTotalBets', { methodArgs: [], SENDER_ADDRESS });
     } catch (err) {
       logger.error(`getTotalBets for oracle ${oracleAddress}, ${err.message}`);
       return;
@@ -554,7 +555,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     // decentralized
     const contract = new Contract(Config.QTUM_RPC_ADDRESS, oracleAddress, contractMetadata.DecentralizedOracle.abi);
     try {
-      value = await contract.call('getTotalVotes', { methodArgs: [], senderAddress });
+      value = await contract.call('getTotalVotes', { methodArgs: [], SENDER_ADDRESS });
     } catch (err) {
       logger.error(`getTotalVotes for oracle ${oracleAddress}, ${err.message}`);
       return;
@@ -588,8 +589,8 @@ async function updateTopicBalance(topicAddress, db) {
   let totalBetsValue;
   let totalVotesValue;
   try {
-    const getTotalBetsPromise = contract.call('getTotalBets', { methodArgs: [], senderAddress });
-    const getTotalVotesPromise = contract.call('getTotalVotes', { methodArgs: [], senderAddress });
+    const getTotalBetsPromise = contract.call('getTotalBets', { methodArgs: [], SENDER_ADDRESS });
+    const getTotalVotesPromise = contract.call('getTotalVotes', { methodArgs: [], SENDER_ADDRESS });
     totalBetsValue = await getTotalBetsPromise;
     totalVotesValue = await getTotalVotesPromise;
   } catch (err) {
@@ -639,7 +640,7 @@ async function listUnspentBalance() {
     }
   });
 
-  const addressBatches = _.chunk(unspentAddressArray, rpcBatchSize);
+  const addressBatches = _.chunk(unspentAddressArray, RPC_BATCH_SIZE);
   const unspentAddressBalanceArray = [];
   const getBotBalancesPromise = new Promise(async (resolve) => {
     sequentialLoop(addressBatches.length, async (loop) => {
@@ -650,7 +651,7 @@ async function listUnspentBalance() {
           try {
             const resp = await bodhiToken.balanceOf({
               owner: address,
-              senderAddress: address,
+              SENDER_ADDRESS: address,
             });
 
             botBalance = resp.balance;
