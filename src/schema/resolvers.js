@@ -114,9 +114,13 @@ function buildSearchOracleFilter(searchPhrase) {
 }
 
 function buildVoteFilters({
-  OR = [], oracleAddress, voterAddress, voterQAddress, optionIdx,
+  OR = [], topicAddress, oracleAddress, voterAddress, voterQAddress, optionIdx,
 }) {
-  const filter = (oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
+  const filter = (topicAddress || oracleAddress || voterAddress || voterQAddress || optionIdx) ? {} : null;
+
+  if (topicAddress) {
+    filter.topicAddress = topicAddress;
+  }
 
   if (oracleAddress) {
     filter.oracleAddress = oracleAddress;
