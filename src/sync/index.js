@@ -181,6 +181,15 @@ async function fetchNameOptionsFromTopic(db, address) {
   }
 }
 
+async function fetchTopicAddressFromOracle(db, address) {
+  const oracle = await db.Oracles.findOne({ address }, { topicAddress: 1 });
+  if (!oracle) {
+    throw Error(`could not find Oracle ${address} in db`);
+  } else {
+    return oracle;
+  }
+}
+
 async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
