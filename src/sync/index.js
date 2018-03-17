@@ -347,8 +347,10 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
             const vote = new Vote(blockNum, txid, rawLog).translate();
 
             // Add topicAddress to vote obj
-            const topic = await fetchTopicAddressFromOracle(db, vote.oracleAddress);
-
+            const oracle = await fetchTopicAddressFromOracle(db, vote.oracleAddress);
+            if (oracle) {
+              vote.topicAddress = oracle.topicAddress;
+            }
 
             oraclesNeedBalanceUpdate.add(vote.oracleAddress);
 
