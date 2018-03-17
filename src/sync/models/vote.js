@@ -29,7 +29,7 @@ class Vote {
       txid: this.txid,
       voterAddress: this.participant,
       voterQAddress: Decoder.toQtumAddress(this.participant),
-      topicAddress: undefined,
+      topicAddress: '',
       oracleAddress: this.oracleAddress,
       optionIdx: this.resultIndex,
       amount: this.votedAmount,
