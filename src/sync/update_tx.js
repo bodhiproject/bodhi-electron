@@ -4,6 +4,7 @@ const moment = require('moment');
 const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const bodhiToken = require('../api/bodhi_token');
+const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
@@ -97,6 +98,39 @@ async function onSuccessfulTx(tx, db) {
   let txid;
 
   switch (tx.type) {
+    // Approve was accepted. Sending createEvent.
+    case 'APPROVECREATEEVENT': {
+      try {
+        const createTopicTx = await eventFactory.createTopic({
+          oracleAddress: tx.resultSetterAddress,
+          eventName: tx.name,
+          resultNames: tx.options,
+          bettingStartTime: tx.bettingStartTime,
+          bettingEndTime: tx.bettingEndTime,
+          resultSettingStartTime: tx.resultSettingStartTime,
+          resultSettingEndTime: tx.resultSettingEndTime,
+          senderAddress: tx.senderAddress,
+        });
+        txid = createTopicTx.txid;
+      } catch (err) {
+        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+        throw err;
+      }
+
+      await DBHelper.insertTransaction(Transactions, {
+        _id: txid,
+        txid,
+        version: tx.version,
+        type: 'CREATEEVENT',
+        status: txState.PENDING,
+        createdTime: moment().unix(),
+        senderAddress: tx.senderAddress,
+        name: tx.name,
+        amount: tx.amount,
+      });
+      break;
+    }
+
     // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {

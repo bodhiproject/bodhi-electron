@@ -341,9 +341,16 @@ module.exports = {
         version,
         type,
         status: txState.PENDING,
+        createdTime: moment().unix(),
         senderAddress,
         name,
-        createdTime: moment().unix(),
+        options,
+        resultSetterAddress,
+        bettingStartTime,
+        bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+        amount,
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
