@@ -133,6 +133,7 @@ async function onSuccessfulTx(tx, db) {
         resultSettingStartTime: tx.resultSettingStartTime,
         resultSettingEndTime: tx.resultSettingEndTime,
         amount: tx.amount,
+        token: tx.token,
       });
       break;
     }

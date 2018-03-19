@@ -352,6 +352,7 @@ module.exports = {
         resultSettingStartTime,
         resultSettingEndTime,
         amount,
+        token: 'BOT',
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
