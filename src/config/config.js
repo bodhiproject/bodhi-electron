@@ -8,7 +8,7 @@ const Config = {
   PORT: 5555,
   QTUM_RPC_ADDRESS: 'http://bodhi:bodhi@localhost:13889',
   DEFAULT_LOGLVL: 'info',
-  CONTRACT_VERSION_NUM: 0,
+  CONTRACT_VERSION_NUM: 1,
   TESTNET: true,
 };
 
