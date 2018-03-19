@@ -146,6 +146,7 @@ type Mutation {
     bettingEndTime: String!
     resultSettingStartTime: String!
     resultSettingEndTime: String!
+    amount: String!
   ): Transaction
 
   createBet(

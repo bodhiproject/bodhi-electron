@@ -290,16 +290,14 @@ module.exports = {
         bettingEndTime,
         resultSettingStartTime,
         resultSettingEndTime,
+        amount,
         senderAddress,
       } = data;
-
-      // TODO: Get escrowAmount from AddressManager
-
 
       // Check the allowance first
       let type;
       let txid;
-      if (await isAllowanceEnough(senderAddress, contractMetadata.AddressManager.address, escrowAmount)) {
+      if (await isAllowanceEnough(senderAddress, contractMetadata.AddressManager.address, amount)) {
         // Send createTopic tx
         type = 'CREATEEVENT';
         try {
@@ -324,7 +322,7 @@ module.exports = {
         try {
           const approveTx = await bodhiToken.approve({
             spender: topicAddress,
-            value: escrowAmount,
+            value: amount,
             senderAddress,
           });
           txid = approveTx.txid;
