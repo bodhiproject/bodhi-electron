@@ -293,11 +293,12 @@ module.exports = {
         amount,
         senderAddress,
       } = data;
+      const addressManagerAddr = contractMetadata.AddressManager.address;
 
       // Check the allowance first
       let type;
       let txid;
-      if (await isAllowanceEnough(senderAddress, contractMetadata.AddressManager.address, amount)) {
+      if (await isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
         // Send createTopic tx
         type = 'CREATEEVENT';
         try {
@@ -321,7 +322,7 @@ module.exports = {
         type = 'APPROVECREATEEVENT';
         try {
           const approveTx = await bodhiToken.approve({
-            spender: topicAddress,
+            spender: addressManagerAddr,
             value: amount,
             senderAddress,
           });
