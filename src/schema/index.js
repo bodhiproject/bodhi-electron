@@ -246,6 +246,7 @@ enum _OrderDirection {
 }
 
 enum _TransactionType {
+  APPROVECREATEEVENT
   CREATEEVENT
   BET
   APPROVESETRESULT

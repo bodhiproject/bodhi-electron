@@ -13,13 +13,15 @@ const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
+const { Config, getContractMetadata } = require('../config/config');
 const DBHelper = require('../db/nedb').DBHelper;
-const { Config } = require('../config/config');
 const { txState } = require('../constants');
 const { calculateSyncPercent, listUnspentBalance } = require('../sync');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
+
+const contractMetadata = getContractMetadata();
 
 function buildCursorOptions(cursor, orderBy, limit, skip) {
   if (!_.isEmpty(orderBy)) {
@@ -291,34 +293,61 @@ module.exports = {
         senderAddress,
       } = data;
 
-      // Send createTopic tx
+      // TODO: Get escrowAmount from AddressManager
+
+
+      // Check the allowance first
+      let type;
       let txid;
-      try {
-        const tx = await eventFactory.createTopic({
-          oracleAddress: resultSetterAddress,
-          eventName: name,
-          resultNames: options,
-          bettingStartTime,
-          bettingEndTime,
-          resultSettingStartTime,
-          resultSettingEndTime,
-          senderAddress,
-        });
-        txid = tx.txid;
-      } catch (err) {
-        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
-        throw err;
+      if (await isAllowanceEnough(senderAddress, contractMetadata.AddressManager.address, escrowAmount)) {
+        // Send createTopic tx
+        type = 'CREATEEVENT';
+        try {
+          const tx = await eventFactory.createTopic({
+            oracleAddress: resultSetterAddress,
+            eventName: name,
+            resultNames: options,
+            bettingStartTime,
+            bettingEndTime,
+            resultSettingStartTime,
+            resultSettingEndTime,
+            senderAddress,
+          });
+          txid = tx.txid;
+        } catch (err) {
+          logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+          throw err;
+        }
+      } else {
+        // Send approve first since allowance is not enough
+        type = 'APPROVECREATEEVENT';
+        try {
+          const approveTx = await bodhiToken.approve({
+            spender: topicAddress,
+            value: escrowAmount,
+            senderAddress,
+          });
+          txid = approveTx.txid;
+        } catch (err) {
+          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          throw err;
+        }
       }
 
-      // Fetch version number
-      let version;
-      try {
-        const res = await eventFactory.version({ senderAddress });
-        version = Number(res[0]);
-      } catch (err) {
-        logger.error(`Error calling EventFactory.version: ${err.message}`);
-        throw err;
-      }
+      const version = Config.CONTRACT_VERSION_NUM;
+
+      // Insert Transaction
+      const tx = {
+        _id: txid,
+        txid,
+        version,
+        type,
+        status: txState.PENDING,
+        senderAddress,
+        name,
+        createdTime: moment().unix(),
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
 
       // Insert Topic
       const topic = {
@@ -353,19 +382,6 @@ module.exports = {
       };
       logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
       await DBHelper.insertOrUpdateCOracle(Oracles, oracle);
-
-      // Insert Transaction
-      const tx = {
-        _id: txid,
-        txid,
-        version,
-        type: 'CREATEEVENT',
-        status: txState.PENDING,
-        senderAddress,
-        name,
-        createdTime: moment().unix(),
-      };
-      await DBHelper.insertTransaction(Transactions, tx);
 
       return tx;
     },
