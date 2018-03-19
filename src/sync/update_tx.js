@@ -117,6 +117,20 @@ async function onSuccessfulTx(tx, db) {
         throw err;
       }
 
+      // Remove old Topic and insert new one with correct id
+      const topic = await db.Topics.findOne({ txid: tx.txid });
+      topic._id = txid;
+      topic.txid = txid;
+      await DBHelper.removeTopic(db.Topics, tx.txid);
+      await DBHelper.insertOrUpdateTopic(db.Topics, topic, tx.txid);
+
+      // Remove old Oracle and insert new one with correct id
+      const oracle = await db.Oracles.findOne({ txid: tx.txid });
+      oracle._id = txid;
+      oracle.txid = txid;
+      await DBHelper.removeOracle(db.Oracles, tx.txid);
+      await DBHelper.insertOrUpdateCOracle(db.Oracles, oracle, tx.txid);
+
       await DBHelper.insertTransaction(Transactions, {
         _id: txid,
         txid,
