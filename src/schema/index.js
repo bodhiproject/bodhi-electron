@@ -46,6 +46,7 @@ type Vote {
   blockNum: Int!
   voterAddress: String!
   voterQAddress: String!
+  topicAddress: String!
   oracleAddress: String!
   optionIdx: Int!
   amount: String!
@@ -118,6 +119,7 @@ input OracleFilter {
 input VoteFilter {
   OR: [VoteFilter!]
   address: String
+  topicAddress: String
   oracleAddress: String
   voterAddress: String
   voterQAddress: String
