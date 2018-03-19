@@ -126,6 +126,12 @@ async function onSuccessfulTx(tx, db) {
         createdTime: moment().unix(),
         senderAddress: tx.senderAddress,
         name: tx.name,
+        options: tx.options,
+        resultSetterAddress: tx.resultSetterAddress,
+        bettingStartTime: tx.bettingStartTime,
+        bettingEndTime: tx.bettingEndTime,
+        resultSettingStartTime: tx.resultSettingStartTime,
+        resultSettingEndTime: tx.resultSettingEndTime,
         amount: tx.amount,
       });
       break;
