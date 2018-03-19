@@ -186,9 +186,8 @@ async function fetchTopicAddressFromOracle(db, address) {
   if (!oracle) {
     logger.error(`could not find Oracle ${address} in db`);
     return undefined;
-  } else {
-    return oracle;
   }
+  return oracle;
 }
 
 async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
