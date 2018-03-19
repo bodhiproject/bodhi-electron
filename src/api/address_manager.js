@@ -7,6 +7,21 @@ const metadata = getContractMetadata();
 const contract = new Contract(Config.QTUM_RPC_ADDRESS, metadata.AddressManager.address, metadata.AddressManager.abi);
 
 const AddressManager = {
+  async eventEscrowAmount(args) {
+    const {
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    return contract.call('eventEscrowAmount', {
+      methodArgs: [],
+      senderAddress,
+    });
+  },
+
   async getLastEventFactoryIndex(args) {
     const {
       senderAddress, // address
