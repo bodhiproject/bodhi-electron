@@ -20,7 +20,7 @@ class Utils {
       const pathPrefix = testnet ? 'testnet' : 'mainnet';
 
       // production
-      dataDir = `${osDataDir}/${pathPrefix}${version}`;
+      dataDir = `${osDataDir}/${pathPrefix}/${version}`;
     } else {
       // development
       dataDir = `${osDataDir}/${DIR_DEV}`;
