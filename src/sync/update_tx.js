@@ -265,7 +265,7 @@ async function resetApproveAmount(db, tx, spender) {
     throw err;
   }
 
-  await DBHelper.insertTransaction(Transactions, {
+  await DBHelper.insertTransaction(db.Transactions, {
     _id: txid,
     txid,
     version: tx.version,
