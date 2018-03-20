@@ -256,7 +256,7 @@ async function resetApproveAmount(db, tx, spender) {
   try {
     const approveTx = await bodhiToken.approve({
       spender,
-      value: tx.amount,
+      value: 0,
       senderAddress: tx.senderAddress,
     });
     txid = approveTx.txid;
