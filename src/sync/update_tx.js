@@ -8,8 +8,10 @@ const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
-
+const { getContractMetadata } = require('../config/config');
 const { txState } = require('../constants');
+
+const contractMetadata = getContractMetadata();
 
 async function updatePendingTxs(db) {
   let pendingTxs;
@@ -225,7 +227,7 @@ async function onFailedTx(tx, db) {
   switch (tx.type) {
     // Approve failed. Reset allowance and delete created Topic/COracle.
     case 'APPROVECREATEEVENT': {
-      resetApproveAmount(db, tx);
+      resetApproveAmount(db, tx, contractMetadata.AddressManager.address);
       removeCreatedTopicAndOracle(db, tx);
       break;
     }
@@ -239,7 +241,7 @@ async function onFailedTx(tx, db) {
     // Approve failed. Reset allowance.
     case 'APPROVESETRESULT':
     case 'APPROVEVOTE': {
-      resetApproveAmount(db, tx);
+      resetApproveAmount(db, tx, tx.topicAddress);
       break;
     }
 
@@ -250,10 +252,10 @@ async function onFailedTx(tx, db) {
 }
 
 // Failed approve tx so call approve for 0.
-async function resetApproveAmount(db, tx) {
+async function resetApproveAmount(db, tx, spender) {
   try {
     const approveTx = await bodhiToken.approve({
-      spender: tx.topicAddress,
+      spender,
       value: tx.amount,
       senderAddress: tx.senderAddress,
     });
@@ -266,14 +268,21 @@ async function resetApproveAmount(db, tx) {
   await DBHelper.insertTransaction(Transactions, {
     _id: txid,
     txid,
+    version: tx.version,
     type: 'RESETAPPROVE',
     status: txState.PENDING,
     createdTime: moment().unix(),
-    version: tx.version,
     senderAddress: tx.senderAddress,
     topicAddress: tx.topicAddress,
     oracleAddress: tx.oracleAddress,
+    name: tx.name,
+    options: tx.options,
     optionIdx: tx.optionIdx,
+    resultSetterAddress: tx.resultSetterAddress,
+    bettingStartTime: tx.bettingStartTime,
+    bettingEndTime: tx.bettingEndTime,
+    resultSettingStartTime: tx.resultSettingStartTime,
+    resultSettingEndTime: tx.resultSettingEndTime,
     token: 'BOT',
     amount: tx.amount,
   });
