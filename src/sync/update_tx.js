@@ -224,6 +224,7 @@ async function onFailedTx(tx, db) {
 
   switch (tx.type) {
     // Approve failed. Reset allowance.
+    case 'APPROVECREATEEVENT':
     case 'APPROVESETRESULT':
     case 'APPROVEVOTE': {
       try {
