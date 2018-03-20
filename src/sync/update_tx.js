@@ -55,7 +55,7 @@ async function updateTx(tx) {
 async function updateDB(tx, db) {
   if (tx.status !== txState.PENDING) {
     try {
-      logger.debug(`Update: Transaction ${tx.type} txid:${tx._id}`);
+      logger.debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx._id}`);
       const updateRes = await db.Transactions.update(
         { _id: tx._id },
         {
