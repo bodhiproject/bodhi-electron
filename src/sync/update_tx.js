@@ -117,12 +117,12 @@ async function onSuccessfulTx(tx, db) {
         throw err;
       }
 
-      // Remove old Topic and insert new one with correct id
+      // Update Topic's approve txid with the createTopic txid
       const topic = await db.Topics.findOne({ txid: tx.txid });
       topic.txid = txid;
       await DBHelper.insertOrUpdateTopic(db.Topics, topic);
 
-      // Remove old Oracle and insert new one with correct id
+      // Update Oracle's approve txid with the createTopic txid
       const oracle = await db.Oracles.findOne({ txid: tx.txid });
       oracle.txid = txid;
       await DBHelper.insertOrUpdateCOracle(db.Oracles, oracle);
