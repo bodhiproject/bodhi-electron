@@ -358,7 +358,6 @@ module.exports = {
 
       // Insert Topic
       const topic = {
-        _id: txid,
         txid,
         version,
         status: 'CREATED',
@@ -372,7 +371,6 @@ module.exports = {
 
       // Insert Oracle
       const oracle = {
-        _id: txid,
         txid,
         version,
         status: 'CREATED',
