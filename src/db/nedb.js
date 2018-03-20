@@ -128,6 +128,17 @@ class DBHelper {
       throw err;
     }
   }
+
+  static async isPreviousCreateEventPending(db) {
+    try {
+      const approve = await db.count({ type: 'APPROVECREATEEVENT', status: 'PENDING' });
+      const createEvent = await db.count({ type: 'CREATEEVENT', status: 'PENDING' });
+      return approve > 0 || createEvent > 0; 
+    } catch (err) {
+      logger.error(`Checking CreateEvent pending: ${err.message}`);
+      throw err;
+    }
+  }
 }
 
 module.exports = {
