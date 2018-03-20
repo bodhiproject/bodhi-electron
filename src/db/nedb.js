@@ -1,5 +1,6 @@
 const path = require('path');
 const datastore = require('nedb-promise');
+const _ = require('lodash');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
@@ -42,7 +43,6 @@ class DBHelper {
         { txid },
         {
           $set: {
-            _id: topic._id,
             txid: topic.txid,
             blockNum: topic.blockNum,
             status: topic.status,
@@ -64,7 +64,7 @@ class DBHelper {
 
   static async insertOrUpdateCOracle(db, oracle, queryTxid) {
     try {
-      let txid = topic.txid;
+      let txid = oracle.txid;
       if (!_.isEmpty(queryTxid)) {
         txid = queryTxid;
       }
@@ -73,7 +73,6 @@ class DBHelper {
         { txid },
         {
           $set: {
-            _id: oracle._id,
             txid: oracle.txid,
             blockNum: oracle.blockNum,
             status: oracle.status,
