@@ -62,6 +62,15 @@ class DBHelper {
     }
   }
 
+  static async removeTopic(db, txid) {
+    try {
+      const numRemoved = await db.remove({ txid }, {});
+      logger.debug(`Remove: ${numRemoved} Topic txid:${txid}`);
+    } catch (err) {
+      logger.error(`Remove: Topic txid:${txid}: ${err.message}`);
+    }
+  }
+
   static async insertOrUpdateCOracle(db, oracle, queryTxid) {
     try {
       let txid = oracle.txid;
@@ -98,6 +107,15 @@ class DBHelper {
       );
     } catch (err) {
       logger.error(`Error upserting COracle txid:${oracle.txid}: ${err.message}`);
+    }
+  }
+
+  static async removeOracle(db, txid) {
+    try {
+      const numRemoved = await db.remove({ txid }, {});
+      logger.debug(`Remove: ${numRemoved} Oracle txid:${txid}`);
+    } catch (err) {
+      logger.error(`Remove: Oracle txid:${txid}: ${err.message}`);
     }
   }
 

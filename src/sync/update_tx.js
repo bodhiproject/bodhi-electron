@@ -223,36 +223,23 @@ async function onFailedTx(tx, db) {
   let txid;
 
   switch (tx.type) {
+    // Approve failed. Reset allowance and delete created Topic/COracle.
+    case 'APPROVECREATEEVENT': {
+      resetApproveAmount(db, tx);
+      removeCreatedTopicAndOracle(db, tx);
+      break;
+    }
+
+    // CreateTopic failed. Delete created Topic/COracle.
+    case 'CREATEEVENT': {
+      removeCreatedTopicAndOracle(db, tx);
+      break;
+    }
+
     // Approve failed. Reset allowance.
-    case 'APPROVECREATEEVENT':
     case 'APPROVESETRESULT':
     case 'APPROVEVOTE': {
-      try {
-        const approveTx = await bodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        txid = approveTx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
-        txid,
-        type: 'RESETAPPROVE',
-        status: txState.PENDING,
-        createdTime: moment().unix(),
-        version: tx.version,
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount: tx.amount,
-      });
+      resetApproveAmount(db, tx);
       break;
     }
 
@@ -260,6 +247,42 @@ async function onFailedTx(tx, db) {
       break;
     }
   }
+}
+
+// Failed approve tx so call approve for 0.
+async function resetApproveAmount(db, tx) {
+  try {
+    const approveTx = await bodhiToken.approve({
+      spender: tx.topicAddress,
+      value: tx.amount,
+      senderAddress: tx.senderAddress,
+    });
+    txid = approveTx.txid;
+  } catch (err) {
+    logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+    throw err;
+  }
+
+  await DBHelper.insertTransaction(Transactions, {
+    _id: txid,
+    txid,
+    type: 'RESETAPPROVE',
+    status: txState.PENDING,
+    createdTime: moment().unix(),
+    version: tx.version,
+    senderAddress: tx.senderAddress,
+    topicAddress: tx.topicAddress,
+    oracleAddress: tx.oracleAddress,
+    optionIdx: tx.optionIdx,
+    token: 'BOT',
+    amount: tx.amount,
+  });
+}
+
+// Remove created Topic/COracle because tx failed
+async function removeCreatedTopicAndOracle(db, tx) {
+  await DBHelper.removeTopic(db.Topics, tx.txid);
+  await DBHelper.removeOracle(db.Oracles, tx.txid);
 }
 
 module.exports = updatePendingTxs;
