@@ -31,10 +31,15 @@ async function connectDB() {
 }
 
 class DBHelper {
-  static async insertOrUpdateTopic(db, topic) {
+  static async insertOrUpdateTopic(db, topic, queryTxid) {
     try {
+      let txid = topic.txid;
+      if (!_.isEmpty(queryTxid)) {
+        txid = queryTxid;
+      }
+
       await db.update(
-        { _id: topic._id },
+        { txid },
         {
           $set: {
             _id: topic._id,
@@ -57,10 +62,15 @@ class DBHelper {
     }
   }
 
-  static async insertOrUpdateCOracle(db, oracle) {
+  static async insertOrUpdateCOracle(db, oracle, queryTxid) {
     try {
+      let txid = topic.txid;
+      if (!_.isEmpty(queryTxid)) {
+        txid = queryTxid;
+      }
+
       await db.update(
-        { _id: oracle._id },
+        { txid },
         {
           $set: {
             _id: oracle._id,
