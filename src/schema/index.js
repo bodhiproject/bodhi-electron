@@ -16,6 +16,7 @@ type Topic {
   qtumAmount: [String!]!
   botAmount: [String!]!
   oracles: [Oracle]
+  creator: String!
 }
 
 type Oracle {
@@ -104,6 +105,8 @@ input TopicFilter {
   txid: String
   address: String
   status: _OracleStatusType
+  resultIdx: Int
+  creator: String
 }
 
 input OracleFilter {
