@@ -376,6 +376,7 @@ module.exports = {
         options,
         qtumAmount: _.fill(Array(options), '0'),
         botAmount: _.fill(Array(options), '0'),
+        creator: senderAddress,
       };
       logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
       await DBHelper.insertOrUpdateTopic(Topics, topic);
