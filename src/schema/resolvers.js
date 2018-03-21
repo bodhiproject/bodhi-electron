@@ -38,9 +38,9 @@ function buildCursorOptions(cursor, orderBy, limit, skip) {
 }
 
 function buildTopicFilters({
-  OR = [], txid, address, status, resultIdx,
+  OR = [], txid, address, status, resultIdx, creator
 }) {
-  const filter = (txid || address || status || resultIdx) ? {} : null;
+  const filter = (txid || address || status || resultIdx || creator) ? {} : null;
   if (txid) {
     filter.txid = txid;
   }
@@ -55,6 +55,10 @@ function buildTopicFilters({
 
   if (resultIdx) {
     filter.resultIdx = resultIdx;
+  }
+
+  if (creator) {
+    filter.creator = creator;
   }
 
   let filters = filter ? [filter] : [];
