@@ -295,6 +295,12 @@ module.exports = {
       } = data;
       const addressManagerAddr = contractMetadata.AddressManager.address;
 
+      // Check for existing CreateEvent transactions
+      if (await DBHelper.isPreviousCreateEventPending(db)) {
+        logger.error(`Pending CreateEvent transaction found.`);
+        throw new Error('Pending CreateEvent transaction found');
+      }
+
       // Check the allowance first
       let type;
       let txid;
