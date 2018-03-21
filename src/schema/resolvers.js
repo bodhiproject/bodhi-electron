@@ -295,7 +295,7 @@ module.exports = {
 
       // Check for existing CreateEvent transactions
       if (await DBHelper.isPreviousCreateEventPending(db)) {
-        logger.error(`Pending CreateEvent transaction found.`);
+        logger.error('Pending CreateEvent transaction found.');
         throw new Error('Pending CreateEvent transaction found');
       }
 
