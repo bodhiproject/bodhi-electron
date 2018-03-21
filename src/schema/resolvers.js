@@ -40,7 +40,7 @@ function buildCursorOptions(cursor, orderBy, limit, skip) {
 function buildTopicFilters({
   OR = [], txid, address, status, resultIdx, creatorAddress,
 }) {
-  const filter = (txid || address || status || resultIdx || creator) ? {} : null;
+  const filter = (txid || address || status || resultIdx || creatorAddress) ? {} : null;
   if (txid) {
     filter.txid = txid;
   }
@@ -376,7 +376,7 @@ module.exports = {
         options,
         qtumAmount: _.fill(Array(options), '0'),
         botAmount: _.fill(Array(options), '0'),
-        creator: senderAddress,
+        creatorAddress: senderAddress,
       };
       logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
       await DBHelper.insertOrUpdateTopic(Topics, topic);
