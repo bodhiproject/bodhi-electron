@@ -106,7 +106,7 @@ input TopicFilter {
   address: String
   status: _OracleStatusType
   resultIdx: Int
-  creator: String
+  creatorAddress: String
 }
 
 input OracleFilter {
