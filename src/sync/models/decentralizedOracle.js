@@ -28,10 +28,9 @@ class DecentralizedOracle {
     _.remove(optionIdxs, num => num === this.lastResultIndex);
 
     return {
-      _id: this.txid,
+      txid: this.txid,
       version: this.version,
       address: this.contractAddress,
-      txid: this.txid,
       topicAddress: this.eventAddress,
       status: 'VOTING',
       token: 'BOT',

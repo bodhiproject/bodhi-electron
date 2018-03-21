@@ -1,5 +1,3 @@
-/* eslint no-underscore-dangle: [2, { "allow": ["_id"] }] */
-
 const _ = require('lodash');
 const fetch = require('node-fetch');
 const Web3Utils = require('web3-utils');
@@ -343,7 +341,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type,
@@ -424,7 +421,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'BET',
@@ -487,7 +483,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         type,
         status: txState.PENDING,
@@ -551,7 +546,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         type,
         status: txState.PENDING,
@@ -592,7 +586,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'FINALIZERESULT',
@@ -629,7 +622,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'WITHDRAW',
@@ -691,7 +683,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'TRANSFER',

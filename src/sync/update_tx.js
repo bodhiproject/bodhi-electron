@@ -37,7 +37,7 @@ async function updatePendingTxs(db) {
 
 // Update the Transaction info
 async function updateTx(tx) {
-  const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
+  const resp = await blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
   if (_.isEmpty(resp)) {
     tx.status = txState.PENDING;
@@ -55,9 +55,9 @@ async function updateTx(tx) {
 async function updateDB(tx, db) {
   if (tx.status !== txState.PENDING) {
     try {
-      logger.debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx._id}`);
+      logger.debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx.txid}`);
       const updateRes = await db.Transactions.update(
-        { _id: tx._id },
+        { txid: tx.txid },
         {
           $set: {
             status: tx.status,
@@ -88,7 +88,7 @@ async function updateDB(tx, db) {
         }
       }
     } catch (err) {
-      logger.error(`Error: Update Transaction ${tx.type} txid:${tx._id}: ${err.message}`);
+      logger.error(`Error: Update Transaction ${tx.type} txid:${tx.txid}: ${err.message}`);
       throw err;
     }
   }
@@ -130,7 +130,6 @@ async function onSuccessfulTx(tx, db) {
       await DBHelper.insertOrUpdateCOracle(db.Oracles, oracle, tx.txid);
 
       await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
         txid,
         version: tx.version,
         type: 'CREATEEVENT',
@@ -165,7 +164,6 @@ async function onSuccessfulTx(tx, db) {
       }
 
       await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
         txid,
         version: tx.version,
         type: 'SETRESULT',
@@ -197,7 +195,6 @@ async function onSuccessfulTx(tx, db) {
       }
 
       await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
         txid,
         version: tx.version,
         type: 'VOTE',
@@ -266,7 +263,6 @@ async function resetApproveAmount(db, tx, spender) {
   }
 
   await DBHelper.insertTransaction(db.Transactions, {
-    _id: txid,
     txid,
     version: tx.version,
     type: 'RESETAPPROVE',
