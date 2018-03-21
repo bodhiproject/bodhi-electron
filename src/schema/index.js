@@ -16,7 +16,7 @@ type Topic {
   qtumAmount: [String!]!
   botAmount: [String!]!
   oracles: [Oracle]
-  creator: String!
+  creatorAddress: String!
 }
 
 type Oracle {

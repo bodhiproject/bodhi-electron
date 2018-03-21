@@ -53,6 +53,7 @@ class DBHelper {
             qtumAmount: topic.qtumAmount,
             botAmount: topic.botAmount,
             resultIdx: topic.resultIdx,
+            creatorAddress: topic.creatorAddress,
           },
         },
         { upsert: true },
