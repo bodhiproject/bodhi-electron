@@ -9,7 +9,7 @@ const logger = require('./src/utils/logger');
 let uiWin;
 let server;
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
   uiWin = new BrowserWindow({
     width: 10000,
@@ -24,6 +24,39 @@ function createWindow () {
   });
 
   uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+}
+
+function setupMenu() {
+  const template = [
+    {
+      label: "Application",
+      submenu: [
+        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+      ]
+    },
+    {
+      label: "Edit",
+      submenu: [
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {role: 'resetzoom'},
+        {role: 'zoomin'},
+        {role: 'zoomout'},
+        {type: 'separator'},
+        {role: 'togglefullscreen'}
+      ]
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 function killServer() {
@@ -68,40 +101,11 @@ app.on('ready', () => {
   }
 
   createWindow();
+  setupMenu();
+  
   server.emitter.once('qtumd-started', () => {
     uiWin.reload();
   });
-
-  const template = [
-    {
-      label: "Application",
-      submenu: [
-        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-      ]
-    },
-    {
-      label: "Edit",
-      submenu: [
-        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-        { type: "separator" },
-        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        {role: 'resetzoom'},
-        {role: 'zoomin'},
-        {role: 'zoomout'},
-        {type: 'separator'},
-        {role: 'togglefullscreen'}
-      ]
-    },
-  ];
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 });
 
 // Quit when all windows are closed.
