@@ -103,7 +103,7 @@ app.on('ready', () => {
   setupMenu();
 
   // Load intermediary loading page
-  uiWin.loadURL(`file://${__dirname}/ui/loading.html`);
+  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 
   // Load app main page when qtumd is fully initialized
   server.emitter.once('qtumd-started', () => {
