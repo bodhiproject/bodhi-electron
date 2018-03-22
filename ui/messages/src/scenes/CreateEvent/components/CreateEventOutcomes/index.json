@@ -1,0 +1,18 @@
+[
+  {
+    "id": "create.required",
+    "defaultMessage": "Required"
+  },
+  {
+    "id": "create.resultTooLong",
+    "defaultMessage": "Result name is too long."
+  },
+  {
+    "id": "create.addOutcome",
+    "defaultMessage": "Add Outcome"
+  },
+  {
+    "id": "create.outcomeName",
+    "defaultMessage": "Outcome Name"
+  }
+]

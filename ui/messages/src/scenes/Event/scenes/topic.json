@@ -12,8 +12,16 @@
     "defaultMessage": "You vote"
   },
   {
+    "id": "withdrawDetail.totalBet",
+    "defaultMessage": "Total bet amount"
+  },
+  {
+    "id": "withdrawDetail.totalVote",
+    "defaultMessage": "Total vote amount"
+  },
+  {
     "id": "str.winningOutcome",
-    "defaultMessage": "WINNING OUTCOME"
+    "defaultMessage": "Wining Outcome"
   },
   {
     "id": "topic.didNotBetOrVote",
@@ -48,7 +56,7 @@
     "defaultMessage": "Votting Volume"
   },
   {
-    "id": "eventInfo.resultSetter",
+    "id": "str.resultSetter",
     "defaultMessage": "Result Setter"
   }
 ]
