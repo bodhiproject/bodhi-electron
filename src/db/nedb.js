@@ -47,7 +47,7 @@ class DBHelper {
         { txid },
         {
           $set: {
-            txid,
+            txid: topic.txid,
             blockNum: topic.blockNum,
             status: topic.status,
             version: topic.version,
@@ -91,7 +91,7 @@ class DBHelper {
         { txid },
         {
           $set: {
-            txid,
+            txid: oracle.txid,
             blockNum: oracle.blockNum,
             status: oracle.status,
             version: oracle.version,
