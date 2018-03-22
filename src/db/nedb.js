@@ -141,7 +141,7 @@ class DBHelper {
   static async isPreviousCreateEventPending(txDb, senderAddress) {
     try {
       return await txDb.count({
-        type: { $in: ['APPROVECREATEEVENT', 'CREATEEVENT'],
+        type: { $in: ['APPROVECREATEEVENT', 'CREATEEVENT'] },
         status: 'PENDING',
         senderAddress,
       });
