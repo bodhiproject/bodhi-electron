@@ -108,7 +108,6 @@ app.on('ready', () => {
   // Load app main page when qtumd is fully initialized
   server.emitter.once('qtumd-started', () => {
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-    // uiWin.reload();
   });
 });
 
