@@ -34,6 +34,10 @@ async function connectDB() {
 class DBHelper {
   static async insertOrUpdateTopic(db, topic, queryTxid) {
     try {
+      if (_.isEmpty(topic.txid) && _.isEmpty(queryTxid)) {
+        throw new Error('No txid to upsert Topic');
+      }
+
       let txid = topic.txid;
       if (!_.isEmpty(queryTxid)) {
         txid = queryTxid;
@@ -43,7 +47,7 @@ class DBHelper {
         { txid },
         {
           $set: {
-            txid: topic.txid,
+            txid,
             blockNum: topic.blockNum,
             status: topic.status,
             version: topic.version,
@@ -63,17 +67,21 @@ class DBHelper {
     }
   }
 
-  static async removeTopic(db, txid) {
+  static async removeTopic(topicDb, txid) {
     try {
-      const numRemoved = await db.remove({ txid }, {});
+      const numRemoved = await topicDb.remove({ txid }, { multi: true });
       logger.debug(`Remove: ${numRemoved} Topic txid:${txid}`);
     } catch (err) {
-      logger.error(`Remove: Topic txid:${txid}: ${err.message}`);
+      logger.error(`Remove: Topic  txid:${txid}: ${err.message}`);
     }
   }
 
   static async insertOrUpdateCOracle(db, oracle, queryTxid) {
     try {
+      if (_.isEmpty(oracle.txid) && _.isEmpty(queryTxid)) {
+        throw new Error('No txid to upsert Oracle');
+      }
+
       let txid = oracle.txid;
       if (!_.isEmpty(queryTxid)) {
         txid = queryTxid;
@@ -83,7 +91,7 @@ class DBHelper {
         { txid },
         {
           $set: {
-            txid: oracle.txid,
+            txid,
             blockNum: oracle.blockNum,
             status: oracle.status,
             version: oracle.version,
@@ -111,9 +119,9 @@ class DBHelper {
     }
   }
 
-  static async removeOracle(db, txid) {
+  static async removeOracle(oracleDb, txid) {
     try {
-      const numRemoved = await db.remove({ txid }, {});
+      const numRemoved = await oracleDb.remove({ txid }, { multi: true });
       logger.debug(`Remove: ${numRemoved} Oracle txid:${txid}`);
     } catch (err) {
       logger.error(`Remove: Oracle txid:${txid}: ${err.message}`);
@@ -130,11 +138,13 @@ class DBHelper {
     }
   }
 
-  static async isPreviousCreateEventPending(db) {
+  static async isPreviousCreateEventPending(txDb, senderAddress) {
     try {
-      const approve = await db.count({ type: 'APPROVECREATEEVENT', status: 'PENDING' });
-      const createEvent = await db.count({ type: 'CREATEEVENT', status: 'PENDING' });
-      return approve > 0 || createEvent > 0;
+      return await txDb.count({
+        type: { $in: ['APPROVECREATEEVENT', 'CREATEEVENT'],
+        status: 'PENDING',
+        senderAddress,
+      });
     } catch (err) {
       logger.error(`Checking CreateEvent pending: ${err.message}`);
       throw err;

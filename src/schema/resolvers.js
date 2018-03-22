@@ -302,7 +302,7 @@ module.exports = {
       const addressManagerAddr = contractMetadata.AddressManager.address;
 
       // Check for existing CreateEvent transactions
-      if (await DBHelper.isPreviousCreateEventPending(Transactions)) {
+      if (await DBHelper.isPreviousCreateEventPending(Transactions, senderAddress)) {
         logger.error('Pending CreateEvent transaction found.');
         throw new Error('Pending CreateEvent transaction found');
       }
