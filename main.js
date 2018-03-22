@@ -22,8 +22,6 @@ function createWindow() {
     // when you should delete the corresponding element.
     uiWin = null
   });
-
-  uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
 }
 
 function setupMenu() {
@@ -100,11 +98,17 @@ app.on('ready', () => {
     return;
   }
 
+  // Init BrowserWindow
   createWindow();
   setupMenu();
-  
+
+  // Load intermediary loading page
+  uiWin.loadURL(`file://${__dirname}/ui/loading.html`);
+
+  // Load app main page when qtumd is fully initialized
   server.emitter.once('qtumd-started', () => {
-    uiWin.reload();
+    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+    // uiWin.reload();
   });
 });
 
