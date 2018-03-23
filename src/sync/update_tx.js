@@ -127,7 +127,7 @@ async function onSuccessfulTx(tx, db) {
       // Update Oracle's approve txid with the createTopic txid
       const oracle = await db.Oracles.findOne({ txid: tx.txid });
       oracle.txid = txid;
-      await DBHelper.updateCOracleByQuery(db.Oracles, oracle, { txid: tx.txid });
+      await DBHelper.updateOracleByQuery(db.Oracles, oracle, { txid: tx.txid });
 
       await DBHelper.insertTransaction(Transactions, {
         txid,
