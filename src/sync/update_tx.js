@@ -122,12 +122,12 @@ async function onSuccessfulTx(tx, db) {
       // Update Topic's approve txid with the createTopic txid
       const topic = await db.Topics.findOne({ txid: tx.txid });
       topic.txid = txid;
-      await DBHelper.insertOrUpdateTopic(db.Topics, topic, tx.txid);
+      await DBHelper.updateTopicByQuery(db.Topics, topic, { txid: tx.txid });
 
       // Update Oracle's approve txid with the createTopic txid
       const oracle = await db.Oracles.findOne({ txid: tx.txid });
       oracle.txid = txid;
-      await DBHelper.insertOrUpdateCOracle(db.Oracles, oracle, tx.txid);
+      await DBHelper.updateCOracleByQuery(db.Oracles, oracle, { txid: tx.txid });
 
       await DBHelper.insertTransaction(Transactions, {
         txid,
@@ -286,8 +286,8 @@ async function resetApproveAmount(db, tx, spender) {
 
 // Remove created Topic/COracle because tx failed
 async function removeCreatedTopicAndOracle(db, tx) {
-  await DBHelper.removeTopic(db.Topics, tx.txid);
-  await DBHelper.removeOracle(db.Oracles, tx.txid);
+  await DBHelper.removeTopicByTxid(db.Topics, tx.txid);
+  await DBHelper.removeOracleByTxid(db.Oracles, tx.txid);
 }
 
 module.exports = updatePendingTxs;

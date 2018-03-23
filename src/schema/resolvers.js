@@ -379,7 +379,7 @@ module.exports = {
         creatorAddress: senderAddress,
       };
       logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
-      await DBHelper.insertOrUpdateTopic(Topics, topic);
+      await DBHelper.insertTopic(Topics, topic);
 
       // Insert Oracle
       const oracle = {
@@ -398,7 +398,7 @@ module.exports = {
         resultSetEndTime: resultSettingEndTime,
       };
       logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
-      await DBHelper.insertOrUpdateCOracle(Oracles, oracle);
+      await DBHelper.insertOracle(Oracles, oracle);
 
       return tx;
     },

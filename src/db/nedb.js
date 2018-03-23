@@ -32,19 +32,18 @@ async function connectDB() {
 }
 
 class DBHelper {
-  static async insertOrUpdateTopic(db, topic, queryTxid) {
+  static async insertTopic(db, topic) {
     try {
-      if (_.isEmpty(topic.txid) && _.isEmpty(queryTxid)) {
-        throw new Error('No txid to upsert Topic');
-      }
+      await db.insert(topic);
+    } catch (err) {
+      logger.error(`Error insert Topic ${topic}: ${err.message}`);
+    }
+  }
 
-      let txid = topic.txid;
-      if (!_.isEmpty(queryTxid)) {
-        txid = queryTxid;
-      }
-
+  static async updateTopicByQuery(db, topic, query) {
+    try {
       await db.update(
-        { txid },
+        query,
         {
           $set: {
             txid: topic.txid,
@@ -60,35 +59,26 @@ class DBHelper {
             creatorAddress: topic.creatorAddress,
           },
         },
-        { upsert: true },
+        {},
       );
     } catch (err) {
-      logger.error(`Error upserting Topic txid:${topic.txid}: ${err.message}`);
+      logger.error(`Error update Topic by query:${query}: ${err.message}`);
     }
   }
 
-  static async removeTopic(topicDb, txid) {
+  static async removeTopicsByQuery(topicDb, txid, query) {
     try {
-      const numRemoved = await topicDb.remove({ txid }, { multi: true });
-      logger.debug(`Remove: ${numRemoved} Topic txid:${txid}`);
+      const numRemoved = await topicDb.remove(query, { multi: true });
+      logger.debug(`Remove: ${numRemoved} Topic query:${query}`);
     } catch (err) {
-      logger.error(`Remove: Topic  txid:${txid}: ${err.message}`);
+      logger.error(`Remove Topics by query:${query}: ${err.message}`);
     }
   }
 
-  static async insertOrUpdateCOracle(db, oracle, queryTxid) {
+  static async updateCOracleByQuery(db, oracle, query) {
     try {
-      if (_.isEmpty(oracle.txid) && _.isEmpty(queryTxid)) {
-        throw new Error('No txid to upsert Oracle');
-      }
-
-      let txid = oracle.txid;
-      if (!_.isEmpty(queryTxid)) {
-        txid = queryTxid;
-      }
-
       await db.update(
-        { txid },
+        query,
         {
           $set: {
             txid: oracle.txid,
@@ -112,19 +102,27 @@ class DBHelper {
             consensusThreshold: oracle.consensusThreshold,
           },
         },
-        { upsert: true },
+        {},
       );
     } catch (err) {
-      logger.error(`Error upserting COracle txid:${oracle.txid}: ${err.message}`);
+      logger.error(`Error update COracle by query:${query}: ${err.message}`);
     }
   }
 
-  static async removeOracle(oracleDb, txid) {
+  static async insertOracle(db, oracle) {
     try {
-      const numRemoved = await oracleDb.remove({ txid }, { multi: true });
-      logger.debug(`Remove: ${numRemoved} Oracle txid:${txid}`);
+      await db.insert(oracle);
     } catch (err) {
-      logger.error(`Remove: Oracle txid:${txid}: ${err.message}`);
+      logger.error(`Error insert COracle:${oracle}: ${err.message}`);
+    }
+  }
+
+  static async removeOraclesByQuery(oracleDb, query) {
+    try {
+      const numRemoved = await oracleDb.remove(query, { multi: true });
+      logger.debug(`Remove: ${numRemoved} Oracle by query:${query}`);
+    } catch (err) {
+      logger.error(`Remove Oracles by query:${query}: ${err.message}`);
     }
   }
 
