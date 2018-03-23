@@ -66,7 +66,7 @@ class DBHelper {
     }
   }
 
-  static async removeTopicsByQuery(topicDb, txid, query) {
+  static async removeTopicsByQuery(topicDb, query) {
     try {
       const numRemoved = await topicDb.remove(query, { multi: true });
       logger.debug(`Remove: ${numRemoved} Topic query:${query}`);
@@ -75,7 +75,15 @@ class DBHelper {
     }
   }
 
-  static async updateCOracleByQuery(db, oracle, query) {
+  static async insertOracle(db, oracle) {
+    try {
+      await db.insert(oracle);
+    } catch (err) {
+      logger.error(`Error insert COracle:${oracle}: ${err.message}`);
+    }
+  }
+
+  static async updateOracleByQuery(db, oracle, query) {
     try {
       await db.update(
         query,
@@ -105,15 +113,7 @@ class DBHelper {
         {},
       );
     } catch (err) {
-      logger.error(`Error update COracle by query:${query}: ${err.message}`);
-    }
-  }
-
-  static async insertOracle(db, oracle) {
-    try {
-      await db.insert(oracle);
-    } catch (err) {
-      logger.error(`Error insert COracle:${oracle}: ${err.message}`);
+      logger.error(`Error update Oracle by query:${query}: ${err.message}`);
     }
   }
 

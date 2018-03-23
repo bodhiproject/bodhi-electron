@@ -216,7 +216,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
         const insertTopicDB = new Promise(async (resolve) => {
           try {
             const topic = new Topic(blockNum, txid, rawLog).translate();
-            DBHelper.insertTopic(db.Topics, topic);
+            DBHelper.updateTopicByQuery(db.Topics, topic, { txid });
             resolve();
           } catch (err) {
             logger.error(`ERROR: ${err.message}`);
@@ -261,7 +261,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
 
-            DBHelper.insertOracle(db.Oracles, centralOracle);
+            DBHelper.updateOracleByQuery(db.Oracles, centralOracle, { txid });
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);

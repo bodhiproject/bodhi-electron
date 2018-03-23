@@ -286,8 +286,8 @@ async function resetApproveAmount(db, tx, spender) {
 
 // Remove created Topic/COracle because tx failed
 async function removeCreatedTopicAndOracle(db, tx) {
-  await DBHelper.removeTopicByTxid(db.Topics, tx.txid);
-  await DBHelper.removeOracleByTxid(db.Oracles, tx.txid);
+  await DBHelper.removeTopicsByQuery(db.Topics, tx.txid);
+  await DBHelper.removeOraclesByQuery(db.Oracles, tx.txid);
 }
 
 module.exports = updatePendingTxs;
