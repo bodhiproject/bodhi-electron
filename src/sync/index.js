@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: [2, { "allow": ["_eventName"] }] */
 
 const _ = require('lodash');
-const { Qweb3, Contract } = require('qweb3');
+const { Qweb3 } = require('qweb3');
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
 const moment = require('moment');
@@ -219,7 +219,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
 
             // Update existing mutated Topic or insert new
             if (DBHelper.getCount(db.Topics, { txid }) > 0) {
-              DBHelper.updateTopicByQuery(db.Topics, topic, { txid });
+              DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
             } else {
               DBHelper.insertTopic(db.Topics, topic);
             }
@@ -270,7 +270,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
 
             // Update existing mutated Oracle or insert new
             if (DBHelper.getCount(db.Oracles, { txid }) > 0) {
-              DBHelper.updateOracleByQuery(db.Oracles, centralOracle, { txid });
+              DBHelper.updateOracleByQuery(db.Oracles, { txid }, centralOracle);
             } else {
               DBHelper.insertOracle(db.Oracles, centralOracle);
             }

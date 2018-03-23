@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const fetch = require('node-fetch');
 const Web3Utils = require('web3-utils');
 const moment = require('moment');
 

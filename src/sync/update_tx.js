@@ -120,14 +120,10 @@ async function onSuccessfulTx(tx, db) {
       }
 
       // Update Topic's approve txid with the createTopic txid
-      const topic = await db.Topics.findOne({ txid: tx.txid });
-      topic.txid = txid;
-      await DBHelper.updateTopicByQuery(db.Topics, topic, { txid: tx.txid });
+      await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid });
 
       // Update Oracle's approve txid with the createTopic txid
-      const oracle = await db.Oracles.findOne({ txid: tx.txid });
-      oracle.txid = txid;
-      await DBHelper.updateOracleByQuery(db.Oracles, oracle, { txid: tx.txid });
+      await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid });
 
       await DBHelper.insertTransaction(Transactions, {
         txid,
@@ -218,9 +214,6 @@ async function onSuccessfulTx(tx, db) {
 
 // Execute follow-up transaction for failed txs
 async function onFailedTx(tx, db) {
-  const Transactions = db.Transactions;
-  let txid;
-
   switch (tx.type) {
     // Approve failed. Reset allowance and delete created Topic/COracle.
     case 'APPROVECREATEEVENT': {
@@ -250,6 +243,7 @@ async function onFailedTx(tx, db) {
 
 // Failed approve tx so call approve for 0.
 async function resetApproveAmount(db, tx, spender) {
+  let txid;
   try {
     const approveTx = await bodhiToken.approve({
       spender,
@@ -286,8 +280,8 @@ async function resetApproveAmount(db, tx, spender) {
 
 // Remove created Topic/COracle because tx failed
 async function removeCreatedTopicAndOracle(db, tx) {
-  await DBHelper.removeTopicsByQuery(db.Topics, tx.txid);
-  await DBHelper.removeOraclesByQuery(db.Oracles, tx.txid);
+  await DBHelper.removeTopicsByQuery(db.Topics, { txid: tx.txid });
+  await DBHelper.removeOraclesByQuery(db.Oracles, { txid: tx.txid });
 }
 
 module.exports = updatePendingTxs;

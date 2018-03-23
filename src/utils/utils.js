@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
 const _ = require('lodash');
-const path = require('path');
 const { app } = require('electron');
 const { Config } = require('../config/config');
 

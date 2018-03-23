@@ -1,6 +1,4 @@
-const path = require('path');
 const datastore = require('nedb-promise');
-const _ = require('lodash');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
@@ -17,6 +15,9 @@ const dbPromises = [topics, oracles, votes, blocks, transactions];
 async function connectDB() {
   try {
     await Promise.all(dbPromises);
+    await topics.ensureIndex({ fieldName: 'txid', unique: true });
+    await oracles.ensureIndex({ fieldName: 'txid', unique: true });
+    await votes.ensureIndex({ fieldName: 'txid', unique: true });
   } catch (err) {
     console.error(`DB load Error: ${err.message}`);
     return;
@@ -48,7 +49,15 @@ class DBHelper {
     }
   }
 
-  static async updateTopicByQuery(db, topic, query) {
+  static async updateObjectByQuery(db, query, update) {
+    try {
+      await db.update(query, { $set: update }, {});
+    } catch (err) {
+      logger.error(`Error update ${update} object by query:${query}: ${err.message}`);
+    }
+  }
+
+  static async updateTopicByQuery(db, query, topic) {
     try {
       await db.update(
         query,
@@ -91,7 +100,7 @@ class DBHelper {
     }
   }
 
-  static async updateOracleByQuery(db, oracle, query) {
+  static async updateOracleByQuery(db, query, oracle) {
     try {
       await db.update(
         query,
