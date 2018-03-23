@@ -216,7 +216,15 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
         const insertTopicDB = new Promise(async (resolve) => {
           try {
             const topic = new Topic(blockNum, txid, rawLog).translate();
-            DBHelper.updateTopicByQuery(db.Topics, topic, { txid });
+
+            // Update existing mutated Topic or insert new
+            const existingCount = db.Topics.count({ txid });
+            if (existingCount > 0) {
+              DBHelper.updateTopicByQuery(db.Topics, topic, { txid });  
+            } else {
+              DBHelper.insertTopic(db.Topics, topic);
+            }
+            
             resolve();
           } catch (err) {
             logger.error(`ERROR: ${err.message}`);
@@ -261,7 +269,14 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
 
-            DBHelper.updateOracleByQuery(db.Oracles, centralOracle, { txid });
+            // Update existing mutated Oracle or insert new
+            const existingCount = db.Oracles.count({ txid });
+            if (existingCount > 0) {
+              DBHelper.updateOracleByQuery(db.Oracles, centralOracle, { txid });
+            } else {
+              DBHelper.insertOracle(db.Oracles, centralOracle);
+            }
+            
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);
