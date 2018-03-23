@@ -12,7 +12,7 @@
     "defaultMessage": "Place Vote"
   },
   {
-    "id": "bottomButtonText.final",
+    "id": "str.finalizeResult",
     "defaultMessage": "Finalize Result"
   },
   {

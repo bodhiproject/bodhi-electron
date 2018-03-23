@@ -1,10 +1,10 @@
 [
   {
-    "id": "walletHistory.transferHistory",
-    "defaultMessage": "Transfer History"
-  },
-  {
     "id": "str.sort",
     "defaultMessage": "Sort"
+  },
+  {
+    "id": "walletHistory.transferHistory",
+    "defaultMessage": "Transfer History"
   }
 ]
