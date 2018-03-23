@@ -4,11 +4,14 @@ const moment = require('moment');
 const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const bodhiToken = require('../api/bodhi_token');
+const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
-
+const { getContractMetadata } = require('../config/config');
 const { txState } = require('../constants');
+
+const contractMetadata = getContractMetadata();
 
 async function updatePendingTxs(db) {
   let pendingTxs;
@@ -34,7 +37,7 @@ async function updatePendingTxs(db) {
 
 // Update the Transaction info
 async function updateTx(tx) {
-  const resp = await blockchain.getTransactionReceipt({ transactionId: tx._id });
+  const resp = await blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
   if (_.isEmpty(resp)) {
     tx.status = txState.PENDING;
@@ -52,9 +55,9 @@ async function updateTx(tx) {
 async function updateDB(tx, db) {
   if (tx.status !== txState.PENDING) {
     try {
-      logger.debug(`Update: Transaction ${tx.type} txid:${tx._id}`);
+      logger.debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx.txid}`);
       const updateRes = await db.Transactions.update(
-        { _id: tx._id },
+        { txid: tx.txid },
         {
           $set: {
             status: tx.status,
@@ -85,7 +88,7 @@ async function updateDB(tx, db) {
         }
       }
     } catch (err) {
-      logger.error(`Error: Update Transaction ${tx.type} txid:${tx._id}: ${err.message}`);
+      logger.error(`Error: Update Transaction ${tx.type} txid:${tx.txid}: ${err.message}`);
       throw err;
     }
   }
@@ -97,6 +100,55 @@ async function onSuccessfulTx(tx, db) {
   let txid;
 
   switch (tx.type) {
+    // Approve was accepted. Sending createEvent.
+    case 'APPROVECREATEEVENT': {
+      try {
+        const createTopicTx = await eventFactory.createTopic({
+          oracleAddress: tx.resultSetterAddress,
+          eventName: tx.name,
+          resultNames: tx.options,
+          bettingStartTime: tx.bettingStartTime,
+          bettingEndTime: tx.bettingEndTime,
+          resultSettingStartTime: tx.resultSettingStartTime,
+          resultSettingEndTime: tx.resultSettingEndTime,
+          senderAddress: tx.senderAddress,
+        });
+        txid = createTopicTx.txid;
+      } catch (err) {
+        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+        throw err;
+      }
+
+      // Update Topic's approve txid with the createTopic txid
+      const topic = await db.Topics.findOne({ txid: tx.txid });
+      topic.txid = txid;
+      await DBHelper.updateTopicByQuery(db.Topics, topic, { txid: tx.txid });
+
+      // Update Oracle's approve txid with the createTopic txid
+      const oracle = await db.Oracles.findOne({ txid: tx.txid });
+      oracle.txid = txid;
+      await DBHelper.updateCOracleByQuery(db.Oracles, oracle, { txid: tx.txid });
+
+      await DBHelper.insertTransaction(Transactions, {
+        txid,
+        version: tx.version,
+        type: 'CREATEEVENT',
+        status: txState.PENDING,
+        createdTime: moment().unix(),
+        senderAddress: tx.senderAddress,
+        name: tx.name,
+        options: tx.options,
+        resultSetterAddress: tx.resultSetterAddress,
+        bettingStartTime: tx.bettingStartTime,
+        bettingEndTime: tx.bettingEndTime,
+        resultSettingStartTime: tx.resultSettingStartTime,
+        resultSettingEndTime: tx.resultSettingEndTime,
+        amount: tx.amount,
+        token: tx.token,
+      });
+      break;
+    }
+
     // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {
@@ -112,7 +164,6 @@ async function onSuccessfulTx(tx, db) {
       }
 
       await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
         txid,
         version: tx.version,
         type: 'SETRESULT',
@@ -144,7 +195,6 @@ async function onSuccessfulTx(tx, db) {
       }
 
       await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
         txid,
         version: tx.version,
         type: 'VOTE',
@@ -172,35 +222,23 @@ async function onFailedTx(tx, db) {
   let txid;
 
   switch (tx.type) {
+    // Approve failed. Reset allowance and delete created Topic/COracle.
+    case 'APPROVECREATEEVENT': {
+      resetApproveAmount(db, tx, contractMetadata.AddressManager.address);
+      removeCreatedTopicAndOracle(db, tx);
+      break;
+    }
+
+    // CreateTopic failed. Delete created Topic/COracle.
+    case 'CREATEEVENT': {
+      removeCreatedTopicAndOracle(db, tx);
+      break;
+    }
+
     // Approve failed. Reset allowance.
     case 'APPROVESETRESULT':
     case 'APPROVEVOTE': {
-      try {
-        const approveTx = await bodhiToken.approve({
-          spender: tx.topicAddress,
-          value: tx.amount,
-          senderAddress: tx.senderAddress,
-        });
-        txid = approveTx.txid;
-      } catch (err) {
-        logger.error(`Error calling BodhiToken.approve: ${err.message}`);
-        throw err;
-      }
-
-      await DBHelper.insertTransaction(Transactions, {
-        _id: txid,
-        txid,
-        type: 'RESETAPPROVE',
-        status: txState.PENDING,
-        createdTime: moment().unix(),
-        version: tx.version,
-        senderAddress: tx.senderAddress,
-        topicAddress: tx.topicAddress,
-        oracleAddress: tx.oracleAddress,
-        optionIdx: tx.optionIdx,
-        token: 'BOT',
-        amount: tx.amount,
-      });
+      resetApproveAmount(db, tx, tx.topicAddress);
       break;
     }
 
@@ -208,6 +246,48 @@ async function onFailedTx(tx, db) {
       break;
     }
   }
+}
+
+// Failed approve tx so call approve for 0.
+async function resetApproveAmount(db, tx, spender) {
+  try {
+    const approveTx = await bodhiToken.approve({
+      spender,
+      value: 0,
+      senderAddress: tx.senderAddress,
+    });
+    txid = approveTx.txid;
+  } catch (err) {
+    logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+    throw err;
+  }
+
+  await DBHelper.insertTransaction(db.Transactions, {
+    txid,
+    version: tx.version,
+    type: 'RESETAPPROVE',
+    status: txState.PENDING,
+    createdTime: moment().unix(),
+    senderAddress: tx.senderAddress,
+    topicAddress: tx.topicAddress,
+    oracleAddress: tx.oracleAddress,
+    name: tx.name,
+    options: tx.options,
+    optionIdx: tx.optionIdx,
+    resultSetterAddress: tx.resultSetterAddress,
+    bettingStartTime: tx.bettingStartTime,
+    bettingEndTime: tx.bettingEndTime,
+    resultSettingStartTime: tx.resultSettingStartTime,
+    resultSettingEndTime: tx.resultSettingEndTime,
+    token: 'BOT',
+    amount: tx.amount,
+  });
+}
+
+// Remove created Topic/COracle because tx failed
+async function removeCreatedTopicAndOracle(db, tx) {
+  await DBHelper.removeTopicByTxid(db.Topics, tx.txid);
+  await DBHelper.removeOracleByTxid(db.Oracles, tx.txid);
 }
 
 module.exports = updatePendingTxs;

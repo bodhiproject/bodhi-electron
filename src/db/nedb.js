@@ -1,5 +1,6 @@
 const path = require('path');
 const datastore = require('nedb-promise');
+const _ = require('lodash');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
@@ -31,13 +32,20 @@ async function connectDB() {
 }
 
 class DBHelper {
-  static async insertOrUpdateTopic(db, topic) {
+  static async insertTopic(db, topic) {
+    try {
+      await db.insert(topic);
+    } catch (err) {
+      logger.error(`Error insert Topic ${topic}: ${err.message}`);
+    }
+  }
+
+  static async updateTopicByQuery(db, topic, query) {
     try {
       await db.update(
-        { _id: topic._id },
+        query,
         {
           $set: {
-            _id: topic._id,
             txid: topic.txid,
             blockNum: topic.blockNum,
             status: topic.status,
@@ -48,22 +56,31 @@ class DBHelper {
             qtumAmount: topic.qtumAmount,
             botAmount: topic.botAmount,
             resultIdx: topic.resultIdx,
+            creatorAddress: topic.creatorAddress,
           },
         },
-        { upsert: true },
+        {},
       );
     } catch (err) {
-      logger.error(`Error upserting Topic txid:${topic.txid}: ${err.message}`);
+      logger.error(`Error update Topic by query:${query}: ${err.message}`);
     }
   }
 
-  static async insertOrUpdateCOracle(db, oracle) {
+  static async removeTopicsByQuery(topicDb, txid, query) {
+    try {
+      const numRemoved = await topicDb.remove(query, { multi: true });
+      logger.debug(`Remove: ${numRemoved} Topic query:${query}`);
+    } catch (err) {
+      logger.error(`Remove Topics by query:${query}: ${err.message}`);
+    }
+  }
+
+  static async updateCOracleByQuery(db, oracle, query) {
     try {
       await db.update(
-        { _id: oracle._id },
+        query,
         {
           $set: {
-            _id: oracle._id,
             txid: oracle.txid,
             blockNum: oracle.blockNum,
             status: oracle.status,
@@ -85,10 +102,27 @@ class DBHelper {
             consensusThreshold: oracle.consensusThreshold,
           },
         },
-        { upsert: true },
+        {},
       );
     } catch (err) {
-      logger.error(`Error upserting COracle txid:${oracle.txid}: ${err.message}`);
+      logger.error(`Error update COracle by query:${query}: ${err.message}`);
+    }
+  }
+
+  static async insertOracle(db, oracle) {
+    try {
+      await db.insert(oracle);
+    } catch (err) {
+      logger.error(`Error insert COracle:${oracle}: ${err.message}`);
+    }
+  }
+
+  static async removeOraclesByQuery(oracleDb, query) {
+    try {
+      const numRemoved = await oracleDb.remove(query, { multi: true });
+      logger.debug(`Remove: ${numRemoved} Oracle by query:${query}`);
+    } catch (err) {
+      logger.error(`Remove Oracles by query:${query}: ${err.message}`);
     }
   }
 
@@ -98,6 +132,19 @@ class DBHelper {
       await db.insert(tx);
     } catch (err) {
       logger.error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
+      throw err;
+    }
+  }
+
+  static async isPreviousCreateEventPending(txDb, senderAddress) {
+    try {
+      return await txDb.count({
+        type: { $in: ['APPROVECREATEEVENT', 'CREATEEVENT'] },
+        status: 'PENDING',
+        senderAddress,
+      });
+    } catch (err) {
+      logger.error(`Checking CreateEvent pending: ${err.message}`);
       throw err;
     }
   }

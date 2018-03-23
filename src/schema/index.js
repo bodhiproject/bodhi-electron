@@ -16,6 +16,7 @@ type Topic {
   qtumAmount: [String!]!
   botAmount: [String!]!
   oracles: [Oracle]
+  creatorAddress: String!
 }
 
 type Oracle {
@@ -104,6 +105,8 @@ input TopicFilter {
   txid: String
   address: String
   status: _OracleStatusType
+  resultIdx: Int
+  creatorAddress: String
 }
 
 input OracleFilter {
@@ -146,6 +149,7 @@ type Mutation {
     bettingEndTime: String!
     resultSettingStartTime: String!
     resultSettingEndTime: String!
+    amount: String!
   ): Transaction
 
   createBet(
@@ -246,6 +250,7 @@ enum _OrderDirection {
 }
 
 enum _TransactionType {
+  APPROVECREATEEVENT
   CREATEEVENT
   BET
   APPROVESETRESULT

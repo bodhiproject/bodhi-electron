@@ -32,7 +32,6 @@ const SENDER_ADDRESS = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender 
 const startSync = async () => {
   const db = await connectDB();
   sync(db);
-  updateTxDB(db);
 };
 
 function sequentialLoop(iterations, process, exit) {
@@ -94,6 +93,9 @@ async function sync(db) {
   sequentialLoop(
     numOfIterations,
     async (loop) => {
+      await updateTxDB(db);
+      logger.debug('Tx DB Updated');
+
       const endBlock = Math.min((startBlock + BLOCK_BATCH_SIZE) - 1, currentBlockCount);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
@@ -186,9 +188,8 @@ async function fetchTopicAddressFromOracle(db, address) {
   if (!oracle) {
     logger.error(`could not find Oracle ${address} in db`);
     return undefined;
-  } else {
-    return oracle;
   }
+  return oracle;
 }
 
 async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
@@ -215,7 +216,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
         const insertTopicDB = new Promise(async (resolve) => {
           try {
             const topic = new Topic(blockNum, txid, rawLog).translate();
-            DBHelper.insertOrUpdateTopic(db.Topics, topic);
+            DBHelper.insertTopic(db.Topics, topic);
             resolve();
           } catch (err) {
             logger.error(`ERROR: ${err.message}`);
@@ -260,7 +261,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
 
-            DBHelper.insertOrUpdateCOracle(db.Oracles, centralOracle);
+            DBHelper.insertOracle(db.Oracles, centralOracle);
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);
@@ -352,9 +353,9 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
               vote.topicAddress = oracle.topicAddress;
             }
 
-            oraclesNeedBalanceUpdate.add(vote.oracleAddress);
-
             await db.Votes.insert(vote);
+
+            oraclesNeedBalanceUpdate.add(vote.oracleAddress);
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);
@@ -392,13 +393,14 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
         const updateOracleResult = new Promise(async (resolve) => {
           try {
             const oracleResult = new OracleResultSet(rawLog).translate();
-            // safeguard to update balance, can be removed in the future
-            oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
 
             await db.Oracles.update(
               { address: oracleResult.oracleAddress },
               { $set: { resultIdx: oracleResult.resultIdx, status: 'PENDING' } }, {},
             );
+
+            // safeguard to update balance, can be removed in the future
+            oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);
@@ -436,8 +438,6 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
         const updateFinalResultSet = new Promise(async (resolve) => {
           try {
             const topicResult = new FinalResultSet(rawLog).translate();
-            // safeguard to update balance, can be removed in the future
-            topicsNeedBalanceUpdate.add(topicResult.topicAddress);
 
             await db.Topics.update(
               { address: topicResult.topicAddress },
@@ -448,6 +448,10 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
               { topicAddress: topicResult.topicAddress },
               { $set: { resultIdx: topicResult.resultIdx, status: 'WITHDRAW' } }, { multi: true },
             );
+
+            // safeguard to update balance, can be removed in the future
+            topicsNeedBalanceUpdate.add(topicResult.topicAddress);
+
             resolve();
           } catch (err) {
             logger.error(`${err.message}`);
