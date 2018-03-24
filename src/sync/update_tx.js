@@ -3,17 +3,18 @@ const moment = require('moment');
 
 const logger = require('../utils/logger');
 const blockchain = require('../api/blockchain');
+const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
 const eventFactory = require('../api/event_factory');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
-const { getContractMetadata } = require('../config/config');
+const { Config, getContractMetadata } = require('../config/config');
 const { txState } = require('../constants');
 
 const contractMetadata = getContractMetadata();
 
-async function updatePendingTxs(db) {
+async function updatePendingTxs(db, currentBlockCount) {
   let pendingTxs;
   try {
     pendingTxs = await db.Transactions.cfind({ status: txState.PENDING })
@@ -27,7 +28,7 @@ async function updatePendingTxs(db) {
   const updatePromises = [];
   _.each(pendingTxs, (tx) => {
     updatePromises.push(new Promise(async (resolve) => {
-      await updateTx(tx);
+      await updateTx(tx, currentBlockCount);
       await updateDB(tx, db);
       resolve();
     }));
@@ -36,7 +37,22 @@ async function updatePendingTxs(db) {
 }
 
 // Update the Transaction info
-async function updateTx(tx) {
+async function updateTx(tx, currentBlockCount) {
+  // sendtoaddress does not use the same confirmation method as EVM txs
+  if (tx.type === 'TRANSFER' && tx.token === 'QTUM') {
+    const txInfo = await wallet.getTransaction({ txid: tx.txid });
+    const blockInfo = await blockchain.getBlock({ blockHash: txInfo.blockhash });
+
+    if (currentBlockCount >= blockInfo.height + Config.TRANSFER_MIN_CONFIRMATIONS) {
+      tx.status = txInfo.confirmations === 0 ? txState.FAIL : txState.SUCCESS;
+      tx.gasUsed = Math.abs(txInfo.fee) / 0.0000004;
+      tx.blockNum = blockInfo.height;
+      tx.blockTime = blockInfo.time;
+    }
+    return;
+  }
+
+  // Update tx status based on EVM tx logs
   const resp = await blockchain.getTransactionReceipt({ transactionId: tx.txid });
 
   if (_.isEmpty(resp)) {

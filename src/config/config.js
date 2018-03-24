@@ -10,6 +10,7 @@ const Config = {
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
   TESTNET: true,
+  TRANSFER_MIN_CONFIRMATIONS: 3,
 };
 
 /*

@@ -1,9 +1,6 @@
 const _ = require('lodash');
-const { Qweb3 } = require('qweb3');
 
-const { Config } = require('../config/config');
-
-const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);
+const qClient = require('../qclient').getInstance();
 
 const Wallet = {
   async getAccountAddress(args) {
@@ -16,6 +13,18 @@ const Wallet = {
     }
 
     return qClient.getAccountAddress(accountName);
+  },
+
+  async getTransaction(args) {
+    const {
+      txid, // string
+    } = args;
+
+    if (_.isUndefined(txid)) {
+      throw new TypeError('txid needs to be defined');
+    }
+
+    return qClient.getTransaction(txid);
   },
 
   async getWalletInfo() {
