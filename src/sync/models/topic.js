@@ -16,6 +16,7 @@ class Topic {
   decode() {
     this.version = this.rawLog._version.toNumber();
     this.topicAddress = this.rawLog._topicAddress;
+    this.creatorAddress = this.rawLog._creatorAddress;
 
     const nameHex = _.reduce(this.rawLog._name, (hexStr, value) => hexStr.concat(value), '');
     this.name = Utils.toUtf8(nameHex);
@@ -26,11 +27,11 @@ class Topic {
 
   translate() {
     return {
-      _id: this.txid,
+      status: 'VOTING',
+      txid: this.txid,
       version: this.version,
       address: this.topicAddress,
-      txid: this.txid,
-      status: 'VOTING',
+      creatorAddress: this.creatorAddress,
       name: this.name,
       options: this.resultNames,
       resultIdx: null,

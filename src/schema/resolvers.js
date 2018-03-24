@@ -1,7 +1,4 @@
-/* eslint no-underscore-dangle: [2, { "allow": ["_id"] }] */
-
 const _ = require('lodash');
-const fetch = require('node-fetch');
 const Web3Utils = require('web3-utils');
 const moment = require('moment');
 
@@ -13,13 +10,15 @@ const eventFactory = require('../api/event_factory');
 const topicEvent = require('../api/topic_event');
 const centralizedOracle = require('../api/centralized_oracle');
 const decentralizedOracle = require('../api/decentralized_oracle');
+const { Config, getContractMetadata } = require('../config/config');
 const DBHelper = require('../db/nedb').DBHelper;
-const { Config } = require('../config/config');
 const { txState } = require('../constants');
 const { calculateSyncPercent, listUnspentBalance } = require('../sync');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
+
+const contractMetadata = getContractMetadata();
 
 function buildCursorOptions(cursor, orderBy, limit, skip) {
   if (!_.isEmpty(orderBy)) {
@@ -38,9 +37,9 @@ function buildCursorOptions(cursor, orderBy, limit, skip) {
 }
 
 function buildTopicFilters({
-  OR = [], txid, address, status,
+  OR = [], txid, address, status, resultIdx, creatorAddress,
 }) {
-  const filter = (address || status || txid) ? {} : null;
+  const filter = (txid || address || status || resultIdx || creatorAddress) ? {} : null;
   if (txid) {
     filter.txid = txid;
   }
@@ -51,6 +50,14 @@ function buildTopicFilters({
 
   if (status) {
     filter.status = status;
+  }
+
+  if (resultIdx) {
+    filter.resultIdx = resultIdx;
+  }
+
+  if (creatorAddress) {
+    filter.creatorAddress = creatorAddress;
   }
 
   let filters = filter ? [filter] : [];
@@ -288,41 +295,79 @@ module.exports = {
         bettingEndTime,
         resultSettingStartTime,
         resultSettingEndTime,
+        amount,
         senderAddress,
       } = data;
+      const addressManagerAddr = contractMetadata.AddressManager.address;
 
-      // Send createTopic tx
+      // Check for existing CreateEvent transactions
+      if (await DBHelper.isPreviousCreateEventPending(Transactions, senderAddress)) {
+        logger.error('Pending CreateEvent transaction found.');
+        throw new Error('Pending CreateEvent transaction found');
+      }
+
+      // Check the allowance first
+      let type;
       let txid;
-      try {
-        const tx = await eventFactory.createTopic({
-          oracleAddress: resultSetterAddress,
-          eventName: name,
-          resultNames: options,
-          bettingStartTime,
-          bettingEndTime,
-          resultSettingStartTime,
-          resultSettingEndTime,
-          senderAddress,
-        });
-        txid = tx.txid;
-      } catch (err) {
-        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
-        throw err;
+      if (await isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
+        // Send createTopic tx
+        type = 'CREATEEVENT';
+        try {
+          const tx = await eventFactory.createTopic({
+            oracleAddress: resultSetterAddress,
+            eventName: name,
+            resultNames: options,
+            bettingStartTime,
+            bettingEndTime,
+            resultSettingStartTime,
+            resultSettingEndTime,
+            senderAddress,
+          });
+          txid = tx.txid;
+        } catch (err) {
+          logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+          throw err;
+        }
+      } else {
+        // Send approve first since allowance is not enough
+        type = 'APPROVECREATEEVENT';
+        try {
+          const approveTx = await bodhiToken.approve({
+            spender: addressManagerAddr,
+            value: amount,
+            senderAddress,
+          });
+          txid = approveTx.txid;
+        } catch (err) {
+          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          throw err;
+        }
       }
 
-      // Fetch version number
-      let version;
-      try {
-        const res = await eventFactory.version({ senderAddress });
-        version = Number(res[0]);
-      } catch (err) {
-        logger.error(`Error calling EventFactory.version: ${err.message}`);
-        throw err;
-      }
+      const version = Config.CONTRACT_VERSION_NUM;
+
+      // Insert Transaction
+      const tx = {
+        txid,
+        version,
+        type,
+        status: txState.PENDING,
+        createdTime: moment().unix(),
+        senderAddress,
+        name,
+        options,
+        resultSetterAddress,
+        bettingStartTime,
+        bettingEndTime,
+        resultSettingStartTime,
+        resultSettingEndTime,
+        amount,
+        token: 'BOT',
+      };
+      await DBHelper.insertTransaction(Transactions, tx);
 
       // Insert Topic
       const topic = {
-        _id: txid,
         txid,
         version,
         status: 'CREATED',
@@ -330,13 +375,13 @@ module.exports = {
         options,
         qtumAmount: _.fill(Array(options), '0'),
         botAmount: _.fill(Array(options), '0'),
+        creatorAddress: senderAddress,
       };
       logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
-      await DBHelper.insertOrUpdateTopic(Topics, topic);
+      await DBHelper.insertTopic(Topics, topic);
 
       // Insert Oracle
       const oracle = {
-        _id: txid,
         txid,
         version,
         status: 'CREATED',
@@ -352,20 +397,7 @@ module.exports = {
         resultSetEndTime: resultSettingEndTime,
       };
       logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
-      await DBHelper.insertOrUpdateCOracle(Oracles, oracle);
-
-      // Insert Transaction
-      const tx = {
-        _id: txid,
-        txid,
-        version,
-        type: 'CREATEEVENT',
-        status: txState.PENDING,
-        senderAddress,
-        name,
-        createdTime: moment().unix(),
-      };
-      await DBHelper.insertTransaction(Transactions, tx);
+      await DBHelper.insertOracle(Oracles, oracle);
 
       return tx;
     },
@@ -397,7 +429,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'BET',
@@ -460,7 +491,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         type,
         status: txState.PENDING,
@@ -524,7 +554,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         type,
         status: txState.PENDING,
@@ -565,7 +594,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'FINALIZERESULT',
@@ -602,7 +630,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'WITHDRAW',
@@ -664,7 +691,6 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        _id: txid,
         txid,
         version,
         type: 'TRANSFER',

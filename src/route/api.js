@@ -121,6 +121,15 @@ apiRouter.post('/search-logs', (req, res, next) => {
 });
 
 /* AddressManager */
+apiRouter.post('/event-escrow-amount', (req, res, next) => {
+  AddressManager.eventEscrowAmount(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 apiRouter.post('/last-event-factory-index', (req, res, next) => {
   AddressManager.getLastEventFactoryIndex(req.params)
     .then((result) => {
