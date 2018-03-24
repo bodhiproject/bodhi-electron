@@ -20,7 +20,7 @@ const FinalResultSet = require('./models/finalResultSet');
 const bodhiToken = require('../api/bodhi_token');
 const baseContract = require('../api/base_contract');
 
-const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
+const qclient = require('../qclient').getInstance();
 const contractMetadata = getContractMetadata();
 
 const RPC_BATCH_SIZE = 10;
@@ -93,7 +93,7 @@ async function sync(db) {
   sequentialLoop(
     numOfIterations,
     async (loop) => {
-      await updateTxDB(db);
+      await updateTxDB(db, currentBlockCount);
       logger.debug('Tx DB Updated');
 
       const endBlock = Math.min((startBlock + BLOCK_BATCH_SIZE) - 1, currentBlockCount);

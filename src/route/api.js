@@ -1,7 +1,5 @@
 const { Router } = require('restify-router');
-const { Qweb3 } = require('qweb3');
 
-const { Config } = require('../config/config');
 const Blockchain = require('../api/blockchain');
 const Wallet = require('../api/wallet');
 const AddressManager = require('../api/address_manager');
@@ -13,7 +11,7 @@ const Oracle = require('../api/oracle');
 const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 
-const qweb3 = new Qweb3(Config.QTUM_RPC_ADDRESS);
+const qweb3 = require('../qclient').getInstance();
 
 const apiRouter = new Router();
 

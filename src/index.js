@@ -17,13 +17,11 @@ const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
 
-const qClient = new Qweb3(Config.QTUM_RPC_ADDRESS);
+const qClient = require('./qclient').getInstance();
 const emitter = new EventEmitter();
 
 let qtumProcess;
 let checkInterval;
-
-const qclient = new Qweb3(Config.QTUM_RPC_ADDRESS);
 
 // Restify setup
 const server = restify.createServer({
