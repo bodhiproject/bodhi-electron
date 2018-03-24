@@ -218,7 +218,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
             const topic = new Topic(blockNum, txid, rawLog).translate();
 
             // Update existing mutated Topic or insert new
-            if (DBHelper.getCount(db.Topics, { txid }) > 0) {
+            if (await DBHelper.getCount(db.Topics, { txid }) > 0) {
               DBHelper.updateTopicByQuery(db.Topics, { txid }, topic);
             } else {
               DBHelper.insertTopic(db.Topics, topic);
@@ -269,7 +269,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
             centralOracle.options = topic.options;
 
             // Update existing mutated Oracle or insert new
-            if (DBHelper.getCount(db.Oracles, { txid }) > 0) {
+            if (await DBHelper.getCount(db.Oracles, { txid }) > 0) {
               DBHelper.updateOracleByQuery(db.Oracles, { txid }, centralOracle);
             } else {
               DBHelper.insertOracle(db.Oracles, centralOracle);
