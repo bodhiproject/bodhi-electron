@@ -22,6 +22,11 @@ function createWindow() {
     // when you should delete the corresponding element.
     uiWin = null
   });
+
+  uiWin.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
+  });
 }
 
 function setupMenu() {
