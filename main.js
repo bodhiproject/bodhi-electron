@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 
 const { Config } = require('./src/config/config');
 const logger = require('./src/utils/logger');
