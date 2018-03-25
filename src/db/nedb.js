@@ -35,7 +35,7 @@ async function connectDB() {
 class DBHelper {
   static async getCount(db, query) {
     try {
-      await db.count(query);
+      return await db.count(query);
     } catch (err) {
       logger.error(`Error getting DB count. db:${db} err:${err.message}`);
     }
