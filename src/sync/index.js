@@ -161,7 +161,7 @@ async function sync(db) {
             currentBlockCount,
             currentBlockTime,
             calculateSyncPercent(currentBlockTime),
-            await listUnspentBalance(),
+            await getAddressBalances(),
           );
         }
 
@@ -667,7 +667,7 @@ async function updateTopicBalance(topicAddress, db) {
   }
 }
 
-async function listUnspentBalance() {
+async function getAddressBalances() {
   const addressObjs = [];
   const addressList = [];
   try {
@@ -733,5 +733,5 @@ async function listUnspentBalance() {
 module.exports = {
   startSync,
   calculateSyncPercent,
-  listUnspentBalance,
+  getAddressBalances,
 };
