@@ -610,30 +610,53 @@ module.exports = {
 
     withdraw: async (root, data, { db: { Transactions } }) => {
       const {
+        type,
         version,
         topicAddress,
         senderAddress,
       } = data;
 
-      // Send withdraw tx
       let txid;
-      try {
-        const tx = await topicEvent.withdrawWinnings({
-          contractAddress: topicAddress,
-          senderAddress,
-        });
-        txid = tx.txid;
-      } catch (err) {
-        logger.error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
-        throw err;
+      switch (type) {
+        case 'WITHDRAW': {
+          // Send withdrawWinnings tx
+          try {
+            const tx = await topicEvent.withdrawWinnings({
+              contractAddress: topicAddress,
+              senderAddress,
+            });
+            txid = tx.txid;
+          } catch (err) {
+            logger.error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
+            throw err;
+          }
+          break;
+        }
+        case 'WITHDRAWESCROW': {
+          // Send withdrawEscrow tx
+          try {
+            const tx = await topicEvent.withdrawEscrow({
+              contractAddress: topicAddress,
+              senderAddress,
+            });
+            txid = tx.txid;
+          } catch (err) {
+            logger.error(`Error calling TopicEvent.withdrawEscrow: ${err.message}`);
+            throw err;
+          }
+          break;
+        }
+        default: {
+          throw new Error(`Invalid withdraw type: ${type}`);
+        }
       }
 
       // Insert Transaction
       const tx = {
-        txid,
-        version,
-        type: 'WITHDRAW',
+        type,
         status: txState.PENDING,
+        version,
+        txid,
         senderAddress,
         topicAddress,
         createdTime: moment().unix(),
