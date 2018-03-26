@@ -187,6 +187,7 @@ type Mutation {
   ): Transaction
 
   withdraw(
+    type: _TransactionType!
     version: Int!
     senderAddress: String!
     topicAddress: String!
@@ -260,6 +261,7 @@ enum _TransactionType {
   RESETAPPROVE
   FINALIZERESULT
   WITHDRAW
+  WITHDRAWESCROW
   TRANSFER
 }
 
