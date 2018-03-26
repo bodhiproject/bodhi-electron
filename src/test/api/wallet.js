@@ -1,5 +1,7 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
+const _ = require('lodash');
+const qAssert = require('qweb3').QAssert;
 
 const Wallet = require('../../api/wallet');
 
@@ -37,6 +39,24 @@ describe('Wallet', () => {
       assert.isDefined(res.paytxfee);
       assert.isDefined(res.hdmasterkeyid);
     });
+  });
+
+  describe('listAddressGroupings()', () => {
+    it('returns the array of address groupings', async () => {
+      const res = await Wallet.listAddressGroupings();
+      assert.isDefined(res);
+      assert.isArray(res);
+
+      if (!_.isEmpty(res)) {
+        const innerArr = res[0];
+        assert.isArray(innerArr);
+
+        if (!_.isEmpty(innerArr)) {
+          const item = innerArr[0];
+          qAssert.isQtumAddress(item[0]);
+          assert.isTrue(_.isNumber(item[1]));
+        }
+      }    });
   });
 
   describe('listUnspent()', () => {

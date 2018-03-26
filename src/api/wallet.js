@@ -31,6 +31,10 @@ const Wallet = {
     return qClient.getWalletInfo();
   },
 
+  async listAddressGroupings() {
+    return qClient.listAddressGroupings();
+  },
+
   async listUnspent() {
     return qClient.listUnspent();
   },

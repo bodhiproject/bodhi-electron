@@ -692,7 +692,7 @@ async function listUnspentBalance() {
   await new Promise(async (resolve) => {
     sequentialLoop(addressBatches.length, async (loop) => {
       const getBotBalancePromises = [];
-      
+
       _.map(addressBatches[loop.iteration()], async (address) => {
         const getBotBalancePromise = new Promise(async (resolve) => {
           let botBalance = new BigNumber(0);

@@ -54,6 +54,15 @@ apiRouter.get('/get-wallet-info', (req, res, next) => {
     });
 });
 
+apiRouter.get('/list-address-groupings', (req, res, next) => {
+  Wallet.listAddressGroupings()
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 apiRouter.get('/list-unspent', (req, res, next) => {
   Wallet.listUnspent()
     .then((result) => {
