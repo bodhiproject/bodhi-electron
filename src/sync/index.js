@@ -677,7 +677,6 @@ async function getAddressBalances() {
     _.each(res, (grouping) => {
       // addressArrItem: ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.08164600]
       _.each(grouping, (addressArrItem) => {
-        console.log(addressArrItem);
         addressObjs.push({
           address: addressArrItem[0],
           qtum: new BigNumber(addressArrItem[1]).multipliedBy(SATOSHI_CONVERSION).toString(10),
