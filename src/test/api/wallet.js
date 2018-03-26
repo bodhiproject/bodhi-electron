@@ -56,7 +56,8 @@ describe('Wallet', () => {
           qAssert.isQtumAddress(item[0]);
           assert.isTrue(_.isNumber(item[1]));
         }
-      }    });
+      }
+    });
   });
 
   describe('listUnspent()', () => {
