@@ -13,7 +13,7 @@ const decentralizedOracle = require('../api/decentralized_oracle');
 const { Config, getContractMetadata } = require('../config/config');
 const DBHelper = require('../db/nedb').DBHelper;
 const { txState } = require('../constants');
-const { calculateSyncPercent, listUnspentBalance } = require('../sync');
+const { calculateSyncPercent, getAddressBalances } = require('../sync');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -273,7 +273,7 @@ module.exports = {
 
       let addressBalances = [];
       if (fetchBalance) {
-        addressBalances = await listUnspentBalance();
+        addressBalances = await getAddressBalances();
       }
 
       return {

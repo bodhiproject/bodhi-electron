@@ -45,7 +45,7 @@ async function updateTx(tx, currentBlockCount) {
 
     if (currentBlockCount >= blockInfo.height + Config.TRANSFER_MIN_CONFIRMATIONS) {
       tx.status = txInfo.confirmations === 0 ? txState.FAIL : txState.SUCCESS;
-      tx.gasUsed = Math.abs(txInfo.fee) / 0.0000004;
+      tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
       tx.blockNum = blockInfo.height;
       tx.blockTime = blockInfo.time;
     }

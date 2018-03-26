@@ -18,6 +18,7 @@ const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
 
 const qClient = require('./qclient').getInstance();
+
 const emitter = new EventEmitter();
 
 let qtumProcess;

@@ -15,7 +15,7 @@ const QClient = (() => {
         instance = createInstance();
       }
       return instance;
-    }
+    },
   };
 })();
 
