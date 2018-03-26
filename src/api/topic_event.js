@@ -29,6 +29,26 @@ const TopicEvent = {
     });
   },
 
+  async withdrawEscrow(args) {
+    const {
+      contractAddress, // address
+      senderAddress, // address
+    } = args;
+
+    if (_.isUndefined(contractAddress)) {
+      throw new TypeError('contractAddress needs to be defined');
+    }
+    if (_.isUndefined(senderAddress)) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    const contract = getContract(contractAddress);
+    return contract.send('withdrawEscrow', {
+      methodArgs: [],
+      senderAddress,
+    });
+  },
+
   async totalQtumValue(args) {
     const {
       contractAddress, // address
