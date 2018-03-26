@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
 
 const { Config } = require('./src/config/config');
 const logger = require('./src/utils/logger');
@@ -21,6 +21,11 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     uiWin = null
+  });
+
+  uiWin.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
   });
 }
 
