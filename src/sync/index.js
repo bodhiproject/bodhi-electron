@@ -668,38 +668,36 @@ async function updateTopicBalance(topicAddress, db) {
 }
 
 async function listUnspentBalance() {
-  let result = [];
+  const addressObjs = [];
+  const addressList = [];
   try {
-    result = await qclient.listUnspent();
+    const res = await qclient.listAddressGroupings();
+    // grouping: [["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.01], ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.02]], [...]
+    _.each(res, (grouping) => {
+      // addressArrItem: ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.08164600]
+      _.each(grouping, (addressArrItem) => {
+        console.log(addressArrItem);
+        addressObjs.push({
+          address: addressArrItem[0],
+          qtum: new BigNumber(addressArrItem[1]).multipliedBy(SATOSHI_CONVERSION).toString(10),
+        });
+        addressList.push(addressArrItem[0]);
+      })
+    });
   } catch (err) {
-    logger.error(`ListUnspent: ${err.message}`);
+    logger.error(`listAddressGroupings: ${err.message}`);
   }
 
-  const unspentAddressBalanceDict = {};
-  const unspentAddressArray = [];
-  _.forEach(result, (addressInfo) => {
-    const {
-      address,
-      amount,
-    } = addressInfo;
-
-    const amountBN = new BigNumber(amount).multipliedBy(SATOSHI_CONVERSION);
-    if (!unspentAddressBalanceDict[address]) {
-      unspentAddressBalanceDict[address] = { qtum: amountBN };
-      unspentAddressArray.push(address);
-    } else {
-      unspentAddressBalanceDict[address].qtum = unspentAddressBalanceDict[address].qtum.plus(amountBN);
-    }
-  });
-
-  const addressBatches = _.chunk(unspentAddressArray, RPC_BATCH_SIZE);
-  const unspentAddressBalanceArray = [];
-  const getBotBalancesPromise = new Promise(async (resolve) => {
+  const addressBatches = _.chunk(addressList, RPC_BATCH_SIZE);
+  await new Promise(async (resolve) => {
     sequentialLoop(addressBatches.length, async (loop) => {
       const getBotBalancePromises = [];
+      
       _.map(addressBatches[loop.iteration()], async (address) => {
         const getBotBalancePromise = new Promise(async (resolve) => {
           let botBalance = new BigNumber(0);
+
+          // Get BOT balance
           try {
             const resp = await bodhiToken.balanceOf({
               owner: address,
@@ -711,7 +709,11 @@ async function listUnspentBalance() {
             logger.error(`BalanceOf ${address}: ${err.message}`);
             botBalance = '0';
           }
-          unspentAddressBalanceDict[address].bot = botBalance;
+
+          // Update BOT balance for address
+          const found = _.find(addressObjs, { address });
+          found.bot = botBalance.toString(10);
+
           resolve();
         });
 
@@ -721,19 +723,11 @@ async function listUnspentBalance() {
       await Promise.all(getBotBalancePromises);
       loop.next();
     }, () => {
-      _.forEach(unspentAddressBalanceDict, (value, key) => {
-        unspentAddressBalanceArray.push({
-          address: key,
-          qtum: value.qtum.toString(10),
-          bot: value.bot.toString(10),
-        });
-      });
       resolve();
     });
   });
-  await getBotBalancesPromise;
 
-  return unspentAddressBalanceArray;
+  return addressObjs;
 }
 
 module.exports = {
