@@ -21,6 +21,7 @@ const bodhiToken = require('../api/bodhi_token');
 const baseContract = require('../api/base_contract');
 
 const qclient = require('../qclient').getInstance();
+
 const contractMetadata = getContractMetadata();
 
 const RPC_BATCH_SIZE = 10;
@@ -682,7 +683,7 @@ async function getAddressBalances() {
           qtum: new BigNumber(addressArrItem[1]).multipliedBy(SATOSHI_CONVERSION).toString(10),
         });
         addressList.push(addressArrItem[0]);
-      })
+      });
     });
   } catch (err) {
     logger.error(`listAddressGroupings: ${err.message}`);
