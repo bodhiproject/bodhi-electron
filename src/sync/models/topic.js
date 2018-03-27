@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 
 const _ = require('lodash');
-const Utils = require('qweb3').Utils;
+const { Decoder, Utils } = require('qweb3').Decoder;
 
 class Topic {
   constructor(blockNum, txid, rawLog) {
@@ -32,7 +32,7 @@ class Topic {
       txid: this.txid,
       version: this.version,
       address: this.topicAddress,
-      creatorAddress: this.creatorAddress,
+      creatorAddress: Decoder.toQtumAddress(this.creatorAddress),
       escrowAmount: this.escrowAmount,
       name: this.name,
       options: this.resultNames,
