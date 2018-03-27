@@ -17,6 +17,7 @@ class Topic {
     this.version = this.rawLog._version.toNumber();
     this.topicAddress = this.rawLog._topicAddress;
     this.creatorAddress = this.rawLog._creatorAddress;
+    this.escrowAmount = this.rawLog._escrowAmount;
 
     const nameHex = _.reduce(this.rawLog._name, (hexStr, value) => hexStr.concat(value), '');
     this.name = Utils.toUtf8(nameHex);
@@ -32,6 +33,7 @@ class Topic {
       version: this.version,
       address: this.topicAddress,
       creatorAddress: this.creatorAddress,
+      escrowAmount: this.escrowAmount;
       name: this.name,
       options: this.resultNames,
       resultIdx: null,
