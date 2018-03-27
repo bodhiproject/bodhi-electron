@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 
 const _ = require('lodash');
-const { Decoder, Utils } = require('qweb3').Decoder;
+const { Decoder, Utils } = require('qweb3');
 
 class Topic {
   constructor(blockNum, txid, rawLog) {
