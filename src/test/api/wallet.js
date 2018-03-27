@@ -1,7 +1,7 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 const _ = require('lodash');
-const qAssert = require('qweb3').QAssert;
+const Utils = require('qweb3').Utils;
 
 const Wallet = require('../../api/wallet');
 
@@ -53,7 +53,7 @@ describe('Wallet', () => {
 
         if (!_.isEmpty(innerArr)) {
           const item = innerArr[0];
-          qAssert.isQtumAddress(item[0]);
+          assert.isTrue(Utils.isQtumAddress(item[0]));
           assert.isTrue(_.isNumber(item[1]));
         }
       }
