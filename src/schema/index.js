@@ -10,6 +10,7 @@ type Topic {
   blockNum: Int
   status: _OracleStatusType!
   address: String
+  escrowAmount: String
   name: String!
   options: [String!]!
   resultIdx: Int

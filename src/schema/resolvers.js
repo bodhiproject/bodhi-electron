@@ -371,6 +371,7 @@ module.exports = {
         txid,
         version,
         status: 'CREATED',
+        escrowAmount: amount,
         name,
         options,
         qtumAmount: _.fill(Array(options), '0'),
