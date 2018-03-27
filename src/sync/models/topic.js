@@ -33,7 +33,7 @@ class Topic {
       version: this.version,
       address: this.topicAddress,
       creatorAddress: this.creatorAddress,
-      escrowAmount: this.escrowAmount;
+      escrowAmount: this.escrowAmount,
       name: this.name,
       options: this.resultNames,
       resultIdx: null,
