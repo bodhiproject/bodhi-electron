@@ -10,6 +10,7 @@ type Topic {
   blockNum: Int
   status: _OracleStatusType!
   address: String
+  escrowAmount: String
   name: String!
   options: [String!]!
   resultIdx: Int
@@ -187,6 +188,7 @@ type Mutation {
   ): Transaction
 
   withdraw(
+    type: _TransactionType!
     version: Int!
     senderAddress: String!
     topicAddress: String!
@@ -260,6 +262,7 @@ enum _TransactionType {
   RESETAPPROVE
   FINALIZERESULT
   WITHDRAW
+  WITHDRAWESCROW
   TRANSFER
 }
 

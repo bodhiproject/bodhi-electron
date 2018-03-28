@@ -276,6 +276,15 @@ apiRouter.post('/withdraw', (req, res, next) => {
     });
 });
 
+apiRouter.post('/withdraw-escrow', (req, res, next) => {
+  TopicEvent.withdrawEscrow(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 apiRouter.post('/total-qtum-value', (req, res, next) => {
   TopicEvent.totalQtumValue(req.params)
     .then((result) => {
