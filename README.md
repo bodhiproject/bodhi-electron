@@ -18,9 +18,8 @@ Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the
 
 4. To start services either:
 
-	`npm start` // starts API, sync
-	or
-	`npm run start-elec` // start API, sync, launch UI (static built files in ui/ folder)
+    	npm start // starts API, sync
+    	npm run start-elec // start API, sync, launch UI (static built files in ui/ folder)
 
 5. App at `127.0.0.1:5555` or GraphiQL at `127.0.0.1:5555/graphiql`
 
@@ -31,8 +30,8 @@ We are currently using [Electron](https://github.com/electron/electron) and [Ele
 
 2. Run the build script for the appropriate OS:
 
-    npm run build:mac // creates dmg
-    npm run build:win // creates exe
-    npm run build:lin // creates appimage
+    	npm run build:mac // creates dmg
+    	npm run build:win // creates exe
+    	npm run build:lin // creates appimage
 
 3. Run the executable
