@@ -20,6 +20,42 @@
     "defaultMessage": "Total vote amount"
   },
   {
+    "id": "str.address",
+    "defaultMessage": "Address"
+  },
+  {
+    "id": "str.type",
+    "defaultMessage": "Type"
+  },
+  {
+    "id": "str.amount",
+    "defaultMessage": "Amount"
+  },
+  {
+    "id": "str.actions",
+    "defaultMessage": "Actions"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "str.escrow",
+    "defaultMessage": "Escrow"
+  },
+  {
+    "id": "str.winnings",
+    "defaultMessage": "Winnings"
+  },
+  {
+    "id": "str.pendingTransactionDisabledMsg",
+    "defaultMessage": "You have a pending transaction for this event. Please wait until it's confirmed before doing another transaction."
+  },
+  {
+    "id": "withdrawDetail.alreadyWithdrawn",
+    "defaultMessage": "You have already withdrawn with this address."
+  },
+  {
     "id": "str.winningOutcome",
     "defaultMessage": "Wining Outcome"
   },
@@ -34,18 +70,6 @@
   {
     "id": "withdrawDetail.withdrawTo",
     "defaultMessage": "WITHDRAW TO"
-  },
-  {
-    "id": "str.withdraw",
-    "defaultMessage": "Withdraw"
-  },
-  {
-    "id": "str.pendingTransactionDisabledMsg",
-    "defaultMessage": "You have a pending transaction for this event. Please wait until it's confirmed before doing another transaction."
-  },
-  {
-    "id": "withdrawDetail.alreadyWithdrawn",
-    "defaultMessage": "You have already withdrawn with this address."
   },
   {
     "id": "eventInfo.predictionFund",

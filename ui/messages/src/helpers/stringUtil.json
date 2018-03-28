@@ -1,0 +1,34 @@
+[
+  {
+    "id": "tx.approveBotTransfer",
+    "defaultMessage": "Approve BOT Transfer"
+  },
+  {
+    "id": "str.createEvent",
+    "defaultMessage": "Create Event"
+  },
+  {
+    "id": "str.bet",
+    "defaultMessage": "Bet"
+  },
+  {
+    "id": "str.setResult",
+    "defaultMessage": "Set Result"
+  },
+  {
+    "id": "str.vote",
+    "defaultMessage": "Vote"
+  },
+  {
+    "id": "str.finalizeResult",
+    "defaultMessage": "Finalize Result"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "str.transfer",
+    "defaultMessage": "Transfer"
+  }
+]

@@ -322,6 +322,10 @@ bignumber.js@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-5.0.0.tgz#fbce63f09776b3000a83185badcde525daf34833"
 
+bignumber.js@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-6.0.0.tgz#bbfa047644609a5af093e9cbd83b0461fa3f6002"
+
 binary-search-tree@0.2.5:
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/binary-search-tree/-/binary-search-tree-0.2.5.tgz#7dbb3b210fdca082450dad2334c304af39bdc784"
@@ -1053,9 +1057,9 @@ electron-publish@20.0.6:
     lazy-val "^1.0.3"
     mime "^2.2.0"
 
-electron@^1.8.2:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-1.8.2.tgz#a817cd733c2972b3c7cc4f777caf6e424b88014d"
+electron@^1.8.4:
+  version "1.8.4"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-1.8.4.tgz#cca8d0e6889f238f55b414ad224f03e03b226a38"
   dependencies:
     "@types/node" "^8.0.24"
     electron-download "^3.0.1"
@@ -2792,9 +2796,9 @@ query-string@^5.0.1:
     object-assign "^4.1.0"
     strict-uri-encode "^1.0.0"
 
-qweb3@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/qweb3/-/qweb3-0.7.1.tgz#39bbff7022b1339bd009a447b7d0fd984a5475e2"
+qweb3@^0.7.3:
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/qweb3/-/qweb3-0.7.3.tgz#e2b939002fae16de3d836cf10118a1ea68f1ceb6"
   dependencies:
     bignumber.js "^5.0.0"
     bluebird "^3.5.1"
