@@ -595,13 +595,13 @@ module.exports = {
 
       // Fetch oracle to get the finalized result
       const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
-      let resultIdx;
+      let winningIndex;
       if (!oracle) {
         logger.error(`Could not find Oracle ${address} in DB.`);
       } else {
         for (let i = 0; i < oracle.options.length; i++) {
           if (!_.includes(oracle.optionIdxs, i)) {
-            resultIdx = i;
+            winningIndex = i;
             break;
           }
         }
@@ -617,7 +617,7 @@ module.exports = {
         senderAddress,
         topicAddress,
         oracleAddress,
-        resultIdx,
+        optionIdx: winningIndex,
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
