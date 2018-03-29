@@ -585,7 +585,7 @@ module.exports = {
       let winningIndex;
       if (!oracle) {
         logger.error(`Could not find Oracle ${address} in DB.`);
-        return;
+        throw new Error(`Could not find Oracle ${address} in DB.`);
       } else {
         for (let i = 0; i < oracle.options.length; i++) {
           if (!_.includes(oracle.optionIdxs, i)) {
