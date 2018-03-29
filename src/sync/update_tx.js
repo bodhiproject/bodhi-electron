@@ -274,23 +274,14 @@ async function resetApproveAmount(db, tx, spender) {
 
   await DBHelper.insertTransaction(db.Transactions, {
     txid,
-    version: tx.version,
     type: 'RESETAPPROVE',
     status: txState.PENDING,
     createdTime: moment().unix(),
+    version: tx.version,
     senderAddress: tx.senderAddress,
     topicAddress: tx.topicAddress,
     oracleAddress: tx.oracleAddress,
     name: tx.name,
-    options: tx.options,
-    optionIdx: tx.optionIdx,
-    resultSetterAddress: tx.resultSetterAddress,
-    bettingStartTime: tx.bettingStartTime,
-    bettingEndTime: tx.bettingEndTime,
-    resultSettingStartTime: tx.resultSettingStartTime,
-    resultSettingEndTime: tx.resultSettingEndTime,
-    token: 'BOT',
-    amount: tx.amount,
   });
 }
 
