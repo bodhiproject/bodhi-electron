@@ -572,7 +572,7 @@ module.exports = {
       return tx;
     },
 
-    finalizeResult: async (root, data, { db: { Transactions } }) => {
+    finalizeResult: async (root, data, { db: { Oracles, Transactions } }) => {
       const {
         version,
         topicAddress,
@@ -593,16 +593,31 @@ module.exports = {
         throw err;
       }
 
+      // Fetch oracle to get the finalized result
+      const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
+      let resultIdx;
+      if (!oracle) {
+        logger.error(`Could not find Oracle ${address} in DB.`);
+      } else {
+        for (let i = 0; i < oracle.options.length; i++) {
+          if (!_.includes(oracle.optionIdxs, i)) {
+            resultIdx = i;
+            break;
+          }
+        }
+      }
+
       // Insert Transaction
       const tx = {
         txid,
-        version,
         type: 'FINALIZERESULT',
         status: txState.PENDING,
+        createdTime: moment().unix(),
+        version,
         senderAddress,
         topicAddress,
         oracleAddress,
-        createdTime: moment().unix(),
+        resultIdx,
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
