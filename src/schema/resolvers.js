@@ -580,6 +580,21 @@ module.exports = {
         senderAddress,
       } = data;
 
+      // Fetch oracle to get the finalized result
+      const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
+      let winningIndex;
+      if (!oracle) {
+        logger.error(`Could not find Oracle ${address} in DB.`);
+        return;
+      } else {
+        for (let i = 0; i < oracle.options.length; i++) {
+          if (!_.includes(oracle.optionIdxs, i)) {
+            winningIndex = i;
+            break;
+          }
+        }
+      }
+
       // Send finalizeResult tx
       let txid;
       try {
@@ -591,20 +606,6 @@ module.exports = {
       } catch (err) {
         logger.error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
         throw err;
-      }
-
-      // Fetch oracle to get the finalized result
-      const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
-      let winningIndex;
-      if (!oracle) {
-        logger.error(`Could not find Oracle ${address} in DB.`);
-      } else {
-        for (let i = 0; i < oracle.options.length; i++) {
-          if (!_.includes(oracle.optionIdxs, i)) {
-            winningIndex = i;
-            break;
-          }
-        }
       }
 
       // Insert Transaction
