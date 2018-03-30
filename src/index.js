@@ -89,7 +89,7 @@ function startQtumProcess(reindex) {
   }
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
-  const flags = ['-testnet', '-logevents', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  const flags = ['-testnet', '-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
   if (reindex) {
     flags.push('-reindex');
   }
@@ -107,7 +107,7 @@ function startQtumProcess(reindex) {
     if (data.includes('You need to rebuild the database using -reindex-chainstate to enable -logevents.')) {
       // Clean old process first
       qtumProcess.kill();
-
+      clearInterval(checkInterval);
       // Restart qtumd with reindex flag
       setTimeout(() => {
         console.log('Restarting and reindexing Qtum blockchain');

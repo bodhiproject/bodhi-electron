@@ -522,6 +522,7 @@ async function peerHighestSyncedHeader() {
       }
     });
   } catch (err) {
+    logger.error(`Error calling getPeerInfo: ${err.message}`);
     return null;
   }
 
