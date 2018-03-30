@@ -268,7 +268,7 @@ module.exports = {
       if (blocks.length > 0) {
         syncBlockNum = blocks[0].blockNum;
         syncBlockTime = blocks[0].blockTime;
-        syncPercent = calculateSyncPercent(syncBlockTime);
+        syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
       }
 
       let addressBalances = [];
