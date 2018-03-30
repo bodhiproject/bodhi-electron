@@ -56,36 +56,8 @@
     "defaultMessage": "Finalize"
   },
   {
-    "id": "str.pendingTransactionDisabledMsg",
-    "defaultMessage": "You have a pending transaction for this event. Please wait until it's confirmed before doing another transaction."
-  },
-  {
-    "id": "oracle.betStartTimeDisabledText",
-    "defaultMessage": "The betting start time has not started yet."
-  },
-  {
-    "id": "oracle.setStartTimeDisabledText",
-    "defaultMessage": "The result setting start time has not started yet."
-  },
-  {
-    "id": "oracle.cOracleDisabledText",
-    "defaultMessage": "You are not the result setter for this Event. You must wait until they set the result, or until the Open Result Set start time begins."
-  },
-  {
-    "id": "oracle.selectResultDisabledText",
-    "defaultMessage": "Please click and select one of the options."
-  },
-  {
-    "id": "oracle.enterAmountDisabledText",
-    "defaultMessage": "Please entered a valid amount."
-  },
-  {
-    "id": "str.notEnoughQtum",
-    "defaultMessage": "You don't have enough QTUM"
-  },
-  {
-    "id": "str.notEnoughBot",
-    "defaultMessage": "You don't have enough BOT"
+    "id": "oracle.maxVoteText",
+    "defaultMessage": "You can only vote up to the Consensus Threshold for any one outcome. Current max vote is {amount} BOT."
   },
   {
     "id": "eventInfo.endDate",

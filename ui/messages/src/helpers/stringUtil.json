@@ -1,5 +1,9 @@
 [
   {
+    "id": "tx.resetApproval",
+    "defaultMessage": "Reset Approval"
+  },
+  {
     "id": "tx.approveBotTransfer",
     "defaultMessage": "Approve BOT Transfer"
   },
@@ -26,6 +30,10 @@
   {
     "id": "str.withdraw",
     "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "str.withdrawEscrow",
+    "defaultMessage": "Withdraw Escrow"
   },
   {
     "id": "str.transfer",

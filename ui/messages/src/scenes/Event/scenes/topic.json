@@ -48,14 +48,6 @@
     "defaultMessage": "Winnings"
   },
   {
-    "id": "str.pendingTransactionDisabledMsg",
-    "defaultMessage": "You have a pending transaction for this event. Please wait until it's confirmed before doing another transaction."
-  },
-  {
-    "id": "withdrawDetail.alreadyWithdrawn",
-    "defaultMessage": "You have already withdrawn with this address."
-  },
-  {
     "id": "str.winningOutcome",
     "defaultMessage": "Wining Outcome"
   },

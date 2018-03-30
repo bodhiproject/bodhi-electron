@@ -1,5 +1,17 @@
 [
   {
+    "id": "str.success",
+    "defaultMessage": "Success"
+  },
+  {
+    "id": "str.pending",
+    "defaultMessage": "Pending"
+  },
+  {
+    "id": "str.fail",
+    "defaultMessage": "Fail"
+  },
+  {
     "id": "str.sort",
     "defaultMessage": "Sort"
   },
