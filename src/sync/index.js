@@ -161,7 +161,7 @@ async function sync(db) {
           sendSyncInfo(
             currentBlockCount,
             currentBlockTime,
-            calculateSyncPercent(currentBlockTime),
+            await calculateSyncPercent(currentBlockCount, currentBlockTime),
             await getAddressBalances(),
           );
         }
@@ -512,15 +512,36 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
   return { insertBlockPromises, endBlockTime: blockTime };
 }
 
-function calculateSyncPercent(blockTime) {
-  let syncPercent = 100;
-  const timestampNow = moment().unix();
-  // if blockTime is 10 min behind, we are not fully synced
-  if (blockTime < timestampNow - SYNC_THRESHOLD_SECS) {
-    syncPercent = Math.floor((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP) * 100);
+async function peerHighestSyncedHeader() {
+  let peerBlockHeader = null;
+  try {
+    const res = await qclient.getPeerInfo();
+    _.each(res, (nodeInfo) => {
+      if (_.isNumber(nodeInfo.synced_headers) && nodeInfo.synced_headers !== -1) {
+        peerBlockHeader = Math.max(nodeInfo.synced_headers, peerBlockHeader);
+      }
+    });
+  } catch (err) {
+    return null;
   }
 
-  return syncPercent;
+  return peerBlockHeader;
+}
+
+async function calculateSyncPercent(blockCount, blockTime) {
+  const peerBlockHeader = await peerHighestSyncedHeader();
+  if (_.isNull(peerBlockHeader)) {
+    // estimate by blockTime
+    let syncPercent = 100;
+    const timestampNow = moment().unix();
+    // if blockTime is 20 min behind, we are not fully synced
+    if (blockTime < timestampNow - SYNC_THRESHOLD_SECS) {
+      syncPercent = Math.floor((blockTime - BLOCK_0_TIMESTAMP) / (timestampNow - BLOCK_0_TIMESTAMP) * 100);
+    }
+    return syncPercent;
+  }
+
+  return Math.floor(blockCount / peerBlockHeader) * 100;
 }
 
 // Send syncInfo subscription
