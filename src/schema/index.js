@@ -51,6 +51,7 @@ type Vote {
   topicAddress: String!
   oracleAddress: String!
   optionIdx: Int!
+  token: _TokenType!
   amount: String!
 }
 
