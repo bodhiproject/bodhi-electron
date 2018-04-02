@@ -121,7 +121,7 @@ app.on('ready', () => {
   server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     dialog.showMessageBox({
       type: 'error',
-      buttons: ['Close'],
+      buttons: ['Quit'],
       title: 'Error',
       message: err,
     }, (response) => {
