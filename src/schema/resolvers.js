@@ -522,18 +522,17 @@ module.exports = {
 
       // Check allowance
       let type;
-      let txid;
+      let sentTx;
       if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
         // Send vote since allowance is enough
         type = 'VOTE';
         try {
-          const voteTx = await decentralizedOracle.vote({
+          sentTx = await decentralizedOracle.vote({
             contractAddress: oracleAddress,
             resultIndex: optionIdx,
             botAmount: amount,
             senderAddress,
           });
-          txid = voteTx.txid;
         } catch (err) {
           logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
           throw err;
@@ -542,12 +541,11 @@ module.exports = {
         // Send approve first because allowance is not enough
         type = 'APPROVEVOTE';
         try {
-          const approveTx = await bodhiToken.approve({
+          sentTx = await bodhiToken.approve({
             spender: topicAddress,
             value: amount,
             senderAddress,
           });
-          txid = approveTx.txid;
         } catch (err) {
           logger.error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
@@ -556,12 +554,14 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        txid,
+        sentTx.txid,
         type,
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit,
+        gasPrice: sentTx.args.gasPrice,
         createdTime: moment().unix(),
-        version,
         senderAddress,
+        version,
         topicAddress,
         oracleAddress,
         optionIdx,
