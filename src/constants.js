@@ -1,4 +1,8 @@
 module.exports = {
+  ipcEvent: {
+    QTUMD_STARTED: 'qtumd-started',
+  },
+
   txState: {
     PENDING: 'PENDING',
     SUCCESS: 'SUCCESS',
