@@ -414,15 +414,14 @@ module.exports = {
       } = data;
 
       // Send bet tx
-      let txid;
+      let sentTx;
       try {
-        const tx = await centralizedOracle.bet({
+        sentTx = await centralizedOracle.bet({
           contractAddress: oracleAddress,
           index: optionIdx,
           amount,
           senderAddress,
         });
-        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling CentralizedOracle.bet: ${err.message}`);
         throw err;
@@ -430,17 +429,19 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        txid,
-        version,
+        sentTx.txid,
         type: 'BET',
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit,
+        gasPrice: sentTx.args.gasPrice,
+        createdTime: moment().unix(),
         senderAddress,
+        version,
         topicAddress,
         oracleAddress,
         optionIdx,
         token: 'QTUM',
         amount,
-        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
