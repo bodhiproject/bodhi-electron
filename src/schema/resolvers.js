@@ -636,16 +636,15 @@ module.exports = {
         senderAddress,
       } = data;
 
-      let txid;
+      let sentTx;
       switch (type) {
         case 'WITHDRAW': {
           // Send withdrawWinnings tx
           try {
-            const tx = await topicEvent.withdrawWinnings({
+            sentTx = await topicEvent.withdrawWinnings({
               contractAddress: topicAddress,
               senderAddress,
             });
-            txid = tx.txid;
           } catch (err) {
             logger.error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
             throw err;
@@ -655,11 +654,10 @@ module.exports = {
         case 'WITHDRAWESCROW': {
           // Send withdrawEscrow tx
           try {
-            const tx = await topicEvent.withdrawEscrow({
+            sentTx = await topicEvent.withdrawEscrow({
               contractAddress: topicAddress,
               senderAddress,
             });
-            txid = tx.txid;
           } catch (err) {
             logger.error(`Error calling TopicEvent.withdrawEscrow: ${err.message}`);
             throw err;
@@ -673,13 +671,15 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
+        sentTx.txid,
         type,
         status: txState.PENDING,
-        version,
-        txid,
-        senderAddress,
-        topicAddress,
+        gasLimit: sentTx.args.gasLimit,
+        gasPrice: sentTx.args.gasPrice,
         createdTime: moment().unix(),
+        senderAddress,
+        version,
+        topicAddress,
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
