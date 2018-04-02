@@ -3,7 +3,7 @@
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "repository": "git@github.com:bodhiproject/bodhi-graphql.git",
   "main": "main.js",
   "keywords": [
