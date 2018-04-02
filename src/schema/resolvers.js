@@ -460,17 +460,16 @@ module.exports = {
 
       // Check the allowance first
       let type;
-      let txid;
+      let sentTx;
       if (await isAllowanceEnough(senderAddress, topicAddress, amount)) {
         // Send setResult since the allowance is enough
         type = 'SETRESULT';
         try {
-          const setResultTx = await centralizedOracle.setResult({
+          sentTx = await centralizedOracle.setResult({
             contractAddress: oracleAddress,
             resultIndex: optionIdx,
             senderAddress,
           });
-          txid = setResultTx.txid;
         } catch (err) {
           logger.error(`Error calling CentralizedOracle.setResult: ${err.message}`);
           throw err;
@@ -479,12 +478,11 @@ module.exports = {
         // Send approve first since allowance is not enough
         type = 'APPROVESETRESULT';
         try {
-          const approveTx = await bodhiToken.approve({
+          sentTx = await bodhiToken.approve({
             spender: topicAddress,
             value: amount,
             senderAddress,
           });
-          txid = approveTx.txid;
         } catch (err) {
           logger.error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
@@ -493,12 +491,14 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        txid,
+        sentTx.txid,
         type,
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit,
+        gasPrice: sentTx.args.gasPrice,
         createdTime: moment().unix(),
-        version,
         senderAddress,
+        version,
         topicAddress,
         oracleAddress,
         optionIdx,
