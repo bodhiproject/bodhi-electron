@@ -119,7 +119,15 @@ app.on('ready', () => {
 
   // Show error dialog if any startup errors
   server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
-    dialog.showErrorBox('Error', err);
+    dialog.showMessageBox({
+      type: 'error',
+      buttons: ['Close'],
+      title: 'Error',
+      message: err,
+    }, (response) => {
+      killServer();
+      app.quit();
+    })
   });
 });
 
