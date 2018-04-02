@@ -135,10 +135,10 @@ async function onSuccessfulTx(tx, db) {
       }
 
       // Update Topic's approve txid with the createTopic txid
-      await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { sentTx.txid });
+      await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid: sentTx.txid });
 
       // Update Oracle's approve txid with the createTopic txid
-      await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { sentTx.txid });
+      await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid: sentTx.txid });
 
       await DBHelper.insertTransaction(Transactions, {
         txid: sentTx.txid,
