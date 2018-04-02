@@ -697,6 +697,7 @@ module.exports = {
       const version = Config.CONTRACT_VERSION_NUM;
 
       let txid;
+      let sentTx;
       switch (token) {
         case 'QTUM': {
           // Send sendToAddress tx
@@ -715,7 +716,7 @@ module.exports = {
         case 'BOT': {
           // Send transfer tx
           try {
-            const tx = await bodhiToken.transfer({
+            sentTx = await bodhiToken.transfer({
               to: receiverAddress,
               value: amount,
               senderAddress,
@@ -735,14 +736,16 @@ module.exports = {
       // Insert Transaction
       const tx = {
         txid,
-        version,
         type: 'TRANSFER',
         status: txState.PENDING,
+        gasLimit: sentTx ? sentTx.args.gasLimit : 250000,
+        gasPrice: sentTx ? sentTx.args.gasPrice : 0.0000004,
+        createdTime: moment().unix(),
         senderAddress,
+        version,
         receiverAddress,
         token,
         amount,
-        createdTime: moment().unix(),
       };
       await DBHelper.insertTransaction(Transactions, tx);
 
