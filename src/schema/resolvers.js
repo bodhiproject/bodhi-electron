@@ -598,13 +598,12 @@ module.exports = {
       }
 
       // Send finalizeResult tx
-      let txid;
+      let sentTx;
       try {
-        const tx = await decentralizedOracle.finalizeResult({
+        sentTx = await decentralizedOracle.finalizeResult({
           contractAddress: oracleAddress,
           senderAddress,
         });
-        txid = tx.txid;
       } catch (err) {
         logger.error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
         throw err;
@@ -612,12 +611,14 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        txid,
+        sentTx.txid,
         type: 'FINALIZERESULT',
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit,
+        gasPrice: sentTx.args.gasPrice,
         createdTime: moment().unix(),
-        version,
         senderAddress,
+        version,
         topicAddress,
         oracleAddress,
         optionIdx: winningIndex,
