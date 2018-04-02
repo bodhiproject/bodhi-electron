@@ -308,12 +308,12 @@ module.exports = {
 
       // Check the allowance first
       let type;
-      let txid;
+      let sentTx;
       if (await isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
         // Send createTopic tx
         type = 'CREATEEVENT';
         try {
-          const tx = await eventFactory.createTopic({
+          sentTx = await eventFactory.createTopic({
             oracleAddress: resultSetterAddress,
             eventName: name,
             resultNames: options,
@@ -323,7 +323,6 @@ module.exports = {
             resultSettingEndTime,
             senderAddress,
           });
-          txid = tx.txid;
         } catch (err) {
           logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
           throw err;
@@ -332,12 +331,11 @@ module.exports = {
         // Send approve first since allowance is not enough
         type = 'APPROVECREATEEVENT';
         try {
-          const approveTx = await bodhiToken.approve({
+          sentTx = await bodhiToken.approve({
             spender: addressManagerAddr,
             value: amount,
             senderAddress,
           });
-          txid = approveTx.txid;
         } catch (err) {
           logger.error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
@@ -348,12 +346,14 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        txid,
-        version,
+        sentTx.txid,
         type,
         status: txState.PENDING,
         createdTime: moment().unix(),
+        gasLimit: sentTx.args.gasLimit,
+        gasPrice: sentTx.args.gasPrice,
         senderAddress,
+        version,
         name,
         options,
         resultSetterAddress,
@@ -368,9 +368,9 @@ module.exports = {
 
       // Insert Topic
       const topic = {
-        txid,
-        version,
+        sentTx.txid,
         status: 'CREATED',
+        version,
         escrowAmount: amount,
         name,
         options,
@@ -383,9 +383,9 @@ module.exports = {
 
       // Insert Oracle
       const oracle = {
-        txid,
-        version,
+        sentTx.txid,
         status: 'CREATED',
+        version,
         resultSetterAddress,
         token: 'QTUM',
         name,
