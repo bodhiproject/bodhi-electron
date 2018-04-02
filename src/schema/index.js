@@ -62,7 +62,7 @@ type Transaction {
   createdTime: String!
   blockNum: Int
   blockTime: String
-  gasLimit: Int!
+  gasLimit: String!
   gasPrice: String!
   gasUsed: Int
   version: Int!
