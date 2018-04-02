@@ -205,6 +205,20 @@ async function isAllowanceEnough(owner, spender, amount) {
   }
 }
 
+// Get correct gas limit determined if voting over consensus threshold or not
+async function getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAmount) {
+  const oracle = await oraclesDb.findOne({ address: oracleAddress }, { consensusThreshold: 1, amounts: 1 });
+  if (!oracle) {
+    logger.error(`Could not find Oracle ${oracleAddress} in DB.`);
+    throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
+  }
+
+  const threshold = Web3Utils.toBN(oracle.consensusThreshold);
+  const currentTotal = Web3Utils.toBN(oracle.amounts[voteOptionIdx]);
+  const maxVote = threshold.sub(currentTotal);
+  return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
+}
+
 module.exports = {
   Query: {
     allTopics: async (root, {
@@ -510,7 +524,7 @@ module.exports = {
       return tx;
     },
 
-    createVote: async (root, data, { db: { Transactions } }) => {
+    createVote: async (root, data, { db: { Oracles, Transactions } }) => {
       const {
         version,
         topicAddress,
@@ -527,11 +541,15 @@ module.exports = {
         // Send vote since allowance is enough
         type = 'VOTE';
         try {
+          // Find if voting over threshold to set correct gas limit
+          const gasLimit = await getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
+
           sentTx = await decentralizedOracle.vote({
             contractAddress: oracleAddress,
             resultIndex: optionIdx,
             botAmount: amount,
             senderAddress,
+            gasLimit,
           });
         } catch (err) {
           logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
