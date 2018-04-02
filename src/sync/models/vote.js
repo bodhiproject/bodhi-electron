@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 
 const _ = require('lodash');
-const Decoder = require('qweb3').Decoder;
+const { Decoder, Utils } = require('qweb3');
 const Web3Utils = require('web3-utils');
 
 class Vote {
@@ -20,6 +20,7 @@ class Vote {
     this.participant = this.rawLog._participant;
     this.resultIndex = this.rawLog._resultIndex.toNumber();
     this.votedAmount = Web3Utils.hexToNumberString(this.rawLog._votedAmount);
+    this.token = Utils.toUtf8(this.rawLog._token);
   }
 
   translate() {
@@ -32,6 +33,7 @@ class Vote {
       oracleAddress: this.oracleAddress,
       optionIdx: this.resultIndex,
       amount: this.votedAmount,
+      token: this.token,
       blockNum: this.blockNum,
     };
   }
