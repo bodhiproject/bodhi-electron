@@ -346,7 +346,7 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        sentTx.txid,
+        txid: sentTx.txid,
         type,
         status: txState.PENDING,
         createdTime: moment().unix(),
@@ -368,7 +368,7 @@ module.exports = {
 
       // Insert Topic
       const topic = {
-        sentTx.txid,
+        txid: sentTx.txid,
         status: 'CREATED',
         version,
         escrowAmount: amount,
@@ -383,7 +383,7 @@ module.exports = {
 
       // Insert Oracle
       const oracle = {
-        sentTx.txid,
+        txid: sentTx.txid,
         status: 'CREATED',
         version,
         resultSetterAddress,
@@ -429,7 +429,7 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        sentTx.txid,
+        txid: sentTx.txid,
         type: 'BET',
         status: txState.PENDING,
         gasLimit: sentTx.args.gasLimit,
@@ -491,7 +491,7 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        sentTx.txid,
+        txid: sentTx.txid,
         type,
         status: txState.PENDING,
         gasLimit: sentTx.args.gasLimit,
@@ -554,7 +554,7 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        sentTx.txid,
+        txid: sentTx.txid,
         type,
         status: txState.PENDING,
         gasLimit: sentTx.args.gasLimit,
@@ -611,7 +611,7 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        sentTx.txid,
+        txid: sentTx.txid,
         type: 'FINALIZERESULT',
         status: txState.PENDING,
         gasLimit: sentTx.args.gasLimit,
@@ -671,7 +671,7 @@ module.exports = {
 
       // Insert Transaction
       const tx = {
-        sentTx.txid,
+        txid: sentTx.txid,
         type,
         status: txState.PENDING,
         gasLimit: sentTx.args.gasLimit,
