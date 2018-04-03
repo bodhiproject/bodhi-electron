@@ -7,25 +7,25 @@ module.exports = {
     },
   },
   totalQtumValue: {
-    result: {
-      0: '1dcd6500',
-    },
+    "result": {
+        "0": "500000000"
+    }
   },
   totalBotValue: {
-    result: {
-      0: '4a817c800',
-    },
+    "result": {
+        "0": "20000000000"
+    }
   },
   getFinalResult: {
-    result: {
-      0: 'ff',
-      1: false,
-    },
+    "result": {
+        "0": "255",
+        "1": false
+    }
   },
   status: {
-    result: {
-      0: '0',
-    },
+    "result": {
+        "0": "0"
+    }
   },
   didWithdraw: {
     result: {
@@ -33,9 +33,9 @@ module.exports = {
     },
   },
   calculateWinnings: {
-    result: {
-      0: '4a817c800',
-      1: '1dcd6500',
-    },
+    "result": {
+        "0": "10000000000",
+        "1": "100000000"
+    }
   },
 };
