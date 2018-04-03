@@ -7,10 +7,10 @@ module.exports = {
     },
   },
   allowance: {
-    result: {
-      0: '20c855800',
-      remaining: '20c855800',
-    },
+    "result": {
+      "0": "10000000000",
+      "remaining": "10000000000"
+    }
   },
   balanceOf: {
     result: {

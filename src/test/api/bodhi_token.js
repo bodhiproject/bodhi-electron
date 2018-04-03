@@ -1,6 +1,7 @@
 const Web3Utils = require('web3-utils');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
+const _ = require('lodash');
 
 const BodhiToken = require('../../api/bodhi_token');
 const ContractUtils = require('./util/contract_utils');
@@ -44,7 +45,7 @@ describe('BodhiToken', () => {
     it('returns the allowance', () => {
       const res = Mocks.allowance.result;
       assert.isDefined(res.remaining);
-      assert.isTrue(Web3Utils.isHex(res.remaining));
+      assert.isNumber(Number(res.remaining));
     });
 
     it('throws if owner is undefined', () => {
