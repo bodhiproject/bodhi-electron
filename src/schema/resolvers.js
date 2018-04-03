@@ -702,7 +702,7 @@ module.exports = {
         case 'QTUM': {
           // Send sendToAddress tx
           try {
-            const sentTx = await wallet.sendToAddress({
+            sentTx = await wallet.sendToAddress({
               address: receiverAddress,
               amount,
             });
