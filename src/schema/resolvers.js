@@ -702,11 +702,10 @@ module.exports = {
         case 'QTUM': {
           // Send sendToAddress tx
           try {
-            sentTx = await wallet.sendToAddress({
+            txid = await wallet.sendToAddress({
               address: receiverAddress,
               amount,
             });
-            txid = sentTx;
           } catch (err) {
             logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
             throw err;
