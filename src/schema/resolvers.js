@@ -702,11 +702,11 @@ module.exports = {
         case 'QTUM': {
           // Send sendToAddress tx
           try {
-            const tx = await wallet.sendToAddress({
+            const sentTx = await wallet.sendToAddress({
               address: receiverAddress,
               amount,
             });
-            txid = tx;
+            txid = sentTx;
           } catch (err) {
             logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
             throw err;
@@ -721,7 +721,7 @@ module.exports = {
               value: amount,
               senderAddress,
             });
-            txid = tx.txid;
+            txid = sentTx.txid;
           } catch (err) {
             logger.error(`Error calling BodhiToken.transfer: ${err.message}`);
             throw err;
