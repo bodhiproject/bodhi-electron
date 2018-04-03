@@ -45,7 +45,7 @@ describe('BodhiToken', () => {
     it('returns the allowance', () => {
       const res = Mocks.allowance.result;
       assert.isDefined(res.remaining);
-      assert.isNumber(Number(res.remaining));
+      assert.isNotNaN(Number(res.remaining));
     });
 
     it('throws if owner is undefined', () => {
@@ -74,7 +74,7 @@ describe('BodhiToken', () => {
     it('returns the allowance', () => {
       const res = Mocks.balanceOf.result;
       assert.isDefined(res.balance);
-      assert.isNumber(Number(res.balance));
+      assert.isNotNaN(Number(res.balance));
     });
 
     it('throws if owner is undefined', () => {
