@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 const GAS_LIMIT_CREATE_TOPIC = 3500000;
 
@@ -63,10 +64,12 @@ const EventFactory = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.call('version', {
+    const res = await contract.call('version', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 };
 
