@@ -24,10 +24,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('version', {
+    const res = await contract.call('version', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async resultIndex(args) {
@@ -44,10 +46,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('resultIndex', {
+    const res = await contract.call('resultIndex', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async getBetBalances(args) {
@@ -85,7 +89,7 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    const res = contract.call('getVoteBalances', {
+    const res = await contract.call('getVoteBalances', {
       methodArgs: [],
       senderAddress,
     });
@@ -106,7 +110,7 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    const res = contract.call('getTotalBets', {
+    const res = await contract.call('getTotalBets', {
       methodArgs: [],
       senderAddress,
     });
@@ -127,7 +131,7 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    const res = contract.call('getTotalVotes', {
+    const res = await contract.call('getTotalVotes', {
       methodArgs: [],
       senderAddress,
     });
