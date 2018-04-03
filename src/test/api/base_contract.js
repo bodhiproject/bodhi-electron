@@ -18,7 +18,7 @@ describe('BaseContract', () => {
     it('returns the version', () => {
       const res = Mocks.version.result;
       assert.isDefined(res[0]);
-      assert.equal(res[0], 0);
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -38,7 +38,7 @@ describe('BaseContract', () => {
     it('returns the resultIndex', () => {
       const res = Mocks.resultIndex.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -58,7 +58,7 @@ describe('BaseContract', () => {
     it('returns the bet balances', () => {
       const res = Mocks.getBetBalances.result;
       assert.isDefined(res[0]);
-      assert.isTrue(_.every(res[0], item => Web3Utils.isHex(item)));
+      assert.isTrue(_.every(res[0], item => !_.isNaN(Number(item))));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -78,7 +78,7 @@ describe('BaseContract', () => {
     it('returns the vote balances', () => {
       const res = Mocks.getVoteBalances.result;
       assert.isDefined(res[0]);
-      assert.isTrue(_.every(res[0], item => Web3Utils.isHex(item)));
+      assert.isTrue(_.every(res[0], item => !_.isNaN(Number(item))));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -98,7 +98,7 @@ describe('BaseContract', () => {
     it('returns the total bets', () => {
       const res = Mocks.getTotalBets.result;
       assert.isDefined(res[0]);
-      assert.isTrue(_.every(res[0], item => Web3Utils.isHex(item)));
+      assert.isTrue(_.every(res[0], item => !_.isNaN(Number(item))));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -118,7 +118,7 @@ describe('BaseContract', () => {
     it('returns the total votes', async () => {
       const res = Mocks.getTotalVotes.result;
       assert.isDefined(res[0]);
-      assert.isTrue(_.every(res[0], item => Web3Utils.isHex(item)));
+      assert.isTrue(_.every(res[0], item => !_.isNaN(Number(item))));
     });
 
     it('throws if contractAddress is undefined', () => {
