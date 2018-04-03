@@ -7,8 +7,8 @@ module.exports = {
     },
   },
   version: {
-    "result": {
-        "0": "0"
-    }
+    result: {
+      0: '0',
+    },
   },
 };

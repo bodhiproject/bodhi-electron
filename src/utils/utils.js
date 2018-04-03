@@ -58,7 +58,7 @@ class Utils {
       return undefined;
     }
 
-    return _.map(array, (item) => this.hexToDecimalString(item));
+    return _.map(array, item => this.hexToDecimalString(item));
   }
 }
 

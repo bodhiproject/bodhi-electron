@@ -5,9 +5,9 @@ module.exports = {
     },
   },
   consensusThreshold: {
-    "result": {
-        "0": "10000000000"
-    }
+    result: {
+      0: '10000000000',
+    },
   },
   finished: {
     result: {

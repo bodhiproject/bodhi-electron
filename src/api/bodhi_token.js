@@ -76,7 +76,7 @@ const BodhiToken = {
       senderAddress,
     });
     res[0] = Utils.hexToDecimalString(res[0]);
-    res['remaining'] = Utils.hexToDecimalString(res['remaining']);
+    res.remaining = Utils.hexToDecimalString(res.remaining);
     return res;
   },
 
@@ -98,7 +98,7 @@ const BodhiToken = {
       senderAddress,
     });
     res[0] = Utils.hexToDecimalString(res[0]);
-    res['balance'] = Utils.hexToDecimalString(res['balance']);
+    res.balance = Utils.hexToDecimalString(res.balance);
     return res;
   },
 };
