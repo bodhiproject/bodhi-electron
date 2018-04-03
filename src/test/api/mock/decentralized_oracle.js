@@ -19,8 +19,8 @@ module.exports = {
     },
   },
   lastResultIndex: {
-    result: {
-      0: '2',
-    },
+    "result": {
+        "0": "2"
+    }
   },
 };
