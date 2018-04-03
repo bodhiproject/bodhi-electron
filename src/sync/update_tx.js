@@ -113,13 +113,13 @@ async function updateDB(tx, db) {
 // Execute follow-up transaction for successful txs
 async function onSuccessfulTx(tx, db) {
   const Transactions = db.Transactions;
-  let txid;
+  let sentTx;
 
   switch (tx.type) {
     // Approve was accepted. Sending createEvent.
     case 'APPROVECREATEEVENT': {
       try {
-        const createTopicTx = await eventFactory.createTopic({
+        sentTx = await eventFactory.createTopic({
           oracleAddress: tx.resultSetterAddress,
           eventName: tx.name,
           resultNames: tx.options,
@@ -129,23 +129,24 @@ async function onSuccessfulTx(tx, db) {
           resultSettingEndTime: tx.resultSettingEndTime,
           senderAddress: tx.senderAddress,
         });
-        txid = createTopicTx.txid;
       } catch (err) {
         logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
         throw err;
       }
 
       // Update Topic's approve txid with the createTopic txid
-      await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid });
+      await DBHelper.updateObjectByQuery(db.Topics, { txid: tx.txid }, { txid: sentTx.txid });
 
       // Update Oracle's approve txid with the createTopic txid
-      await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid });
+      await DBHelper.updateObjectByQuery(db.Oracles, { txid: tx.txid }, { txid: sentTx.txid });
 
       await DBHelper.insertTransaction(Transactions, {
-        txid,
+        txid: sentTx.txid,
         version: tx.version,
         type: 'CREATEEVENT',
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit.toString(10),
+        gasPrice: sentTx.args.gasPrice.toFixed(8),
         createdTime: moment().unix(),
         senderAddress: tx.senderAddress,
         name: tx.name,
@@ -164,29 +165,30 @@ async function onSuccessfulTx(tx, db) {
     // Approve was accepted. Sending setResult.
     case 'APPROVESETRESULT': {
       try {
-        const setResultTx = await centralizedOracle.setResult({
+        sentTx = await centralizedOracle.setResult({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           senderAddress: tx.senderAddress,
         });
-        txid = setResultTx.txid;
       } catch (err) {
         logger.error(`Error calling CentralizedOracle.setResult: ${err.message}`);
         throw err;
       }
 
       await DBHelper.insertTransaction(Transactions, {
-        txid,
+        txid: sentTx.txid,
         version: tx.version,
         type: 'SETRESULT',
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit.toString(10),
+        gasPrice: sentTx.args.gasPrice.toFixed(8),
+        createdTime: moment().unix(),
         senderAddress: tx.senderAddress,
         topicAddress: tx.topicAddress,
         oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: moment().unix(),
       });
       break;
     }
@@ -194,30 +196,31 @@ async function onSuccessfulTx(tx, db) {
     // Approve was accepted. Sending vote.
     case 'APPROVEVOTE': {
       try {
-        const voteTx = await decentralizedOracle.vote({
+        sentTx = await decentralizedOracle.vote({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           botAmount: tx.amount,
           senderAddress: tx.senderAddress,
         });
-        txid = voteTx.txid;
       } catch (err) {
         logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
         throw err;
       }
 
       await DBHelper.insertTransaction(Transactions, {
-        txid,
+        txid: sentTx.txid,
         version: tx.version,
         type: 'VOTE',
         status: txState.PENDING,
+        gasLimit: sentTx.args.gasLimit.toString(10),
+        gasPrice: sentTx.args.gasPrice.toFixed(8),
+        createdTime: moment().unix(),
         senderAddress: tx.senderAddress,
         topicAddress: tx.topicAddress,
         oracleAddress: tx.oracleAddress,
         optionIdx: tx.optionIdx,
         token: 'BOT',
         amount: tx.amount,
-        createdTime: moment().unix(),
       });
       break;
     }
@@ -259,23 +262,24 @@ async function onFailedTx(tx, db) {
 
 // Failed approve tx so call approve for 0.
 async function resetApproveAmount(db, tx, spender) {
-  let txid;
+  let sentTx;
   try {
-    const approveTx = await bodhiToken.approve({
+    sentTx = await bodhiToken.approve({
       spender,
       value: 0,
       senderAddress: tx.senderAddress,
     });
-    txid = approveTx.txid;
   } catch (err) {
     logger.error(`Error calling BodhiToken.approve: ${err.message}`);
     throw err;
   }
 
   await DBHelper.insertTransaction(db.Transactions, {
-    txid,
+    txid: sentTx.txid,
     type: 'RESETAPPROVE',
     status: txState.PENDING,
+    gasLimit: sentTx.args.gasLimit.toString(10),
+    gasPrice: sentTx.args.gasPrice.toFixed(8),
     createdTime: moment().unix(),
     version: tx.version,
     senderAddress: tx.senderAddress,

@@ -62,6 +62,8 @@ type Transaction {
   createdTime: String!
   blockNum: Int
   blockTime: String
+  gasLimit: String!
+  gasPrice: String!
   gasUsed: Int
   version: Int!
   senderAddress: String!
