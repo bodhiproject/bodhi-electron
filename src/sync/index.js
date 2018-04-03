@@ -610,7 +610,6 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
         contractAddress: oracleAddress,
         senderAddress: SENDER_ADDRESS,
       });
-
       amounts = res[0];
     } catch (err) {
       logger.error(`Oracle.getTotalBets: ${err.message}`);
@@ -622,7 +621,6 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
         contractAddress: oracleAddress,
         senderAddress: SENDER_ADDRESS,
       });
-
       amounts = res[0];
     } catch (err) {
       logger.error(`Oracle.getTotalVotes: ${err.message}`);
@@ -631,9 +629,8 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
 
   // Update DB
   try {
-    const balances = _.map(amounts.slice(0, oracle.numOfResults), balanceBN => balanceBN.toString(10));
-    await db.Oracles.update({ address: oracleAddress }, { $set: { amounts: balances } });
-    logger.debug(`Update Oracle balances ${oracleAddress}, amounts ${balances}`);
+    await db.Oracles.update({ address: oracleAddress }, { $set: { amounts } });
+    logger.debug(`Update Oracle balances ${oracleAddress}, amounts ${amounts}`);
   } catch (err) {
     logger.error(`Update Oracle balances ${oracleAddress}: ${err.message}`);
   }
@@ -660,8 +657,7 @@ async function updateTopicBalance(topicAddress, db) {
       contractAddress: topicAddress,
       senderAddress: SENDER_ADDRESS,
     });
-
-    totalBets = _.map(res[0].slice(0, topic.options.length), balanceBN => balanceBN.toString(10));
+    totalBets = res[0];
   } catch (err) {
     logger.error(`Topic.getTotalBets: ${err.message}`);
   }
@@ -672,8 +668,7 @@ async function updateTopicBalance(topicAddress, db) {
       contractAddress: topicAddress,
       senderAddress: SENDER_ADDRESS,
     });
-
-    totalVotes = _.map(res[0].slice(0, topic.options.length), balanceBN => balanceBN.toString(10));
+    totalVotes = res[0];
   } catch (err) {
     logger.error(`Topic.getTotalVotes: ${err.message}`);
   }

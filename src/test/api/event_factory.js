@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
@@ -22,7 +21,7 @@ describe('EventFactory', () => {
     it('returns a version number', () => {
       const res = Mocks.version.result;
       assert.isDefined(res);
-      assert.isTrue(_.isNumber(Number(res[0])));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if senderAddress is undefined', () => {

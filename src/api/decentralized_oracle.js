@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 const GAS_LIMIT_VOTE = 1500000;
 
@@ -97,10 +98,12 @@ const DecentralizedOracle = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('lastResultIndex', {
+    const res = await contract.call('lastResultIndex', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 };
 

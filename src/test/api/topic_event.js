@@ -37,7 +37,7 @@ describe('TopicEvent', () => {
     it('returns the totalQtumValue', () => {
       const res = Mocks.totalQtumValue.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -57,7 +57,7 @@ describe('TopicEvent', () => {
     it('returns the totalBotValue', () => {
       const res = Mocks.totalBotValue.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -77,7 +77,7 @@ describe('TopicEvent', () => {
     it('returns the final result and valid flag', () => {
       const res = Mocks.getFinalResult.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
       assert.isDefined(res[1]);
       assert.isBoolean(res[1]);
     });
@@ -99,7 +99,7 @@ describe('TopicEvent', () => {
     it('returns the status', () => {
       const res = Mocks.status.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {
@@ -150,9 +150,9 @@ describe('TopicEvent', () => {
     it('returns the BOT and QTUM winnings', () => {
       const res = Mocks.calculateWinnings.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
       assert.isDefined(res[1]);
-      assert.isTrue(Web3Utils.isHex(res[1]));
+      assert.isNotNaN(Number(res[1]));
     });
 
     it('throws if contractAddress is undefined', () => {

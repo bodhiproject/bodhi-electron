@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 function getContract(contractAddress) {
   const metadata = getContractMetadata();
@@ -63,10 +64,12 @@ const TopicEvent = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('totalQtumValue', {
+    const res = await contract.call('totalQtumValue', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async totalBotValue(args) {
@@ -83,10 +86,12 @@ const TopicEvent = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('totalBotValue', {
+    const res = await contract.call('totalBotValue', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async getFinalResult(args) {
@@ -103,10 +108,12 @@ const TopicEvent = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getFinalResult', {
+    const res = await contract.call('getFinalResult', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async status(args) {
@@ -123,10 +130,12 @@ const TopicEvent = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('status', {
+    const res = await contract.call('status', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async didWithdraw(args) {
@@ -167,10 +176,13 @@ const TopicEvent = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('calculateWinnings', {
+    const res = await contract.call('calculateWinnings', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    res[1] = Utils.hexToDecimalString(res[1]);
+    return res;
   },
 };
 

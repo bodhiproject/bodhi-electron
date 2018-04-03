@@ -14,7 +14,7 @@ describe('AddressManager', () => {
     it('returns the lastEventFactoryIndex', () => {
       const res = Mocks.getLastEventFactoryIndex.result;
       assert.isDefined(res.lastEventFactoryIndex);
-      assert.isTrue(_.isNumber(Number(res.lastEventFactoryIndex)));
+      assert.isNotNaN(Number(res.lastEventFactoryIndex));
     });
 
     it('throws if senderAddress is undefined', () => {
@@ -26,7 +26,7 @@ describe('AddressManager', () => {
     it('returns the lastOracleFactoryIndex', async () => {
       const res = Mocks.getLastOracleFactoryIndex.result;
       assert.isDefined(res.lastOracleFactoryIndex);
-      assert.isTrue(_.isNumber(Number(res.lastOracleFactoryIndex)));
+      assert.isNotNaN(Number(res.lastOracleFactoryIndex));
     });
 
     it('throws if senderAddress is undefined', () => {

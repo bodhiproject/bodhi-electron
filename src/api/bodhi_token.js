@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 const metadata = getContractMetadata();
 const contract = new Contract(Config.QTUM_RPC_ADDRESS, metadata.BodhiToken.address, metadata.BodhiToken.abi);
@@ -70,10 +71,13 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.call('allowance', {
+    const res = await contract.call('allowance', {
       methodArgs: [owner, spender],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    res.remaining = Utils.hexToDecimalString(res.remaining);
+    return res;
   },
 
   async balanceOf(args) {
@@ -89,10 +93,13 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.call('balanceOf', {
+    const res = await contract.call('balanceOf', {
       methodArgs: [owner],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    res.balance = Utils.hexToDecimalString(res.balance);
+    return res;
   },
 };
 

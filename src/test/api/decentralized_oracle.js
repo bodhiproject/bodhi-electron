@@ -94,7 +94,7 @@ describe('DecentralizedOracle', () => {
     it('returns the lastResultIndex', () => {
       const res = Mocks.lastResultIndex.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {

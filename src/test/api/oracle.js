@@ -50,7 +50,7 @@ describe('Oracle', () => {
     it('returns the consensusThreshold', () => {
       const res = Mocks.consensusThreshold.result;
       assert.isDefined(res[0]);
-      assert.isTrue(Web3Utils.isHex(res[0]));
+      assert.isNotNaN(Number(res[0]));
     });
 
     it('throws if contractAddress is undefined', () => {

@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 function getContract(contractAddress) {
   const metadata = getContractMetadata();
@@ -23,10 +24,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('version', {
+    const res = await contract.call('version', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async resultIndex(args) {
@@ -43,10 +46,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('resultIndex', {
+    const res = await contract.call('resultIndex', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async getBetBalances(args) {
@@ -63,10 +68,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getBetBalances', {
+    const res = await contract.call('getBetBalances', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 
   async getVoteBalances(args) {
@@ -83,10 +90,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getVoteBalances', {
+    const res = await contract.call('getVoteBalances', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 
   async getTotalBets(args) {
@@ -103,10 +112,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getTotalBets', {
+    const res = await contract.call('getTotalBets', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 
   async getTotalVotes(args) {
@@ -123,10 +134,12 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getTotalVotes', {
+    const res = await contract.call('getTotalVotes', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 };
 

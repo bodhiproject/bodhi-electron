@@ -8,14 +8,14 @@ module.exports = {
   },
   allowance: {
     result: {
-      0: '20c855800',
-      remaining: '20c855800',
+      0: '10000000000',
+      remaining: '10000000000',
     },
   },
   balanceOf: {
     result: {
-      0: '8ae136b5119',
-      balance: '8ae136b5119',
+      0: '3742208143264',
+      balance: '3742208143264',
     },
   },
 };

@@ -1,6 +1,8 @@
 const fs = require('fs-extra');
 const _ = require('lodash');
 const { app } = require('electron');
+const Web3Utils = require('web3-utils');
+
 const { Config } = require('../config/config');
 
 const DIR_DEV = 'dev';
@@ -29,6 +31,34 @@ class Utils {
     fs.ensureDirSync(dataDir);
 
     return dataDir;
+  }
+
+  /*
+  * Converts a hex number to decimal string.
+  * @param input {String|Hex|BN} The hex number to convert.
+  */
+  static hexToDecimalString(input) {
+    if (!input) {
+      return undefined;
+    }
+
+    if (Web3Utils.isBN(input)) {
+      return input.toString(10);
+    }
+
+    if (Web3Utils.isHex(input)) {
+      return Web3Utils.toBN(input).toString(10);
+    }
+
+    return input.toString();
+  }
+
+  static hexArrayToDecimalArray(array) {
+    if (!array) {
+      return undefined;
+    }
+
+    return _.map(array, item => this.hexToDecimalString(item));
   }
 }
 

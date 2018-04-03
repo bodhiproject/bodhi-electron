@@ -8,17 +8,17 @@ module.exports = {
   },
   totalQtumValue: {
     result: {
-      0: '1dcd6500',
+      0: '500000000',
     },
   },
   totalBotValue: {
     result: {
-      0: '4a817c800',
+      0: '20000000000',
     },
   },
   getFinalResult: {
     result: {
-      0: 'ff',
+      0: '255',
       1: false,
     },
   },
@@ -34,8 +34,8 @@ module.exports = {
   },
   calculateWinnings: {
     result: {
-      0: '4a817c800',
-      1: '1dcd6500',
+      0: '10000000000',
+      1: '100000000',
     },
   },
 };

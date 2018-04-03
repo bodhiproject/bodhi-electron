@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 const ORACLE_CENTRALIZED = 'centralized';
 const ORACLE_DECENTRALIZED = 'decentralized';
@@ -65,10 +66,12 @@ const Oracle = {
     }
 
     const oracle = getContract(oracleType, contractAddress);
-    return oracle.call('consensusThreshold', {
+    const res = await oracle.call('consensusThreshold', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async finished(args) {
