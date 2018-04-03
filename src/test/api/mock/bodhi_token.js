@@ -13,9 +13,9 @@ module.exports = {
     }
   },
   balanceOf: {
-    result: {
-      0: '8ae136b5119',
-      balance: '8ae136b5119',
-    },
+    "result": {
+      "0": "3742208143264",
+      "balance": "3742208143264"
+    }
   },
 };

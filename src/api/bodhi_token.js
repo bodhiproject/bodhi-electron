@@ -93,10 +93,13 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.call('balanceOf', {
+    const res = await contract.call('balanceOf', {
       methodArgs: [owner],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    res['balance'] = Utils.hexToDecimalString(res['balance']);
+    return res;
   },
 };
 
