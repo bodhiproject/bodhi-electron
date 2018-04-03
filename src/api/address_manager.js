@@ -34,10 +34,12 @@ const AddressManager = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.call('getLastEventFactoryIndex', {
+    const res = await contract.call('getLastEventFactoryIndex', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 
   async getLastOracleFactoryIndex(args) {
@@ -49,10 +51,12 @@ const AddressManager = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.call('getLastOracleFactoryIndex', {
+    const res = await contract.call('getLastOracleFactoryIndex', {
       methodArgs: [],
       senderAddress,
     });
+    res[0] = Utils.hexToDecimalString(res[0]);
+    return res;
   },
 };
 
