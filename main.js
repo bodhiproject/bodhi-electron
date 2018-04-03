@@ -1,8 +1,9 @@
 const _ = require('lodash');
-const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
 
 const { Config } = require('./src/config/config');
 const logger = require('./src/utils/logger');
+const { ipcEvent } = require('./src/constants');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -112,8 +113,21 @@ app.on('ready', () => {
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 
   // Load app main page when qtumd is fully initialized
-  server.emitter.once('qtumd-started', () => {
+  server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+  });
+
+  // Show error dialog if any startup errors
+  server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+    dialog.showMessageBox({
+      type: 'error',
+      buttons: ['Quit'],
+      title: 'Error',
+      message: err,
+    }, (response) => {
+      killServer();
+      app.quit();
+    })
   });
 });
 

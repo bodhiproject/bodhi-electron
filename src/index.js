@@ -16,6 +16,7 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
+const { ipcEvent } = require('./constants');
 
 const qClient = require('./qclient').getInstance();
 
@@ -114,6 +115,9 @@ function startQtumProcess(reindex) {
         startQtumProcess(true);
       }, 3000);
     } else {
+      // Emit startup error event to Electron listener
+      emitter.emit(ipcEvent.STARTUP_ERROR, data.toString('utf-8'));
+
       // add delay to give some time to write to log file
       setTimeout(() => {
         process.exit();
@@ -152,7 +156,7 @@ function startServices() {
   setTimeout(() => {
     startSync();
     startAPI();
-    emitter.emit('qtumd-started');
+    emitter.emit(ipcEvent.QTUMD_STARTED);
   }, 3000);
 }
 
