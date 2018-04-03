@@ -72,7 +72,8 @@ const BaseContract = {
       methodArgs: [],
       senderAddress,
     });
-    return Utils.hexArrayToDecimalArray(res[0]);
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 
   async getVoteBalances(args) {
@@ -93,7 +94,8 @@ const BaseContract = {
       methodArgs: [],
       senderAddress,
     });
-    return Utils.hexArrayToDecimalArray(res[0]);
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 
   async getTotalBets(args) {
@@ -114,7 +116,8 @@ const BaseContract = {
       methodArgs: [],
       senderAddress,
     });
-    return Utils.hexArrayToDecimalArray(res[0]);
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 
   async getTotalVotes(args) {
@@ -135,7 +138,8 @@ const BaseContract = {
       methodArgs: [],
       senderAddress,
     });
-    return Utils.hexArrayToDecimalArray(res[0]);
+    res[0] = Utils.hexArrayToDecimalArray(res[0]);
+    return res;
   },
 };
 
