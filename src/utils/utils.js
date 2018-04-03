@@ -4,6 +4,7 @@ const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
 const { Config } = require('../config/config');
+const { version } = require('../../package.json');
 
 const DIR_DEV = 'dev';
 
@@ -16,12 +17,16 @@ class Utils {
 
     let dataDir;
     if (_.indexOf(process.argv, '--dev') === -1) {
-      const version = Config.CONTRACT_VERSION_NUM;
-      const testnet = Config.TESTNET;
-      const pathPrefix = testnet ? 'testnet' : 'mainnet';
+      const pathPrefix = Config.TESTNET ? 'testnet' : 'mainnet';
+
+      const lastPeriodIndex = _.lastIndexOf(version, ".");
+      if (lastPeriodIndex === -1) {
+        throw new Error(`Invalid version number: ${version}`);
+      }
+      const versionDir = version.substr(0, lastPeriodIndex);
 
       // production
-      dataDir = `${osDataDir}/${pathPrefix}/${version}`;
+      dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
     } else {
       // development
       dataDir = `${osDataDir}/${DIR_DEV}`;
