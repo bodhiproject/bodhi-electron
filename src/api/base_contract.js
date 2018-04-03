@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Contract } = require('qweb3');
 
 const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
 
 function getContract(contractAddress) {
   const metadata = getContractMetadata();
@@ -63,10 +64,11 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getBetBalances', {
+    const res = await contract.call('getBetBalances', {
       methodArgs: [],
       senderAddress,
     });
+    return Utils.hexArrayToDecimalArray(res[0]);
   },
 
   async getVoteBalances(args) {
@@ -83,10 +85,11 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getVoteBalances', {
+    const res = contract.call('getVoteBalances', {
       methodArgs: [],
       senderAddress,
     });
+    return Utils.hexArrayToDecimalArray(res[0]);
   },
 
   async getTotalBets(args) {
@@ -103,10 +106,11 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getTotalBets', {
+    const res = contract.call('getTotalBets', {
       methodArgs: [],
       senderAddress,
     });
+    return Utils.hexArrayToDecimalArray(res[0]);
   },
 
   async getTotalVotes(args) {
@@ -123,10 +127,11 @@ const BaseContract = {
     }
 
     const contract = getContract(contractAddress);
-    return contract.call('getTotalVotes', {
+    const res = contract.call('getTotalVotes', {
       methodArgs: [],
       senderAddress,
     });
+    return Utils.hexArrayToDecimalArray(res[0]);
   },
 };
 

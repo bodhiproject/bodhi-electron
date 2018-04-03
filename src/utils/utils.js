@@ -52,6 +52,14 @@ class Utils {
 
     return input.toString();
   }
+
+  static hexArrayToDecimalArray(array) {
+    if (!array) {
+      return undefined;
+    }
+
+    return _.map(array, (item) => this.hexToDecimalString(item));
+  }
 }
 
 module.exports = Utils;
