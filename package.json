@@ -45,6 +45,7 @@
       "target": "dmg"
     },
     "win": {
+      "allowToChangeInstallationDirectory": true,
       "asar": true,
       "asarUnpack": [
         "qtum/win64/bin/*",
@@ -62,6 +63,7 @@
         }
       ],
       "icon": "build/icon.ico",
+      "oneClick": false,
       "target": [
         {
           "target": "nsis",
