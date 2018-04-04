@@ -19,6 +19,7 @@ const OracleResultSet = require('./models/oracleResultSet');
 const FinalResultSet = require('./models/finalResultSet');
 const bodhiToken = require('../api/bodhi_token');
 const baseContract = require('../api/base_contract');
+const wallet = require('../api/wallet');
 
 const qclient = require('../qclient').getInstance();
 
@@ -743,6 +744,16 @@ async function getAddressBalances() {
       resolve();
     });
   });
+
+  // Add default address with zero balances if no address was used before
+  if (_.isEmpty(addressObjs)) {
+    const address = await wallet.getAccountAddress({ accountName: '' });
+    addressObjs.push({
+      address,
+      qtum: '0',
+      bot: '0',
+    });
+  }
 
   return addressObjs;
 }
