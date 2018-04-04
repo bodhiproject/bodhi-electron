@@ -17,6 +17,14 @@ describe('Blockchain', () => {
     });
   });
 
+  describe('getBlockHash()', () => {
+    it('returns the block hash', async () => {
+      const res = await Blockchain.getBlockHash({ blockNum: 0 });
+      assert.isDefined(res);
+      assert.isString(res);
+    });
+  });
+
   describe('getTransactionReceipt()', () => {
     it('returns the transaction info', () => {
       const res = Mocks.getTransactionReceipt.result;
