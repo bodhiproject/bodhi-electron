@@ -461,7 +461,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
 
             await db.Oracles.update(
               { topicAddress: topicResult.topicAddress },
-              { $set: { resultIdx: topicResult.resultIdx, status: 'WITHDRAW' } }, { multi: true },
+              { $set: { status: 'WITHDRAW' } }, { multi: true },
             );
 
             // safeguard to update balance, can be removed in the future
