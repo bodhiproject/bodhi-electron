@@ -257,22 +257,6 @@ module.exports = {
 
     syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
       const fetchBalance = includeBalance || false;
-      // let syncBlockNum = null;
-      // let syncBlockTime = null;
-      // let syncPercent = null;
-      // let blocks;
-      // try {
-      //   blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
-      // } catch (err) {
-      //   logger.error(`Error query latest block from db: ${err.message}`);
-      // }
-
-      // if (blocks.length > 0) {
-      //   syncBlockNum = blocks[0].blockNum;
-      //   syncBlockTime = blocks[0].blockTime;
-      //   syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
-      // }
-
       const syncBlockNum = Math.max(0, await blockchain.getBlockCount());
       const blockHash = await blockchain.getBlockHash({ blockNum: syncBlockNum });
       const syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
@@ -282,8 +266,6 @@ module.exports = {
       if (fetchBalance) {
         addressBalances = await getAddressBalances();
       }
-
-      console.log(`blockNum: ${syncBlockNum} blockTime: ${syncBlockTime} syncPercent: ${syncPercent}`);
 
       return {
         syncBlockNum,
