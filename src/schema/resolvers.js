@@ -14,6 +14,7 @@ const { Config, getContractMetadata } = require('../config/config');
 const DBHelper = require('../db/nedb').DBHelper;
 const { txState } = require('../constants');
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
+const Utils = require('../utils/utils');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -510,7 +511,7 @@ module.exports = {
       return tx;
     },
 
-    createVote: async (root, data, { db: { Transactions } }) => {
+    createVote: async (root, data, { db: { Oracles, Transactions } }) => {
       const {
         version,
         topicAddress,
@@ -527,11 +528,15 @@ module.exports = {
         // Send vote since allowance is enough
         type = 'VOTE';
         try {
+          // Find if voting over threshold to set correct gas limit
+          const gasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
+
           sentTx = await decentralizedOracle.vote({
             contractAddress: oracleAddress,
             resultIndex: optionIdx,
             botAmount: amount,
             senderAddress,
+            gasLimit,
           });
         } catch (err) {
           logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);

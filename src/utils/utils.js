@@ -60,6 +60,20 @@ class Utils {
 
     return _.map(array, item => this.hexToDecimalString(item));
   }
+
+  // Get correct gas limit determined if voting over consensus threshold or not
+  static async getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAmount) {
+    const oracle = await oraclesDb.findOne({ address: oracleAddress }, { consensusThreshold: 1, amounts: 1 });
+    if (!oracle) {
+      logger.error(`Could not find Oracle ${oracleAddress} in DB.`);
+      throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
+    }
+
+    const threshold = Web3Utils.toBN(oracle.consensusThreshold);
+    const currentTotal = Web3Utils.toBN(oracle.amounts[voteOptionIdx]);
+    const maxVote = threshold.sub(currentTotal);
+    return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
+  }
 }
 
 module.exports = Utils;

@@ -11,6 +11,7 @@ const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 const { Config, getContractMetadata } = require('../config/config');
 const { txState } = require('../constants');
+const Utils = require('../utils/utils');
 
 const contractMetadata = getContractMetadata();
 
@@ -112,7 +113,7 @@ async function updateDB(tx, db) {
 
 // Execute follow-up transaction for successful txs
 async function onSuccessfulTx(tx, db) {
-  const Transactions = db.Transactions;
+  const { Oracles, Transactions } = db;
   let sentTx;
 
   switch (tx.type) {
@@ -196,11 +197,15 @@ async function onSuccessfulTx(tx, db) {
     // Approve was accepted. Sending vote.
     case 'APPROVEVOTE': {
       try {
+        // Find if voting over threshold to set correct gas limit
+        const gasLimit = await Utils.getVotingGasLimit(Oracles, tx.oracleAddress, tx.optionIdx, tx.amount);
+
         sentTx = await decentralizedOracle.vote({
           contractAddress: tx.oracleAddress,
           resultIndex: tx.optionIdx,
           botAmount: tx.amount,
           senderAddress: tx.senderAddress,
+          gasLimit,
         });
       } catch (err) {
         logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
