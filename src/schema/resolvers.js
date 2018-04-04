@@ -14,6 +14,7 @@ const { Config, getContractMetadata } = require('../config/config');
 const DBHelper = require('../db/nedb').DBHelper;
 const { txState } = require('../constants');
 const { calculateSyncPercent, getAddressBalances } = require('../sync');
+const Utils = require('../utils/utils');
 
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
@@ -203,20 +204,6 @@ async function isAllowanceEnough(owner, spender, amount) {
     logger.error(`Error checking allowance: ${err.message}`);
     throw err;
   }
-}
-
-// Get correct gas limit determined if voting over consensus threshold or not
-async function getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAmount) {
-  const oracle = await oraclesDb.findOne({ address: oracleAddress }, { consensusThreshold: 1, amounts: 1 });
-  if (!oracle) {
-    logger.error(`Could not find Oracle ${oracleAddress} in DB.`);
-    throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
-  }
-
-  const threshold = Web3Utils.toBN(oracle.consensusThreshold);
-  const currentTotal = Web3Utils.toBN(oracle.amounts[voteOptionIdx]);
-  const maxVote = threshold.sub(currentTotal);
-  return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
 }
 
 module.exports = {
@@ -542,7 +529,7 @@ module.exports = {
         type = 'VOTE';
         try {
           // Find if voting over threshold to set correct gas limit
-          const gasLimit = await getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
+          const gasLimit = await Utils.getVotingGasLimit(Oracles, oracleAddress, optionIdx, amount);
 
           sentTx = await decentralizedOracle.vote({
             contractAddress: oracleAddress,
