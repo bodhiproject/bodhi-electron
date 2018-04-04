@@ -4,6 +4,7 @@ const moment = require('moment');
 
 const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
+const blockchain = require('../api/blockchain');
 const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
 const eventFactory = require('../api/event_factory');
@@ -256,21 +257,26 @@ module.exports = {
 
     syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
       const fetchBalance = includeBalance || false;
-      let syncBlockNum = null;
-      let syncBlockTime = null;
-      let syncPercent = null;
-      let blocks;
-      try {
-        blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
-      } catch (err) {
-        logger.error(`Error query latest block from db: ${err.message}`);
-      }
+      // let syncBlockNum = null;
+      // let syncBlockTime = null;
+      // let syncPercent = null;
+      // let blocks;
+      // try {
+      //   blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+      // } catch (err) {
+      //   logger.error(`Error query latest block from db: ${err.message}`);
+      // }
 
-      if (blocks.length > 0) {
-        syncBlockNum = blocks[0].blockNum;
-        syncBlockTime = blocks[0].blockTime;
-        syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
-      }
+      // if (blocks.length > 0) {
+      //   syncBlockNum = blocks[0].blockNum;
+      //   syncBlockTime = blocks[0].blockTime;
+      //   syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
+      // }
+
+      const currentBlockCount = Math.max(0, await qclient.getBlockCount());
+      const currentBlockHash = await qclient.getBlockHash(currentBlockCount);
+      const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
+      const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
 
       let addressBalances = [];
       if (fetchBalance) {
