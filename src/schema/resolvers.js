@@ -273,15 +273,17 @@ module.exports = {
       //   syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
       // }
 
-      const currentBlockCount = Math.max(0, await qclient.getBlockCount());
-      const currentBlockHash = await qclient.getBlockHash(currentBlockCount);
-      const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
+      const syncBlockNum = Math.max(0, await blockchain.getBlockCount());
+      const blockHash = await blockchain.getBlockHash({ blockNum: syncBlockNum });
+      const syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
       const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
 
       let addressBalances = [];
       if (fetchBalance) {
         addressBalances = await getAddressBalances();
       }
+
+      console.log(`blockNum: ${syncBlockNum} blockTime: ${syncBlockTime} syncPercent: ${syncPercent}`);
 
       return {
         syncBlockNum,
