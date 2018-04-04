@@ -44,7 +44,7 @@ async function updateTx(tx, currentBlockCount) {
     const txInfo = await wallet.getTransaction({ txid: tx.txid });
     // const blockInfo = await blockchain.getBlock({ blockHash: txInfo.blockhash });
 
-    if (txInfo.confirmations >= Config.TRANSFER_MIN_CONFIRMATIONS) {
+    if (tx.createdBlock && currentBlockCount >= tx.createdBlock + Config.TRANSFER_MIN_CONFIRMATIONS) {
       tx.status = txInfo.confirmations === 0 ? txState.FAIL : txState.SUCCESS;
       tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
       tx.blockNum = blockInfo.height;

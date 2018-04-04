@@ -8,8 +8,6 @@ const metadata = getContractMetadata();
 
 const Blockchain = {
   async getBlock(args) {
-    console.log('getBlock args', args);
-
     const {
       blockHash, // string
     } = args;
