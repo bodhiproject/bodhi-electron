@@ -59,6 +59,7 @@ type Transaction {
   type: _TransactionType!
   status: _TransactionStatus!
   txid: String
+  createdBlock: Int
   createdTime: String!
   blockNum: Int
   blockTime: String

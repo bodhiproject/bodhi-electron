@@ -705,6 +705,7 @@ module.exports = {
       } = data;
 
       const version = Config.CONTRACT_VERSION_NUM;
+      const createdBlock = await blockchain.getBlockCount();
 
       let txid;
       let sentTx;
@@ -715,6 +716,8 @@ module.exports = {
             txid = await wallet.sendToAddress({
               address: receiverAddress,
               amount,
+              senderAddress,
+              changeToAddress: true,
             });
           } catch (err) {
             logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
@@ -751,6 +754,7 @@ module.exports = {
         status: txState.PENDING,
         gasLimit: gasLimit.toString(10),
         gasPrice: gasPrice.toFixed(8),
+        createdBlock,
         createdTime: moment().unix(),
         senderAddress,
         version,
