@@ -11,6 +11,7 @@ const decentralizedOracle = require('../api/decentralized_oracle');
 const DBHelper = require('../db/nedb').DBHelper;
 const { Config, getContractMetadata } = require('../config/config');
 const { txState } = require('../constants');
+const Utils = require('../utils/utils');
 
 const contractMetadata = getContractMetadata();
 
