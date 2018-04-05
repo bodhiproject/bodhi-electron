@@ -25,8 +25,8 @@ class Utils {
       }
       // Example: 0.6.5-c0-d1
       // c0 = contract version 0, d1 = db version 1
-      const patchVersionArr = version.substr(lastPeriodIndex + 1).split('-'); // ie. 5-c0-d1
-      const versionDir = `${patchVersionArr[1]}.${patchVersionArr[2]}` // ie. c0.d1
+      const patchVersionArr = version.substr(lastPeriodIndex + 1).split('-'); // 5-c0-d1
+      const versionDir = `${patchVersionArr[1]}.${patchVersionArr[2]}` // c0.d1
 
       // production
       dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
