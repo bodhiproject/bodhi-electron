@@ -705,7 +705,7 @@ module.exports = {
       } = data;
 
       const version = Config.CONTRACT_VERSION_NUM;
-      const createdBlock = await blockchain.getBlockCount();
+      const blockNum = await blockchain.getBlockCount();
 
       let txid;
       let sentTx;
@@ -754,7 +754,7 @@ module.exports = {
         status: txState.PENDING,
         gasLimit: gasLimit.toString(10),
         gasPrice: gasPrice.toFixed(8),
-        createdBlock,
+        blockNum,
         createdTime: moment().unix(),
         senderAddress,
         version,
