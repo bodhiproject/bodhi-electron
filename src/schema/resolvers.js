@@ -256,12 +256,28 @@ module.exports = {
     },
 
     syncInfo: async (root, { includeBalance }, { db: { Blocks } }) => {
-      const fetchBalance = includeBalance || false;
-      const syncBlockNum = Math.max(0, await blockchain.getBlockCount());
-      const blockHash = await blockchain.getBlockHash({ blockNum: syncBlockNum });
-      const syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
+      let blocks;
+      try {
+        blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
+      } catch (err) {
+        logger.error(`Error query latest block from db: ${err.message}`);
+      }
+
+      let syncBlockNum;
+      let syncBlockTime;
+      if (blocks && blocks.length > 0) {
+        // Use latest block synced
+        syncBlockNum = blocks[0].blockNum;
+        syncBlockTime = blocks[0].blockTime;
+      } else {
+        // Fetch current block from qtum 
+        syncBlockNum = Math.max(0, await blockchain.getBlockCount());
+        const blockHash = await blockchain.getBlockHash({ blockNum: syncBlockNum });
+        syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
+      }
       const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
 
+      const fetchBalance = includeBalance || false;
       let addressBalances = [];
       if (fetchBalance) {
         addressBalances = await getAddressBalances();
