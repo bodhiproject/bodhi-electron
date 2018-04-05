@@ -543,7 +543,7 @@ async function calculateSyncPercent(blockCount, blockTime) {
     return syncPercent;
   }
 
-  return Math.floor(blockCount / peerBlockHeader) * 100;
+  return Math.floor(blockCount / peerBlockHeader * 100);
 }
 
 // Send syncInfo subscription

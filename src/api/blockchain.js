@@ -27,6 +27,18 @@ const Blockchain = {
     return qClient.getBlockCount();
   },
 
+  async getBlockHash(args) {
+    const {
+      blockNum, // string
+    } = args;
+
+    if (_.isUndefined(blockNum)) {
+      throw new TypeError('blockNum needs to be defined');
+    }
+
+    return qClient.getBlockHash(blockNum);
+  },
+
   async getTransactionReceipt(args) {
     const {
       transactionId, // string
