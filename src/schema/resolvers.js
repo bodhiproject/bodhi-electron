@@ -277,9 +277,8 @@ module.exports = {
       }
       const syncPercent = await calculateSyncPercent(syncBlockNum, syncBlockTime);
 
-      const fetchBalance = includeBalance || false;
       let addressBalances = [];
-      if (fetchBalance) {
+      if (includeBalance || false) {
         addressBalances = await getAddressBalances();
       }
 
