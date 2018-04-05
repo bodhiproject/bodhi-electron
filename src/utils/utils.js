@@ -23,7 +23,10 @@ class Utils {
       if (lastPeriodIndex === -1) {
         throw new Error(`Invalid version number: ${version}`);
       }
-      const versionDir = version.substr(0, lastPeriodIndex);
+      // Example: 0.6.5-c0-d1
+      // c0 = contract version 0, d1 = db version 1
+      const patchVersionArr = version.substr(lastPeriodIndex + 1).split('-'); // ie. 5-c0-d1
+      const versionDir = `${patchVersionArr[1]}.${patchVersionArr[2]}` // ie. c0.d1
 
       // production
       dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
