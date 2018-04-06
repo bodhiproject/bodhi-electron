@@ -19,14 +19,13 @@ class Utils {
     if (_.indexOf(process.argv, '--dev') === -1) {
       const pathPrefix = Config.TESTNET ? 'testnet' : 'mainnet';
 
-      const lastPeriodIndex = _.lastIndexOf(version, ".");
-      if (lastPeriodIndex === -1) {
+      const regexMatches = version.exec(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
+      if (regexMatches === null) {
         throw new Error(`Invalid version number: ${version}`);
       }
       // Example: 0.6.5-c0-d1
       // c0 = contract version 0, d1 = db version 1
-      const patchVersionArr = version.substr(lastPeriodIndex + 1).split('-'); // 5-c0-d1
-      const versionDir = `${patchVersionArr[1]}_${patchVersionArr[2]}` // c0_d1
+      const versionDir = `${regexMatches[3]}_${regexMatches[4]}` // c0_d1
 
       // production
       dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
