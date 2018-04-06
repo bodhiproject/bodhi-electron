@@ -16,8 +16,9 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
-const { ipcEvent } = require('./constants');
+const { environment, ipcEvent } = require('./constants');
 
+const env = require('../main').env;
 const qClient = require('./qclient').getInstance();
 
 const emitter = new EventEmitter();
@@ -90,7 +91,10 @@ function startQtumProcess(reindex) {
   }
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
-  const flags = ['-testnet', '-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  if (env === environment.TESTNET) {
+    flags.push('-testnet');
+  }
   if (reindex) {
     flags.push('-reindex');
   }

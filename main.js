@@ -178,3 +178,5 @@ app.on('before-quit', () => {
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
+
+exports.env = env;

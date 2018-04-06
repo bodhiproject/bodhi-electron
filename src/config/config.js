@@ -16,6 +16,12 @@ const Config = {
   CREATE_DORACLE_GAS_LIMIT: 1500000,
 };
 
+let env;
+
+function setEnvironment(environment) {
+  env = environment;
+}
+
 /*
 * Gets the smart contract metadata based on version and environment.
 * @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
@@ -35,5 +41,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet =
 
 module.exports = {
   Config,
+  env,
+  setEnvironment,
   getContractMetadata,
 };
