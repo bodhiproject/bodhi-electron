@@ -40,14 +40,16 @@ async function updatePendingTxs(db, currentBlockCount) {
 // Update the Transaction info
 async function updateTx(tx, currentBlockCount) {
   // sendtoaddress does not use the same confirmation method as EVM txs
-  if (tx.type === 'TRANSFER' && tx.token === 'QTUM') {
+  if (tx.type === 'TRANSFER' && tx.token === 'QTUM' && !tx.blockNum) {
     const txInfo = await wallet.getTransaction({ txid: tx.txid });
-    const blockInfo = await blockchain.getBlock({ blockHash: txInfo.blockhash });
 
-    if (currentBlockCount >= blockInfo.height + Config.TRANSFER_MIN_CONFIRMATIONS) {
-      tx.status = txInfo.confirmations === 0 ? txState.FAIL : txState.SUCCESS;
+    if (txInfo.confirmations > 0) {
+      tx.status = txState.SUCCESS;
       tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
-      tx.blockNum = blockInfo.height;
+
+      tx.blockNum = currentBlockCount - txInfo.confirmations + 1;
+      const blockHash = await blockchain.getBlockHash({ blockNum: tx.blockNum });
+      const blockInfo = await blockchain.getBlock({ blockHash });
       tx.blockTime = blockInfo.time;
     }
     return;

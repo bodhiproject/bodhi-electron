@@ -118,6 +118,15 @@ apiRouter.get('/get-block-count', (req, res, next) => {
     });
 });
 
+apiRouter.post('/get-block-hash', (req, res, next) => {
+  Blockchain.getBlockHash(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 apiRouter.post('/get-transaction-receipt', (req, res, next) => {
   Blockchain.getTransactionReceipt(req.params)
     .then((result) => {

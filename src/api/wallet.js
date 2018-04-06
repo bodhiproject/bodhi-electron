@@ -46,6 +46,8 @@ const Wallet = {
       comment, // string
       commentTo, // string
       subtractFeeFromAmount, // boolean
+      senderAddress, // string: QTUM address
+      changeToAddress, // boolean
     } = args;
 
     if (_.isUndefined(address)) {
@@ -55,7 +57,8 @@ const Wallet = {
       throw new TypeError('amount needs to be defined');
     }
 
-    return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount);
+    return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount, senderAddress,
+      changeToAddress);
   },
 
   async walletPassphrase(args) {

@@ -715,6 +715,8 @@ module.exports = {
             txid = await wallet.sendToAddress({
               address: receiverAddress,
               amount,
+              senderAddress,
+              changeToAddress: true,
             });
           } catch (err) {
             logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);

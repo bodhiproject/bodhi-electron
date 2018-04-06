@@ -29,7 +29,7 @@ const Blockchain = {
 
   async getBlockHash(args) {
     const {
-      blockNum, // string
+      blockNum, // number
     } = args;
 
     if (_.isUndefined(blockNum)) {
