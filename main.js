@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
 
-const { Config } = require('./src/config/config');
+const { Config, setEnvironment } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { environment, ipcEvent } = require('./src/constants');
 
@@ -9,7 +9,6 @@ const { environment, ipcEvent } = require('./src/constants');
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let server;
-let env;
 
 function createWindow() {
   // Create the browser window.
@@ -142,10 +141,10 @@ app.on('ready', () => {
     // Set env var so sync knows which flags to add on startup
     if (response === 0) {
       console.log('Environment: Mainnet');
-      env = environment.MAINNET;
+      setEnvironment(environment.MAINNET);
     } else {
       console.log('Environment: Testnet');
-      env = environment.TESTNET;
+      setEnvironment(environment.TESTNET);
     }
 
     // Start server and init Electron windows
@@ -178,5 +177,3 @@ app.on('before-quit', () => {
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
-
-exports.env = env;
