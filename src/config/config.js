@@ -16,12 +16,14 @@ const Config = {
   CREATE_DORACLE_GAS_LIMIT: 1500000,
 };
 
-let environment;
-const env = () => environment;
-
-function setEnvironment(newEnv) {
-  environment = newEnv;
-  console.log(`Environment: ${environment}`);
+// Qtumd environment var: testnet/mainnet
+let env;
+setEnvironment = (newEnv) => {
+  env = newEnv;
+  console.log(`Environment: ${env}`);
+}
+getEnvironment = () => {
+  return env;
 }
 
 /*
@@ -35,7 +37,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
     throw new Error('Must supply a version number');
   }
 
-  if (env() === blockchainEnv.TESTNET) {
+  if (env === blockchainEnv.TESTNET) {
     return testnetMetadata[versionNum];
   }
   return mainnetMetadata[versionNum];
@@ -43,7 +45,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
 
 module.exports = {
   Config,
-  env,
+  getEnvironment,
   setEnvironment,
   getContractMetadata,
 };

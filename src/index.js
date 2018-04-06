@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
 
-const { Config, env } = require('./config/config');
+const { Config, getEnvironment } = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -93,7 +93,7 @@ function startQtumProcess(reindex) {
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
   const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
-  if (env() === blockchainEnv.TESTNET) {
+  if (getEnvironment() === blockchainEnv.TESTNET) {
     flags.push('-testnet');
   }
   if (reindex) {

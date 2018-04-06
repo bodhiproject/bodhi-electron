@@ -3,7 +3,7 @@ const _ = require('lodash');
 const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
-const { Config, env } = require('../config/config');
+const { Config, getEnvironment } = require('../config/config');
 const { version } = require('../../package.json');
 const { blockchainEnv } = require('../constants');
 
@@ -18,7 +18,7 @@ class Utils {
 
     let dataDir;
     if (_.indexOf(process.argv, '--dev') === -1) {
-      const pathPrefix = env() === blockchainEnv.TESTNET ? 'testnet' : 'mainnet';
+      const pathPrefix = getEnvironment() === blockchainEnv.TESTNET ? 'testnet' : 'mainnet';
 
       const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
       const regexGroups = regex.exec(version);
