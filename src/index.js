@@ -16,7 +16,7 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
-const { environment, ipcEvent } = require('./constants');
+const { blockchainEnv, ipcEvent } = require('./constants');
 
 const qClient = require('./qclient').getInstance();
 
@@ -93,7 +93,7 @@ function startQtumProcess(reindex) {
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
   const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
-  if (env === environment.TESTNET) {
+  if (env() === blockchainEnv.TESTNET) {
     flags.push('-testnet');
   }
   if (reindex) {

@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron')
 
 const { Config, setEnvironment } = require('./src/config/config');
 const logger = require('./src/utils/logger');
-const { environment, ipcEvent } = require('./src/constants');
+const { blockchainEnv, ipcEvent } = require('./src/constants');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -140,9 +140,9 @@ app.on('ready', () => {
   }, (response) => {
     // Set env var so sync knows which flags to add on startup
     if (response === 0) {
-      setEnvironment(environment.MAINNET);
+      setEnvironment(blockchainEnv.MAINNET);
     } else {
-      setEnvironment(environment.TESTNET);
+      setEnvironment(blockchainEnv.TESTNET);
     }
 
     // Start server and init Electron windows

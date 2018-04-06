@@ -1,5 +1,5 @@
 module.exports = {
-  environment: {
+  blockchainEnv: {
     MAINNET: 'mainnet',
     TESTNET: 'testnet',
   },

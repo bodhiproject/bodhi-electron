@@ -5,7 +5,7 @@ const Web3Utils = require('web3-utils');
 
 const { Config, env } = require('../config/config');
 const { version } = require('../../package.json');
-const { environment } = require('../constants');
+const { blockchainEnv } = require('../constants');
 
 const DIR_DEV = 'dev';
 
@@ -18,7 +18,7 @@ class Utils {
 
     let dataDir;
     if (_.indexOf(process.argv, '--dev') === -1) {
-      const pathPrefix = env === environment.TESTNET ? 'testnet' : 'mainnet';
+      const pathPrefix = env() === blockchainEnv.TESTNET ? 'testnet' : 'mainnet';
 
       const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
       const regexGroups = regex.exec(version);

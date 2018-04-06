@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { environment } = require('../constants');
+const { blockchainEnv } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract_metadata');
 const testnetMetadata = require('./testnet/contract_metadata');
 
@@ -17,10 +17,11 @@ const Config = {
   CREATE_DORACLE_GAS_LIMIT: 1500000,
 };
 
-let env;
+let environment;
+const env = () => environment;
 
-function setEnvironment(environment) {
-  env = environment;
+function setEnvironment(newEnv) {
+  environment = newEnv;
   console.log(`Environment: ${environment}`);
 }
 
@@ -35,7 +36,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
     throw new Error('Must supply a version number');
   }
 
-  if (env === environment.TESTNET) {
+  if (env === blockchainEnv.TESTNET) {
     return testnetMetadata[versionNum];
   }
   return mainnetMetadata[versionNum];
