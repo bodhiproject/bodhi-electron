@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
 
-const { Config, setEnvironment } = require('./src/config/config');
+const { Config, setQtumEnv } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
 
@@ -140,9 +140,9 @@ app.on('ready', () => {
   }, (response) => {
     // Set env var so sync knows which flags to add on startup
     if (response === 0) {
-      setEnvironment(blockchainEnv.MAINNET);
+      setQtumEnv(blockchainEnv.MAINNET);
     } else {
-      setEnvironment(blockchainEnv.TESTNET);
+      setQtumEnv(blockchainEnv.TESTNET);
     }
 
     // Start server and init Electron windows
