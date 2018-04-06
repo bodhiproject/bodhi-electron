@@ -4,6 +4,7 @@ const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
 const { Config } = require('../config/config');
+const { version } = require('../../package.json');
 
 const DIR_DEV = 'dev';
 
@@ -16,12 +17,19 @@ class Utils {
 
     let dataDir;
     if (_.indexOf(process.argv, '--dev') === -1) {
-      const version = Config.CONTRACT_VERSION_NUM;
-      const testnet = Config.TESTNET;
-      const pathPrefix = testnet ? 'testnet' : 'mainnet';
+      const pathPrefix = Config.TESTNET ? 'testnet' : 'mainnet';
+
+      const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
+      const regexGroups = regex.exec(version);
+      if (regexGroups === null) {
+        throw new Error(`Invalid version number: ${version}`);
+      }
+      // Example: 0.6.5-c0-d1
+      // c0 = contract version 0, d1 = db version 1
+      const versionDir = `${regexMatches[4]}_${regexMatches[5]}` // c0_d1
 
       // production
-      dataDir = `${osDataDir}/${pathPrefix}/${version}`;
+      dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
     } else {
       // development
       dataDir = `${osDataDir}/${DIR_DEV}`;
