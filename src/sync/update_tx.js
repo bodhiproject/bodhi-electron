@@ -49,7 +49,7 @@ async function updateTx(tx, currentBlockCount) {
 
       tx.blockNum = currentBlockCount - txInfo.confirmations + 1;
       const blockHash = await blockchain.getBlockHash({ blockNum: currentBlockCount });
-      const blockInfo = await blockchain.getBlock({ blockHash });
+      const blockInfo = await blockchain.getBlock({ blockHash: tx.blockNum });
       tx.blockTime = blockInfo.time;
     }
     return;
