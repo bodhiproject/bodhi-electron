@@ -132,6 +132,7 @@ ipcMain.on('log-error', (event, arg) => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   // Show environment selection dialog
+  app.focus();
   dialog.showMessageBox({
     type: 'question',
     buttons: ['Mainnet', 'Testnet'],
