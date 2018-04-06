@@ -3,10 +3,9 @@ const _ = require('lodash');
 const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
-const { Config } = require('../config/config');
+const { Config, env } = require('../config/config');
 const { version } = require('../../package.json');
 const { environment } = require('../constants');
-const env = require('../../main').env;
 
 const DIR_DEV = 'dev';
 

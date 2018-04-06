@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
 
-const { Config } = require('./config/config');
+const { Config, env } = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -18,7 +18,6 @@ const { startSync } = require('./sync');
 const Utils = require('./utils/utils');
 const { environment, ipcEvent } = require('./constants');
 
-const env = require('../main').env;
 const qClient = require('./qclient').getInstance();
 
 const emitter = new EventEmitter();

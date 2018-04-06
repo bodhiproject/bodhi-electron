@@ -1,5 +1,6 @@
 const _ = require('lodash');
 
+const { environment } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract_metadata');
 const testnetMetadata = require('./testnet/contract_metadata');
 
@@ -28,12 +29,12 @@ function setEnvironment(environment) {
 * @param testnet {Boolean} Whether on testnet env or not.
 * @return {Object} The contract metadata.
 */
-function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet = Config.TESTNET) {
+function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
   if (!_.isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
 
-  if (testnet) {
+  if (env === environment.TESTNET) {
     return testnetMetadata[versionNum];
   }
   return mainnetMetadata[versionNum];
