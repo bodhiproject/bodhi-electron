@@ -140,10 +140,8 @@ app.on('ready', () => {
   }, (response) => {
     // Set env var so sync knows which flags to add on startup
     if (response === 0) {
-      console.log('Environment: Mainnet');
       setEnvironment(environment.MAINNET);
     } else {
-      console.log('Environment: Testnet');
       setEnvironment(environment.TESTNET);
     }
 

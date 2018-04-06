@@ -21,6 +21,7 @@ let env;
 
 function setEnvironment(environment) {
   env = environment;
+  console.log(`Environment: ${environment}`);
 }
 
 /*
