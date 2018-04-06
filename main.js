@@ -98,10 +98,9 @@ ipcMain.on('log-error', (event, arg) => {
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  server = require('./src/index');
-
   // If --noelec flag is supplied, don't open any Electron windows
   if (_.includes(process.argv, '--noelec')) {
+    server = require('./src/index');
     return;
   }
 
@@ -111,6 +110,15 @@ app.on('ready', () => {
 
   // Load intermediary loading page
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
+
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Mainnet', 'Testnet'],
+    title: 'Select Environment',
+    message: 'Please select the environment.',
+  }, (response) => {
+    server = require('./src/index');
+  });
 
   // Load app main page when qtumd is fully initialized
   server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
@@ -127,7 +135,7 @@ app.on('ready', () => {
     }, (response) => {
       killServer();
       app.quit();
-    })
+    });
   });
 });
 
