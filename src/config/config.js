@@ -17,13 +17,13 @@ const Config = {
 };
 
 // Qtumd environment var: testnet/mainnet
-let env;
-setEnvironment = (newEnv) => {
-  env = newEnv;
-  console.log(`Environment: ${env}`);
+let qtumEnv;
+setQtumEnv = (env) => {
+  qtumEnv = env;
+  console.log(`Qtum Environment: ${qtumEnv}`);
 }
-getEnvironment = () => {
-  return env;
+getQtumEnv = () => {
+  return qtumEnv;
 }
 
 /*
@@ -37,7 +37,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
     throw new Error('Must supply a version number');
   }
 
-  if (env === blockchainEnv.TESTNET) {
+  if (qtumEnv === blockchainEnv.TESTNET) {
     return testnetMetadata[versionNum];
   }
   return mainnetMetadata[versionNum];
@@ -45,7 +45,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
 
 module.exports = {
   Config,
-  getEnvironment,
-  setEnvironment,
+  getQtumEnv,
+  setQtumEnv,
   getContractMetadata,
 };
