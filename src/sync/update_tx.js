@@ -47,9 +47,9 @@ async function updateTx(tx, currentBlockCount) {
       tx.status = txState.SUCCESS;
       tx.gasUsed = Math.floor(Math.abs(txInfo.fee) / Config.DEFAULT_GAS_PRICE);
 
+      tx.blockNum = currentBlockCount - txInfo.confirmations + 1;
       const blockHash = await blockchain.getBlockHash({ blockNum: currentBlockCount });
       const blockInfo = await blockchain.getBlock({ blockHash });
-      tx.blockNum = blockInfo.height;
       tx.blockTime = blockInfo.time;
     }
     return;
