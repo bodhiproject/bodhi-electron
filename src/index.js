@@ -72,7 +72,9 @@ function getProdQtumPath() {
 
 async function checkQtumd() {
   const running = await qClient.isConnected();
+  console.log('running', running);
   if (running) {
+    console.log('qtumd connected');
     clearInterval(checkInterval);
     startServices();
   }
