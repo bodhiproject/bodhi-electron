@@ -3,12 +3,13 @@ const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron')
 
 const { Config } = require('./src/config/config');
 const logger = require('./src/utils/logger');
-const { ipcEvent } = require('./src/constants');
+const { environment, ipcEvent } = require('./src/constants');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let server;
+let env;
 
 function createWindow() {
   // Create the browser window.
@@ -64,6 +65,38 @@ function setupMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+function initApp() {
+  // If --noelec flag is supplied, don't open any Electron windows
+  if (_.includes(process.argv, '--noelec')) {
+    return;
+  }
+
+  // Init BrowserWindow
+  createWindow();
+  setupMenu();
+
+  // Load intermediary loading page
+  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
+
+  // Load app main page when qtumd is fully initialized
+  server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
+    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+  });
+
+  // Show error dialog if any startup errors
+  server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+    dialog.showMessageBox({
+      type: 'error',
+      buttons: ['Quit'],
+      title: 'Error',
+      message: err,
+    }, (response) => {
+      killServer();
+      app.quit();
+    });
+  });
+}
+
 function killServer() {
   if (server && server.process) {
     try {
@@ -98,44 +131,25 @@ ipcMain.on('log-error', (event, arg) => {
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  // If --noelec flag is supplied, don't open any Electron windows
-  if (_.includes(process.argv, '--noelec')) {
-    server = require('./src/index');
-    return;
-  }
-
-  // Init BrowserWindow
-  createWindow();
-  setupMenu();
-
-  // Load intermediary loading page
-  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
-
+  // Show environment selection dialog
   dialog.showMessageBox({
     type: 'question',
     buttons: ['Mainnet', 'Testnet'],
     title: 'Select Environment',
     message: 'Please select the environment.',
   }, (response) => {
+    // Set env var so sync knows which flags to add on startup
+    if (response === 0) {
+      console.log('Environment: Mainnet');
+      env = environment.MAINNET;
+    } else {
+      console.log('Environment: Testnet');
+      env = environment.TESTNET;
+    }
+
+    // Start server and init Electron windows
     server = require('./src/index');
-  });
-
-  // Load app main page when qtumd is fully initialized
-  server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
-    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-  });
-
-  // Show error dialog if any startup errors
-  server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
-    dialog.showMessageBox({
-      type: 'error',
-      buttons: ['Quit'],
-      title: 'Error',
-      message: err,
-    }, (response) => {
-      killServer();
-      app.quit();
-    });
+    initApp();
   });
 });
 

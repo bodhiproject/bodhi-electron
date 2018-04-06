@@ -1,4 +1,9 @@
 module.exports = {
+  environment: {
+    MAINNET: 'mainnet',
+    TESTNET: 'testnet',
+  },
+
   ipcEvent: {
     QTUMD_STARTED: 'qtumd-started',
     STARTUP_ERROR: 'startup-error',
