@@ -134,15 +134,29 @@ app.on('ready', () => {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
-    buttons: ['Mainnet', 'Testnet'],
-    title: 'Select Environment',
-    message: 'Please select the environment.',
+    buttons: ['Mainnet', 'Testnet', 'Quit'],
+    title: 'Select environment',
+    message: 'Select environment',
+    defaultId: 2,
+    cancelId: 2,
   }, (response) => {
     // Set env var so sync knows which flags to add on startup
-    if (response === 0) {
-      setQtumEnv(blockchainEnv.MAINNET);
-    } else {
-      setQtumEnv(blockchainEnv.TESTNET);
+    switch (response) {
+      case 0: {
+        setQtumEnv(blockchainEnv.MAINNET);
+        break;
+      }
+      case 1: {
+        setQtumEnv(blockchainEnv.TESTNET);
+        break;
+      }
+      case 2: {
+        app.quit();
+        return;
+      }
+      default: {
+        throw new Error(`Invalid dialog button selection ${response}`);
+      }
     }
 
     // Start server and init Electron windows
