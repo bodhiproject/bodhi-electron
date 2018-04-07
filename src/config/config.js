@@ -1,20 +1,38 @@
 const _ = require('lodash');
 
+const { blockchainEnv } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract_metadata');
 const testnetMetadata = require('./testnet/contract_metadata');
+
+const RPC_ADDRESS_TESTNET = 'http://bodhi:bodhi@localhost:13889';
+const RPC_ADDRESS_MAINNET = 'http://bodhi:bodhi@localhost:3889';
 
 const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
-  QTUM_RPC_ADDRESS: 'http://bodhi:bodhi@localhost:13889',
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
-  TESTNET: true,
   TRANSFER_MIN_CONFIRMATIONS: 1,
   DEFAULT_GAS_LIMIT: 250000,
   DEFAULT_GAS_PRICE: 0.0000004,
   CREATE_DORACLE_GAS_LIMIT: 1500000,
 };
+
+// Qtumd environment var: testnet/mainnet
+let qtumEnv;
+
+setQtumEnv = (env) => {
+  qtumEnv = env;
+  console.log(`Qtum Environment: ${qtumEnv}`);
+}
+
+getQtumEnv = () => {
+  return qtumEnv;
+}
+
+getQtumRpcAddress = () => {
+  return qtumEnv === blockchainEnv.TESTNET ? RPC_ADDRESS_TESTNET : RPC_ADDRESS_MAINNET;
+}
 
 /*
 * Gets the smart contract metadata based on version and environment.
@@ -22,12 +40,12 @@ const Config = {
 * @param testnet {Boolean} Whether on testnet env or not.
 * @return {Object} The contract metadata.
 */
-function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet = Config.TESTNET) {
+function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
   if (!_.isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
 
-  if (testnet) {
+  if (qtumEnv === blockchainEnv.TESTNET) {
     return testnetMetadata[versionNum];
   }
   return mainnetMetadata[versionNum];
@@ -35,5 +53,8 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet =
 
 module.exports = {
   Config,
+  getQtumEnv,
+  setQtumEnv,
+  getQtumRpcAddress,
   getContractMetadata,
 };

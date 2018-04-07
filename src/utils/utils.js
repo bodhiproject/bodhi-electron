@@ -3,8 +3,9 @@ const _ = require('lodash');
 const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
-const { Config } = require('../config/config');
+const { Config, getQtumEnv } = require('../config/config');
 const { version } = require('../../package.json');
+const { blockchainEnv } = require('../constants');
 
 const DIR_DEV = 'dev';
 
@@ -17,7 +18,7 @@ class Utils {
 
     let dataDir;
     if (_.indexOf(process.argv, '--dev') === -1) {
-      const pathPrefix = Config.TESTNET ? 'testnet' : 'mainnet';
+      const pathPrefix = getQtumEnv() === blockchainEnv.TESTNET ? 'testnet' : 'mainnet';
 
       const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
       const regexGroups = regex.exec(version);
