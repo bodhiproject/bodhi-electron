@@ -6,23 +6,24 @@ const testnetMetadata = require('./testnet/contract_metadata');
 const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
-  QTUM_RPC_ADDRESS: 'http://bodhi:bodhi@localhost:13889',
+  QTUM_MAINNET_RPC_ADDRESS: 'http://bodhi:bodhi@localhost:3889',
+  QTUM_TESTNET_RPC_ADDRESS: 'http://bodhi:bodhi@localhost:13889',
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
-  TESTNET: true,
   TRANSFER_MIN_CONFIRMATIONS: 1,
   DEFAULT_GAS_LIMIT: 250000,
   DEFAULT_GAS_PRICE: 0.0000004,
   CREATE_DORACLE_GAS_LIMIT: 1500000,
 };
 
+let IS_TESTNET;
 /*
 * Gets the smart contract metadata based on version and environment.
 * @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
 * @param testnet {Boolean} Whether on testnet env or not.
 * @return {Object} The contract metadata.
 */
-function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet = Config.TESTNET) {
+function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet = IS_TESTNET) {
   if (!_.isNumber(versionNum)) {
     throw new Error('Must supply a version number');
   }
@@ -33,7 +34,25 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM, testnet =
   return mainnetMetadata[versionNum];
 }
 
+function isTestnet() {
+  return IS_TESTNET;
+}
+
+function setNetwork(testnet) {
+  IS_TESTNET = testnet;
+}
+
+function getQtumRPCAddress(testnet = IS_TESTNET) {
+  if (testnet) {
+    return Config.QTUM_TESTNET_RPC_ADDRESS;
+  }
+  return Config.QTUM_MAINNET_RPC_ADDRESS;
+}
+
 module.exports = {
   Config,
+  isTestnet,
+  setNetwork,
   getContractMetadata,
+  getQtumRPCAddress,
 };

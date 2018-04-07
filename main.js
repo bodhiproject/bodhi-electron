@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
 
-const { Config } = require('./src/config/config');
+const { Config, setNetwork } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { ipcEvent } = require('./src/constants');
 
@@ -103,6 +103,10 @@ app.on('ready', () => {
   // If --noelec flag is supplied, don't open any Electron windows
   if (_.includes(process.argv, '--noelec')) {
     return;
+  }
+
+  if (_.includes(process.argv, '--mainnet')) {
+    setNetwork(false);
   }
 
   // Init BrowserWindow

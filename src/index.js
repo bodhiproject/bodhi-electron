@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
 
-const { Config } = require('./config/config');
+const { Config, isTestnet } = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -90,7 +90,12 @@ function startQtumProcess(reindex) {
   }
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
-  const flags = ['-testnet', '-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+
+  if (isTestnet()) {
+    flags.push('-testnet');
+  }
+
   if (reindex) {
     flags.push('-reindex');
   }
