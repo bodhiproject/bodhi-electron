@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
 
-const { Config } = require('./src/config/config');
+const { Config, setQtumEnv } = require('./src/config/config');
 const logger = require('./src/utils/logger');
-const { ipcEvent } = require('./src/constants');
+const { blockchainEnv, ipcEvent } = require('./src/constants');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -64,6 +64,38 @@ function setupMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
+function initApp() {
+  // If --noelec flag is supplied, don't open any Electron windows
+  if (_.includes(process.argv, '--noelec')) {
+    return;
+  }
+
+  // Init BrowserWindow
+  createWindow();
+  setupMenu();
+
+  // Load intermediary loading page
+  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
+
+  // Load app main page when qtumd is fully initialized
+  server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
+    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+  });
+
+  // Show error dialog if any startup errors
+  server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+    dialog.showMessageBox({
+      type: 'error',
+      buttons: ['Quit'],
+      title: 'Error',
+      message: err,
+    }, (response) => {
+      killServer();
+      app.quit();
+    });
+  });
+}
+
 function killServer() {
   if (server && server.process) {
     try {
@@ -95,39 +127,41 @@ ipcMain.on('log-error', (event, arg) => {
 });
 
 /* App Events */
-// This method will be called when Electron has finished initialization and is ready to create browser windows.
+// This method will be call·ed when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  server = require('./src/index');
+  // Show environment selection dialog
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Mainnet 主链', 'Testnet 测试链', 'Quit 退出'],
+    title: 'Select QTUM Environment 选择量子链网路',
+    message: 'Select QTUM Environment\n选择量子链网路',
+    defaultId: 2,
+    cancelId: 2,
+  }, (response) => {
+    // Set env var so sync knows which flags to add on startup
+    switch (response) {
+      case 0: {
+        setQtumEnv(blockchainEnv.MAINNET);
+        break;
+      }
+      case 1: {
+        setQtumEnv(blockchainEnv.TESTNET);
+        break;
+      }
+      case 2: {
+        app.quit();
+        return;
+      }
+      default: {
+        throw new Error(`Invalid dialog button selection ${response}`);
+      }
+    }
 
-  // If --noelec flag is supplied, don't open any Electron windows
-  if (_.includes(process.argv, '--noelec')) {
-    return;
-  }
-
-  // Init BrowserWindow
-  createWindow();
-  setupMenu();
-
-  // Load intermediary loading page
-  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
-
-  // Load app main page when qtumd is fully initialized
-  server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
-    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-  });
-
-  // Show error dialog if any startup errors
-  server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
-    dialog.showMessageBox({
-      type: 'error',
-      buttons: ['Quit'],
-      title: 'Error',
-      message: err,
-    }, (response) => {
-      killServer();
-      app.quit();
-    })
+    // Start server and init Electron windows
+    server = require('./src/index');
+    initApp();
   });
 });
 

@@ -6,16 +6,14 @@ const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
-const { Qweb3 } = require('qweb3');
 const { app } = require('electron');
 
-const { Config } = require('./config/config');
+const { Config, isMainnet } = require('./config/config');
 const logger = require('./utils/logger');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
-const Utils = require('./utils/utils');
 const { ipcEvent } = require('./constants');
 
 const qClient = require('./qclient').getInstance();
@@ -90,7 +88,10 @@ function startQtumProcess(reindex) {
   }
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
-  const flags = ['-testnet', '-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  if (!isMainnet()) {
+    flags.push('-testnet');
+  }
   if (reindex) {
     flags.push('-reindex');
   }

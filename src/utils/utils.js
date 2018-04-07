@@ -3,7 +3,7 @@ const _ = require('lodash');
 const { app } = require('electron');
 const Web3Utils = require('web3-utils');
 
-const { Config } = require('../config/config');
+const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
 
 const DIR_DEV = 'dev';
@@ -16,9 +16,8 @@ class Utils {
     const osDataDir = app.getPath('userData');
 
     let dataDir;
+    const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
     if (_.indexOf(process.argv, '--dev') === -1) {
-      const pathPrefix = Config.TESTNET ? 'testnet' : 'mainnet';
-
       const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
       const regexGroups = regex.exec(version);
       if (regexGroups === null) {
@@ -32,7 +31,7 @@ class Utils {
       dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
     } else {
       // development
-      dataDir = `${osDataDir}/${DIR_DEV}`;
+      dataDir = `${osDataDir}/${pathPrefix}/${DIR_DEV}`;
     }
 
     // Create data dir if needed
