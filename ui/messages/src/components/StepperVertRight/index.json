@@ -1,5 +1,17 @@
 [
   {
+    "id": "str.block",
+    "defaultMessage": "Block"
+  },
+  {
+    "id": "cardInfo.to",
+    "defaultMessage": "To"
+  },
+  {
+    "id": "str.anytime",
+    "defaultMessage": "anytime"
+  },
+  {
     "id": "cardInfo.topic",
     "defaultMessage": "Topic Created"
   },
@@ -12,31 +24,19 @@
     "defaultMessage": "Oracle Result Setting"
   },
   {
-    "id": "cardInfo.opResultSet",
-    "defaultMessage": "Open Result Setting"
-  },
-  {
     "id": "cardInfo.vote",
     "defaultMessage": "Voting"
-  },
-  {
-    "id": "cardInfo.final",
-    "defaultMessage": "Finalizing"
   },
   {
     "id": "cardInfo.withdraw",
     "defaultMessage": "Withdraw"
   },
   {
-    "id": "str.block",
-    "defaultMessage": "Block"
+    "id": "cardInfo.final",
+    "defaultMessage": "Finalizing"
   },
   {
-    "id": "cardInfo.to",
-    "defaultMessage": "To"
-  },
-  {
-    "id": "str.anytime",
-    "defaultMessage": "anytime"
+    "id": "cardInfo.opResultSet",
+    "defaultMessage": "Open Result Setting"
   }
 ]

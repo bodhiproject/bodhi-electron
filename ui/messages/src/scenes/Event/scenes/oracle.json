@@ -56,10 +56,6 @@
     "defaultMessage": "Finalize"
   },
   {
-    "id": "oracle.maxVoteText",
-    "defaultMessage": "You can only vote up to the Consensus Threshold for any one outcome. Current max vote is {amount} BOT."
-  },
-  {
     "id": "eventInfo.endDate",
     "defaultMessage": "Ending Date"
   },
