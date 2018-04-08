@@ -6,7 +6,7 @@ const pubsub = require('../pubsub');
 const logger = require('../utils/logger');
 const moment = require('moment');
 const BigNumber = require('bignumber.js');
-const { getContractMetadata } = require('../config/config');
+const { getContractMetadata, isMainnet } = require('../config/config');
 const { BLOCK_0_TIMESTAMP, SATOSHI_CONVERSION } = require('../constants');
 const { connectDB, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
@@ -29,7 +29,8 @@ const RPC_BATCH_SIZE = 10;
 const BLOCK_BATCH_SIZE = 200;
 const SYNC_THRESHOLD_SECS = 1200;
 const CONTRACT_START_BLOCK_NUM = contractMetadata.contractDeployedBlock;
-const SENDER_ADDRESS = 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy'; // hardcode sender address as it doesnt matter
+// hardcode sender address as it doesnt matter
+const SENDER_ADDRESS = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
 
 const startSync = async () => {
   const db = await connectDB();
