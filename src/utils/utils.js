@@ -14,7 +14,6 @@ class Utils {
   */
   static getDataDir() {
     const osDataDir = app.getPath('userData');
-
     let dataDir;
     const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
     if (_.indexOf(process.argv, '--dev') === -1) {
@@ -25,7 +24,7 @@ class Utils {
       }
       // Example: 0.6.5-c0-d1
       // c0 = contract version 0, d1 = db version 1
-      const versionDir = `${regexMatches[4]}_${regexMatches[5]}` // c0_d1
+      const versionDir = `${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
 
       // production
       dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
@@ -38,6 +37,11 @@ class Utils {
     fs.ensureDirSync(dataDir);
 
     return dataDir;
+  }
+
+  static getLogDir() {
+    const osDataDir = app.getPath('userData');
+    return `${osDataDir}/logs/${version}`;
   }
 
   /*

@@ -144,10 +144,18 @@ app.on('ready', () => {
     switch (response) {
       case 0: {
         setQtumEnv(blockchainEnv.MAINNET);
+        // Start server and init Electron windows
+        logger.info('Choose Mainnet');
+        server = require('./src/index');
+        initApp();
         break;
       }
       case 1: {
         setQtumEnv(blockchainEnv.TESTNET);
+        // Start server and init Electron windows
+        logger.info('Choose Testnet');
+        server = require('./src/index');
+        initApp();
         break;
       }
       case 2: {
@@ -158,10 +166,6 @@ app.on('ready', () => {
         throw new Error(`Invalid dialog button selection ${response}`);
       }
     }
-
-    // Start server and init Electron windows
-    server = require('./src/index');
-    initApp();
   });
 });
 

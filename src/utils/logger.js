@@ -6,7 +6,7 @@ const winston = require('winston');
 const Utils = require('./utils');
 const { Config } = require('../config/config');
 
-const LOG_DIR = `${Utils.getDataDir()}/logs`;
+const LOG_DIR = Utils.getLogDir();
 
 // Create log dir if needed
 console.log(`Logs output: ${LOG_DIR}`);
