@@ -4,6 +4,9 @@ const { blockchainEnv } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract_metadata');
 const testnetMetadata = require('./testnet/contract_metadata');
 
+const EXPLORER_TESTNET = 'https://testnet.qtum.org';
+const EXPLORER_MAINNET = 'https://explorer.qtum.org';
+
 const RPC_ADDRESS_TESTNET = 'http://bodhi:bodhi@localhost:13889';
 const RPC_ADDRESS_MAINNET = 'http://bodhi:bodhi@localhost:3889';
 
@@ -33,6 +36,10 @@ const getQtumRPCAddress = () => {
   return isMainnet() ? RPC_ADDRESS_MAINNET : RPC_ADDRESS_TESTNET;
 };
 
+const getQtumExplorerUrl = () => {
+  return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
+};
+
 /*
 * Gets the smart contract metadata based on version and environment.
 * @param versionNum {Number} The version number of the contracts to get, ie. 0, 1, 2.
@@ -56,5 +63,6 @@ module.exports = {
   isMainnet,
   setQtumEnv,
   getQtumRPCAddress,
+  getQtumExplorerUrl,
   getContractMetadata,
 };
