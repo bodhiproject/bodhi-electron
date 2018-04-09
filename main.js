@@ -1,9 +1,11 @@
 const _ = require('lodash');
 const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
 
-const { Config, setQtumEnv } = require('./src/config/config');
+const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
+
+const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -15,6 +17,9 @@ function createWindow() {
   uiWin = new BrowserWindow({
     width: 10000,
     height: 10000,
+    webPreferences: {
+      nativeWindowOpen: true,
+    },
   });
 
   uiWin.on('closed', () => {
@@ -26,7 +31,12 @@ function createWindow() {
 
   uiWin.webContents.on('new-window', (event, url) => {
     event.preventDefault();
-    shell.openExternal(url);
+
+    let formattedUrl = url;
+    if (url.includes(EXPLORER_URL_PLACEHOLDER)) {
+      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, getQtumExplorerUrl());
+    }
+    shell.openExternal(formattedUrl);
   });
 }
 
