@@ -4,11 +4,13 @@ You will need the Qtum client for the OS you are testing on (or building against
 Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the correct OS and put the `bin/` folder in the corresponding dir:
 
 ```
-qtum/mac/bin
-qtum/win64/bin
-qtum/win32/bin
-qtum/linux64/bin
-qtum/linux32/bin
+bodhi-graphql         qtum release files (example)
+
+qtum/mac/bin          qtum-0.14.16-osx64.tar.gz 
+qtum/win64/bin        qtum-0.14.16-win64.zip
+qtum/win32/bin        qtum-0.14.16-win32.zip
+qtum/linux64/bin      qtum-0.14.16-x86_64-linux-gnu.tar.gz
+qtum/linux32/bin      qtum-0.14.16-i686-pc-linux-gnu.tar.gz
 ```
 
 # Updating UI Files
