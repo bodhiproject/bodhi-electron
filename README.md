@@ -7,7 +7,12 @@ Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the
     qtum/win64/bin
     qtum/win32/bin
     qtum/linux64/bin
-    qtum/linux32/bin
+    qtum/linux32/bin
+
+# Updating UI Files
+1. In UI repo, `npm run build` to build the UI files
+
+2. Copy all the files in `bodhi-ui/build` folder to `bodhi-graphql/ui`
 
 # Run Dev Environment
 1. `git clone https://github.com/bodhiproject/bodhi-graphql.git`
