@@ -3,11 +3,13 @@ You will need the Qtum client for the OS you are testing on (or building against
 
 Download the [Qtum client](https://github.com/qtumproject/qtum/releases) for the correct OS and put the `bin/` folder in the corresponding dir:
 
-    qtum/mac/bin
-    qtum/win64/bin
-    qtum/win32/bin
-    qtum/linux64/bin
-    qtum/linux32/bin
+```
+qtum/mac/bin
+qtum/win64/bin
+qtum/win32/bin
+qtum/linux64/bin
+qtum/linux32/bin
+```
 
 # Updating UI Files
 1. In UI repo, `npm run build` to build the UI files
