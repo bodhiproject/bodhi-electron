@@ -127,10 +127,21 @@ function showSelectEnvDialog() {
       case 0: {
         logger.info('Choose Mainnet');
 
-        setQtumEnv(blockchainEnv.MAINNET);
-        await initDB();
-        startServer();
-        initUI();
+        if (_.includes(process.argv, '--tnonly')) { // Testnet-only flag found
+          dialog.showMessageBox({
+            type: 'info',
+            buttons: [],
+            title: 'Contact Us 联系菩提',
+            message: 'Please Email contact@bodhi.network For Early Access' +
+              '\n\n请联系 contact@bodhi.network 获取主链体验版',
+          });
+          showSelectEnvDialog();
+        } else {
+          setQtumEnv(blockchainEnv.MAINNET);
+          await initDB();
+          startServer();
+          initUI();
+        }
 
         Tracking.mainnetStart();
         break;
