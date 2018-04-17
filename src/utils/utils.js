@@ -28,42 +28,50 @@ function getDevQtumPath(forDaemon) {
 * return {String} The full prod path for qtumd or qtum-qt.
 */
 function getProdQtumPath(forDaemon) {
-  const arch = process.arch;
   let path;
+  const arch = process.arch;
   switch (process.platform) {
     case 'darwin': {
       if (forDaemon) {
         path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+      } else {
+        path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
       }
-
-      path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
+      break;
     }
     case 'win32': {
       if (arch === 'x64') {
         if (forDaemon) {
           path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+        } else {
+          path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
         }
-        path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
+      } else {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+        } else {
+          path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+        }
       }
-
-      if (forDaemon) {
-        path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-      }
-      path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+      break;
     }
     case 'linux': {
       if (arch === 'x64') {
         if (forDaemon) {
           path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+        } else {
+          path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
         }
-        path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
       } else if (arch === 'x32') {
         if (forDaemon) {
           path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+        } else {
+          path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
         }
-        path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
+      } else {
+        throw new Error(`Linux arch ${arch} not supported`);
       }
-      throw new Error(`Linux arch ${arch} not supported`);
+      break;
     }
     default: {
       throw new Error('Operating system not supported');
