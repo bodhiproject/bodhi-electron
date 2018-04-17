@@ -8,9 +8,14 @@ const i18n = (() => {
 
   function createInstance() {
     // Set locale based on OS language
-    let lang = Utils.getOsLanguage() || 'en';
-    if (lang && lang.includes('zh')) {
-      lang = 'zh';
+    let lang = 'en';
+    const osLang = Utils.getOsLanguage();
+    if (osLang) {
+      if (osLang.includes('en')) {
+        lang = 'en';
+      } else if (osLang.includes('zh')) {
+        lang = 'zh';
+      }
     }
 
     logger.info(`Language: ${lang}`)

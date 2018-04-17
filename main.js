@@ -4,6 +4,7 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
+const i18n = require('./src/localization/i18n').getInstance();
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -120,8 +121,8 @@ function showLaunchQtumWalletDialog() {
   dialog.showMessageBox({
     type: 'question',
     buttons: ['Cancel', 'Launch'],
-    title: 'Launch Qtum Wallet?',
-    message: 'You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?',
+    title: i18n.__('qtumWalletDialogTitle'),
+    message: i18n.__('qtumWalletDialogMessage'),
     defaultId: 0,
     cancelId: 0,
   }, (response) => {
