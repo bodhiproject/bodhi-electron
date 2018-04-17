@@ -7,7 +7,7 @@ const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { app } = require('electron');
-const portscanner = require('portscanner')
+const portscanner = require('portscanner');
 
 const { Config, isMainnet } = require('./config/config');
 const logger = require('./utils/logger');
