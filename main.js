@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
+const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
@@ -157,19 +157,6 @@ function exit(signal) {
   killServer();
   app.quit();
 }
-
-/* IPC Messages */
-ipcMain.on('log-info', (event, arg) => {
-  logger.info(arg);
-});
-
-ipcMain.on('log-debug', (event, arg) => {
-  logger.debug(arg);
-});
-
-ipcMain.on('log-error', (event, arg) => {
-  logger.error(arg);
-});
 
 /* App Events */
 // This method will be call·ed when Electron has finished initialization and is ready to create browser windows.
