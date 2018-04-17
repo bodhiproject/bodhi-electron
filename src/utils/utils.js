@@ -166,6 +166,11 @@ class Utils {
     const maxVote = threshold.sub(currentTotal);
     return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
   }
+
+  static getOsLanguage() {
+    const env = process.env;
+    return env.LANG || env.LANGUAGE || env.LC_ALL || env.LC_MESSAGES;
+  }
 }
 
 module.exports = Utils;
