@@ -2,7 +2,7 @@ const _ = require('lodash');
 const path = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
@@ -10,6 +10,7 @@ const { app } = require('electron');
 
 const { Config, isMainnet } = require('./config/config');
 const logger = require('./utils/logger');
+const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
@@ -50,82 +51,6 @@ async function checkQtumd() {
   }
 }
 
-/*
-* Gets the dev env qtum path for either qtumd or qtum-qt.
-* @param forDaemon {Boolean} Flag to get qtumd or not.
-* return {String} The full dev path for qtumd or qtum-qt.
-*/
-function getDevQtumPath(forDaemon) {
-  // dev, must pass in the absolute path to the bin/ folder
-  qtumPath = (_.split(process.argv[2], '=', 2))[1];
-  if (forDaemon) {
-    return `${qtumPath}/qtumd`;
-  }
-  return `${qtumPath}/qtum-qt`;
-}
-
-/*
-* Gets the prod env qtum path for either qtumd or qtum-qt.
-* @param forDaemon {Boolean} Flag to get qtumd or not.
-* return {String} The full prod path for qtumd or qtum-qt.
-*/
-function getProdQtumPath(forDaemon) {
-  const arch = process.arch;
-  let path;
-  switch (process.platform) {
-    case 'darwin': {
-      if (forDaemon) {
-        path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
-      }
-
-      path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
-    }
-    case 'win32': {
-      if (arch === 'x64') {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
-        }
-        path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
-      }
-
-      if (forDaemon) {
-        path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-      }
-      path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
-    }
-    case 'linux': {
-      if (arch === 'x64') {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-        }
-        path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
-      } else if (arch === 'x32') {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
-        }
-        path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
-      }
-      throw new Error(`Linux arch ${arch} not supported`);
-    }
-    default: {
-      throw new Error('Operating system not supported');
-    }
-  }
-
-  return path.replace('app.asar', 'app.asar.unpacked');
-}
-
-function getQtumPath(forDaemon) {
-  let qtumPath;
-  if (_.includes(process.argv, '--dev')) {
-    qtumPath = getDevQtumPath(forDaemon);
-  } else {
-    qtumPath = getProdQtumPath(forDaemon);
-  }
-  logger.debug(`qtum dir: ${qtumPath}`);
-  return qtumPath;
-}
-
 function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
   if (!isMainnet()) {
@@ -135,7 +60,9 @@ function startQtumProcess(reindex) {
     flags.push('-reindex');
   }
 
-  const qtumdPath = getQtumPath(true);
+  const qtumdPath = Utils.getQtumPath(true);
+  logger.debug(`qtumd dir: ${qtumdPath}`);
+
   qtumProcess = spawn(qtumdPath, flags);
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
 
@@ -199,25 +126,6 @@ function startServices() {
     startAPI();
     emitter.emit(ipcEvent.QTUMD_STARTED);
   }, 3000);
-}
-
-// Shutdown qtumd and launch qtum-qt
-function startQtumWallet() {
-  exit();
-
-  // Wait for qtumd to shutdown properly
-  setTimeout(() => {
-    // Construct flags
-    const flags = ['-logevents'];
-    if (!isMainnet()) {
-      flags.push('-testnet');
-    }
-
-    // Start qtum-qt
-    const qtumPath = getQtumPath(false);
-    const qtProcess = spawn(qtumPath, flags);
-    logger.debug(`qtum-qt started on PID ${qtProcess.pid}`);
-  }, 4000);
 }
 
 function exit(signal) {

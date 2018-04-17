@@ -8,7 +8,82 @@ const { version } = require('../../package.json');
 
 const DIR_DEV = 'dev';
 
+/*
+* Gets the dev env qtum path for either qtumd or qtum-qt.
+* @param forDaemon {Boolean} Flag to get qtumd or not.
+* return {String} The full dev path for qtumd or qtum-qt.
+*/
+function getDevQtumPath(forDaemon) {
+  // dev, must pass in the absolute path to the bin/ folder
+  let qtumPath = (_.split(process.argv[2], '=', 2))[1];
+  if (forDaemon) {
+    return `${qtumPath}/qtumd`;
+  }
+  return `${qtumPath}/qtum-qt`;
+}
+
+/*
+* Gets the prod env qtum path for either qtumd or qtum-qt.
+* @param forDaemon {Boolean} Flag to get qtumd or not.
+* return {String} The full prod path for qtumd or qtum-qt.
+*/
+function getProdQtumPath(forDaemon) {
+  const arch = process.arch;
+  let path;
+  switch (process.platform) {
+    case 'darwin': {
+      if (forDaemon) {
+        path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+      }
+
+      path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
+    }
+    case 'win32': {
+      if (arch === 'x64') {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+        }
+        path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
+      }
+
+      if (forDaemon) {
+        path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+      }
+      path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+    }
+    case 'linux': {
+      if (arch === 'x64') {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+        }
+        path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
+      } else if (arch === 'x32') {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+        }
+        path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
+      }
+      throw new Error(`Linux arch ${arch} not supported`);
+    }
+    default: {
+      throw new Error('Operating system not supported');
+    }
+  }
+
+  return path.replace('app.asar', 'app.asar.unpacked');
+}
+
 class Utils {
+  static getQtumPath(forDaemon) {
+    let qtumPath;
+    if (_.includes(process.argv, '--dev')) {
+      qtumPath = getDevQtumPath(forDaemon);
+    } else {
+      qtumPath = getProdQtumPath(forDaemon);
+    }
+    return qtumPath;
+  }
+
   /*
   * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
   */

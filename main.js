@@ -120,6 +120,10 @@ function showLaunchQtumWalletDialog() {
   }, (response) => {
     if (response === 1) {
       // Stop qtumd, wait for closing, and run qtum-qt
+      if (server) {
+        // console.log(server.startQtumWallet);
+        // server.startQtumWallet();
+      }
     }
   });
 }
