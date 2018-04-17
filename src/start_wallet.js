@@ -13,6 +13,8 @@ function startQtumWallet() {
 
   // Start qtum-qt
   const qtumPath = Utils.getQtumPath(false);
+  logger.debug(`qtum-qt dir: ${qtumPath}`);
+
   const qtProcess = spawn(qtumPath, flags);
   logger.debug(`qtum-qt started on PID ${qtProcess.pid}`);
 
