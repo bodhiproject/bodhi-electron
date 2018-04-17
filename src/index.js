@@ -42,32 +42,6 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
-function getProdQtumPath() {
-  const arch = process.arch;
-  switch (process.platform) {
-    case 'darwin': {
-      return `${app.getAppPath()}/qtum/mac/bin/qtumd`;
-    }
-    case 'win32': {
-      if (arch === 'x64') {
-        return `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
-      }
-      return `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-    }
-    case 'linux': {
-      if (arch === 'x64') {
-        return `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-      } else if (arch === 'x32') {
-        return `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
-      }
-      throw new Error(`Linux arch ${arch} not supported`);
-    }
-    default: {
-      throw new Error('Operating system not supported');
-    }
-  }
-}
-
 async function checkQtumd() {
   const running = await qClient.isConnected();
   if (running) {
@@ -76,18 +50,83 @@ async function checkQtumd() {
   }
 }
 
-function startQtumProcess(reindex) {
-  let qtumdPath;
-  if (_.includes(process.argv, '--dev')) {
-    // dev, must pass in the absolute path to the bin/ folder
-    qtumdPath = (_.split(process.argv[2], '=', 2))[1];
-    qtumdPath = `${qtumdPath}/qtumd`;
-  } else {
-    // prod
-    qtumdPath = getProdQtumPath().replace('app.asar', 'app.asar.unpacked');
+/*
+* Gets the dev env qtum path for either qtumd or qtum-qt.
+* @param forDaemon {Boolean} Flag to get qtumd or not.
+* return {String} The full dev path for qtumd or qtum-qt.
+*/
+function getDevQtumPath(forDaemon) {
+  // dev, must pass in the absolute path to the bin/ folder
+  qtumPath = (_.split(process.argv[2], '=', 2))[1];
+  if (forDaemon) {
+    return `${qtumPath}/qtumd`;
   }
-  logger.debug(`qtumd dir: ${qtumdPath}`);
+  return `${qtumPath}/qtum-qt`;
+}
 
+/*
+* Gets the prod env qtum path for either qtumd or qtum-qt.
+* @param forDaemon {Boolean} Flag to get qtumd or not.
+* return {String} The full prod path for qtumd or qtum-qt.
+*/
+function getProdQtumPath(forDaemon) {
+  const arch = process.arch;
+  let path;
+  switch (process.platform) {
+    case 'darwin': {
+      if (forDaemon) {
+        path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+      }
+
+      path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
+    }
+    case 'win32': {
+      if (arch === 'x64') {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+        }
+        path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
+      }
+
+      if (forDaemon) {
+        path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+      }
+      path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+    }
+    case 'linux': {
+      if (arch === 'x64') {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+        }
+        path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
+      } else if (arch === 'x32') {
+        if (forDaemon) {
+          path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+        }
+        path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
+      }
+      throw new Error(`Linux arch ${arch} not supported`);
+    }
+    default: {
+      throw new Error('Operating system not supported');
+    }
+  }
+
+  return path.replace('app.asar', 'app.asar.unpacked');
+}
+
+function getQtumPath(forDaemon) {
+  let qtumPath;
+  if (_.includes(process.argv, '--dev')) {
+    qtumPath = getDevQtumPath(forDaemon);
+  } else {
+    qtumPath = getProdQtumPath(forDaemon);
+  }
+  logger.debug(`qtum dir: ${qtumPath}`);
+  return qtumPath;
+}
+
+function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
   if (!isMainnet()) {
     flags.push('-testnet');
@@ -96,6 +135,7 @@ function startQtumProcess(reindex) {
     flags.push('-reindex');
   }
 
+  const qtumdPath = getQtumPath(true);
   qtumProcess = spawn(qtumdPath, flags);
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
 
@@ -159,6 +199,14 @@ function startServices() {
     startAPI();
     emitter.emit(ipcEvent.QTUMD_STARTED);
   }, 3000);
+}
+
+// Shutdown qtumd and launch qtum-qt
+function startQtumWallet() {
+  exit();
+
+  const qtumPath = getQtumPath(false);
+  
 }
 
 function exit(signal) {
