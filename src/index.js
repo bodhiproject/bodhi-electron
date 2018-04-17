@@ -7,6 +7,7 @@ const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { app } = require('electron');
+const portscanner = require('portscanner')
 
 const { Config, isMainnet } = require('./config/config');
 const logger = require('./utils/logger');
@@ -23,6 +24,7 @@ const emitter = new EventEmitter();
 
 let qtumProcess;
 let checkInterval;
+let shutdownInterval;
 
 // Restify setup
 const server = restify.createServer({
@@ -128,10 +130,27 @@ function startServices() {
   }, 3000);
 }
 
+// Check if qtumd port is in use before starting qtum-qt
+function checkQtumPort() {
+  const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
+  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
+    if (status === 'closed') {
+      clearInterval(shutdownInterval);
+
+      // Slight delay before sending qtumd killed signal
+      setTimeout(() => {
+        emitter.emit(ipcEvent.QTUMD_KILLED);
+      }, 500);
+    } else {
+      logger.debug('waiting for qtumd to shutting down');
+    }
+  });
+}
+
 function terminateDaemon() {
   if (qtumProcess) {
     qtumProcess.kill();
-    emitter.emit(ipcEvent.QTUMD_KILLED);
+    shutdownInterval = setInterval(checkQtumPort, 500);
   }
 }
 

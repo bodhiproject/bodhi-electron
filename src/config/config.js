@@ -13,6 +13,8 @@ const RPC_ADDRESS_MAINNET = 'http://bodhi:bodhi@localhost:3889';
 const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
+  PORT_TESTNET: 13889,
+  PORT_MAINNET: 3889,
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
   TRANSFER_MIN_CONFIRMATIONS: 1,
