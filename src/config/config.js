@@ -32,13 +32,9 @@ const getQtumEnv = () => qtumEnv;
 
 const isMainnet = () => qtumEnv === blockchainEnv.MAINNET;
 
-const getQtumRPCAddress = () => {
-  return isMainnet() ? RPC_ADDRESS_MAINNET : RPC_ADDRESS_TESTNET;
-};
+const getQtumRPCAddress = () => (isMainnet() ? RPC_ADDRESS_MAINNET : RPC_ADDRESS_TESTNET);
 
-const getQtumExplorerUrl = () => {
-  return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
-};
+const getQtumExplorerUrl = () => (isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET);
 
 /*
 * Gets the smart contract metadata based on version and environment.

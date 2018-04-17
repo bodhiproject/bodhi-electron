@@ -15,7 +15,7 @@ const DIR_DEV = 'dev';
 */
 function getDevQtumPath(forDaemon) {
   // dev, must pass in the absolute path to the bin/ folder
-  let qtumPath = (_.split(process.argv[2], '=', 2))[1];
+  const qtumPath = (_.split(process.argv[2], '=', 2))[1];
   if (forDaemon) {
     return `${qtumPath}/qtumd`;
   }
@@ -46,12 +46,10 @@ function getProdQtumPath(forDaemon) {
         } else {
           path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
         }
+      } else if (forDaemon) {
+        path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
       } else {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-        } else {
-          path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
-        }
+        path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
       }
       break;
     }

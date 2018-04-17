@@ -270,7 +270,7 @@ module.exports = {
         syncBlockNum = blocks[0].blockNum;
         syncBlockTime = blocks[0].blockTime;
       } else {
-        // Fetch current block from qtum 
+        // Fetch current block from qtum
         syncBlockNum = Math.max(0, await blockchain.getBlockCount());
         const blockHash = await blockchain.getBlockHash({ blockNum: syncBlockNum });
         syncBlockTime = (await blockchain.getBlock({ blockHash })).time;
