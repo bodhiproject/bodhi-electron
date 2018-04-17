@@ -205,8 +205,19 @@ function startServices() {
 function startQtumWallet() {
   exit();
 
-  const qtumPath = getQtumPath(false);
-  
+  // Wait for qtumd to shutdown properly
+  setTimeout(() => {
+    // Construct flags
+    const flags = ['-logevents'];
+    if (!isMainnet()) {
+      flags.push('-testnet');
+    }
+
+    // Start qtum-qt
+    const qtumPath = getQtumPath(false);
+    const qtProcess = spawn(qtumPath, flags);
+    logger.debug(`qtum-qt started on PID ${qtProcess.pid}`);
+  }, 4000);
 }
 
 function exit(signal) {
