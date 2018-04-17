@@ -45,7 +45,7 @@ function setupMenu() {
     {
       label: "Application",
       submenu: [
-        { label: "Launch Qtum Wallet" },
+        { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
         { type: "separator" },
         { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
       ]
@@ -105,6 +105,22 @@ function initApp() {
       killServer();
       app.quit();
     });
+  });
+}
+
+function showLaunchQtumWalletDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Cancel', 'Launch'],
+    title: 'Launch Qtum Wallet?',
+    message: 'You are about to launch the Qtum Wallet. Bodhi needs to be closed to be able to run the Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again. Are you sure to want to continue?',
+    defaultId: 0,
+    cancelId: 0,
+  }, (response) => {
+    if (response === 1) {
+      // Stop qtumd, wait for closing, and run qtum-qt
+    }
   });
 }
 
