@@ -121,7 +121,7 @@ function showLaunchQtumWalletDialog() {
     type: 'question',
     buttons: ['Cancel', 'Launch'],
     title: 'Launch Qtum Wallet?',
-    message: 'You are about to launch the Qtum Wallet. Bodhi needs to be closed to be able to run the Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again. Are you sure to want to continue?',
+    message: 'You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?',
     defaultId: 0,
     cancelId: 0,
   }, (response) => {
