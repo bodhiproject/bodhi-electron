@@ -2,7 +2,7 @@ const _ = require('lodash');
 const path = require('path');
 const restify = require('restify');
 const corsMiddleware = require('restify-cors-middleware');
-const { spawn, exec } = require('child_process');
+const { spawn } = require('child_process');
 const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
@@ -128,6 +128,13 @@ function startServices() {
   }, 3000);
 }
 
+function terminateDaemon() {
+  if (qtumProcess) {
+    qtumProcess.kill();
+    emitter.emit(ipcEvent.QTUMD_KILLED);
+  }
+}
+
 function exit(signal) {
   logger.info(`Received ${signal}, exiting`);
 
@@ -145,3 +152,4 @@ startQtumProcess(false);
 
 exports.process = qtumProcess;
 exports.emitter = emitter;
+exports.terminateDaemon = terminateDaemon;

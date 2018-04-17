@@ -1,17 +1,25 @@
+const { spawn } = require('child_process');
 
-// Shutdown qtumd and launch qtum-qt
+const { isMainnet } = require('./config/config');
+const Utils = require('./utils/utils');
+const logger = require('./utils/logger');
+
 function startQtumWallet() {
-  // Wait for qtumd to shutdown properly
-  setTimeout(() => {
-    // Construct flags
-    const flags = ['-logevents'];
-    if (!isMainnet()) {
-      flags.push('-testnet');
-    }
+  // Construct flags
+  const flags = ['-logevents'];
+  if (!isMainnet()) {
+    flags.push('-testnet');
+  }
 
-    // Start qtum-qt
-    const qtumPath = getQtumPath(false);
-    const qtProcess = exec(qtumPath, flags);
-    logger.debug(`qtum-qt started on PID ${qtProcess.pid}`);
-  }, 4000);
+  // Start qtum-qt
+  const qtumPath = Utils.getQtumPath(false);
+  const qtProcess = spawn(qtumPath, flags);
+  logger.debug(`qtum-qt started on PID ${qtProcess.pid}`);
+
+  // Kill backend process after qtum-qt has started
+  setTimeout(() => {
+    process.exit();
+  }, 2000);
 }
+
+startQtumWallet();

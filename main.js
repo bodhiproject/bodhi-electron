@@ -106,6 +106,13 @@ function initApp() {
       app.quit();
     });
   });
+
+  // Delay, then start qtum-qt
+  server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+    setTimeout(() => {
+      require('./src/start_wallet');
+    }, 4000);
+  });
 }
 
 function showLaunchQtumWalletDialog() {
@@ -121,8 +128,8 @@ function showLaunchQtumWalletDialog() {
     if (response === 1) {
       // Stop qtumd, wait for closing, and run qtum-qt
       if (server) {
-        // console.log(server.startQtumWallet);
-        // server.startQtumWallet();
+        // uiWin.close();
+        server.terminateDaemon();
       }
     }
   });

@@ -6,6 +6,7 @@ module.exports = {
 
   ipcEvent: {
     QTUMD_STARTED: 'qtumd-started',
+    QTUMD_KILLED: 'qtumd-killed',
     STARTUP_ERROR: 'startup-error',
   },
 
