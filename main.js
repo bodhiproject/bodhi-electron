@@ -126,10 +126,16 @@ function showLaunchQtumWalletDialog() {
     cancelId: 0,
   }, (response) => {
     if (response === 1) {
-      // Stop qtumd, wait for closing, and run qtum-qt
       if (server) {
-        // uiWin.close();
         server.terminateDaemon();
+      } else {
+        // Show dialog to wait for initializing to finish
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: ['Ok'],
+          title: 'Error',
+          message: 'This function is disabled until initializing is finished.',
+        });
       }
     }
   });
