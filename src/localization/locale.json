@@ -1,28 +1,35 @@
 {
   "cancel": {
-    "en": "Cancel"
+    "en": "Cancel",
+    "zh": "取消"
   },
   "error": {
-    "en": "Error"
+    "en": "Error",
+    "zh": "错误"
   },
   "functionDisabledUntilInitialized": {
-    "en": "This function is disabled until initializing is finished."
+    "en": "This function is disabled until initializing is finished.",
+    "zh": "初始化完成后方能使用次功能"
   },
   "launch": {
-    "en": "Launch"
+    "en": "Launch",
+    "zh": "启动"
   },
   "mainnet": {
     "en": "Mainnet",
     "zh": "主链"
   },
   "ok": {
-    "en": "Ok"
+    "en": "OK",
+    "zh": "OK"
   },
   "qtumWalletDialogTitle": {
-    "en": "Launch Qtum Wallet?"
+    "en": "Launch Qtum Wallet?",
+    "zh": "启动量子钱包?"
   },
   "qtumWalletDialogMessage": {
-    "en": "You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?"
+    "en": "You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?",
+    "zh": "菩提即将关闭已启动量子钱包。再次启动菩提前，请关闭量子钱包。\n\n菩提即将关闭，请确认是否继续"
   },
   "quit": {
     "en": "Quit",
