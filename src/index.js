@@ -7,14 +7,16 @@ const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { app } = require('electron');
+const portscanner = require('portscanner');
 
 const { Config, isMainnet } = require('./config/config');
 const logger = require('./utils/logger');
+const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
-const { ipcEvent } = require('./constants');
+const { ipcEvent, execFile } = require('./constants');
 
 const qClient = require('./qclient').getInstance();
 
@@ -22,6 +24,7 @@ const emitter = new EventEmitter();
 
 let qtumProcess;
 let checkInterval;
+let shutdownInterval;
 
 // Restify setup
 const server = restify.createServer({
@@ -42,32 +45,6 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
-function getProdQtumPath() {
-  const arch = process.arch;
-  switch (process.platform) {
-    case 'darwin': {
-      return `${app.getAppPath()}/qtum/mac/bin/qtumd`;
-    }
-    case 'win32': {
-      if (arch === 'x64') {
-        return `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
-      }
-      return `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-    }
-    case 'linux': {
-      if (arch === 'x64') {
-        return `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-      } else if (arch === 'x32') {
-        return `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
-      }
-      throw new Error(`Linux arch ${arch} not supported`);
-    }
-    default: {
-      throw new Error('Operating system not supported');
-    }
-  }
-}
-
 async function checkQtumd() {
   const running = await qClient.isConnected();
   if (running) {
@@ -77,17 +54,6 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
-  let qtumdPath;
-  if (_.includes(process.argv, '--dev')) {
-    // dev, must pass in the absolute path to the bin/ folder
-    qtumdPath = (_.split(process.argv[2], '=', 2))[1];
-    qtumdPath = `${qtumdPath}/qtumd`;
-  } else {
-    // prod
-    qtumdPath = getProdQtumPath().replace('app.asar', 'app.asar.unpacked');
-  }
-  logger.debug(`qtumd dir: ${qtumdPath}`);
-
   const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
   if (!isMainnet()) {
     flags.push('-testnet');
@@ -95,6 +61,9 @@ function startQtumProcess(reindex) {
   if (reindex) {
     flags.push('-reindex');
   }
+
+  const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
+  logger.debug(`qtumd dir: ${qtumdPath}`);
 
   qtumProcess = spawn(qtumdPath, flags);
   logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
@@ -161,6 +130,30 @@ function startServices() {
   }, 3000);
 }
 
+// Check if qtumd port is in use before starting qtum-qt
+function checkQtumPort() {
+  const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
+  portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
+    if (status === 'closed') {
+      clearInterval(shutdownInterval);
+
+      // Slight delay before sending qtumd killed signal
+      setTimeout(() => {
+        emitter.emit(ipcEvent.QTUMD_KILLED);
+      }, 500);
+    } else {
+      logger.debug('waiting for qtumd to shutting down');
+    }
+  });
+}
+
+function terminateDaemon() {
+  if (qtumProcess) {
+    qtumProcess.kill();
+    shutdownInterval = setInterval(checkQtumPort, 500);
+  }
+}
+
 function exit(signal) {
   logger.info(`Received ${signal}, exiting`);
 
@@ -178,3 +171,4 @@ startQtumProcess(false);
 
 exports.process = qtumProcess;
 exports.emitter = emitter;
+exports.terminateDaemon = terminateDaemon;

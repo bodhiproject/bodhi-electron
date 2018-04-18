@@ -1,9 +1,10 @@
 const _ = require('lodash');
-const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron');
+const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
+const i18n = require('./src/localization/i18n');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -45,6 +46,8 @@ function setupMenu() {
     {
       label: "Application",
       submenu: [
+        { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
+        { type: "separator" },
         { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
       ]
     },
@@ -96,13 +99,46 @@ function initApp() {
   server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     dialog.showMessageBox({
       type: 'error',
-      buttons: ['Quit'],
-      title: 'Error',
+      buttons: [i18n.get('quit')],
+      title: i18n.get('error'),
       message: err,
     }, (response) => {
       killServer();
       app.quit();
     });
+  });
+
+  // Delay, then start qtum-qt
+  server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+    setTimeout(() => {
+      require('./src/start_wallet');
+    }, 4000);
+  });
+}
+
+function showLaunchQtumWalletDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('cancel'), i18n.get('launch')],
+    title: i18n.get('qtumWalletDialogTitle'),
+    message: i18n.get('qtumWalletDialogMessage'),
+    defaultId: 0,
+    cancelId: 0,
+  }, (response) => {
+    if (response === 1) {
+      if (server) {
+        server.terminateDaemon();
+      } else {
+        // Show dialog to wait for initializing to finish
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: [i18n.get('ok')],
+          title: i18n.get('error'),
+          message: i18n.get('functionDisabledUntilInitialized'),
+        });
+      }
+    }
   });
 }
 
@@ -123,19 +159,6 @@ function exit(signal) {
   app.quit();
 }
 
-/* IPC Messages */
-ipcMain.on('log-info', (event, arg) => {
-  logger.info(arg);
-});
-
-ipcMain.on('log-debug', (event, arg) => {
-  logger.debug(arg);
-});
-
-ipcMain.on('log-error', (event, arg) => {
-  logger.error(arg);
-});
-
 /* App Events */
 // This method will be call·ed when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -144,9 +167,9 @@ app.on('ready', () => {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
-    buttons: ['Mainnet 主链', 'Testnet 测试链', 'Quit 退出'],
-    title: 'Select QTUM Environment 选择量子链网路',
-    message: 'Select QTUM Environment\n选择量子链网路',
+    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
+    title: i18n.get('selectQtumEnvironment'),
+    message: i18n.get('selectQtumEnvironment'),
     defaultId: 2,
     cancelId: 2,
   }, (response) => {

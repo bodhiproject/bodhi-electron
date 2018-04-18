@@ -5,10 +5,146 @@ const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
+const { execFile } = require('../constants');
 
 const DIR_DEV = 'dev';
 
+/*
+* Gets the dev env qtum path for either qtumd or qtum-qt.
+* @param exec {String} The exec file type needed to be returned.
+* return {String} The full dev path for qtumd or qtum-qt.
+*/
+function getDevQtumPath(exec) {
+  // dev, must pass in the absolute path to the bin/ folder
+  const qtumPath = (_.split(process.argv[2], '=', 2))[1];
+
+  switch (exec) {
+    case execFile.QTUMD: {
+      return `${qtumPath}/qtumd`;
+    }
+    case execFile.QTUM_QT: {
+      return `${qtumPath}/qtum-qt`;
+    }
+    default: {
+      throw new Error(`Invalid execFile type: ${exec}`);
+    }
+  }
+}
+
+/*
+* Gets the prod env qtum path for either qtumd or qtum-qt.
+* @param execFile {String} The exec file type needed to be returned.
+* return {String} The full prod path for qtumd or qtum-qt.
+*/
+function getProdQtumPath(exec) {
+  let path;
+  const arch = process.arch;
+
+  switch (process.platform) {
+    case 'darwin': {
+      switch (exec) {
+        case execFile.QTUMD: {
+          path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+          break;
+        }
+        case execFile.QTUM_QT: {
+          path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
+          break;
+        }
+        default: {
+          throw new Error(`Invalid execFile type: ${exec}`);
+        }
+      }
+      break;
+    }
+
+    case 'win32': {
+      if (arch === 'x64') {
+        switch (exec) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${exec}`);
+          }
+        }
+      } else { // x86 arch
+        switch (exec) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${exec}`);
+          }
+        }
+      }
+      break;
+    }
+
+    case 'linux': {
+      if (arch === 'x64') {
+        switch (exec) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${exec}`);
+          }
+        }
+      } else if (arch === 'x32') {
+        switch (exec) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${exec}`);
+          }
+        }
+      } else {
+        throw new Error(`Linux arch ${arch} not supported`);
+      }
+      break;
+    }
+
+    default: {
+      throw new Error('Operating system not supported');
+    }
+  }
+
+  return path.replace('app.asar', 'app.asar.unpacked');
+}
+
 class Utils {
+  static getQtumPath(exec) {
+    let qtumPath;
+    if (_.includes(process.argv, '--dev')) {
+      qtumPath = getDevQtumPath(exec);
+    } else {
+      qtumPath = getProdQtumPath(exec);
+    }
+    return qtumPath;
+  }
+
   /*
   * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
   */
@@ -84,6 +220,11 @@ class Utils {
     const currentTotal = Web3Utils.toBN(oracle.amounts[voteOptionIdx]);
     const maxVote = threshold.sub(currentTotal);
     return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
+  }
+
+  static getOsLanguage() {
+    const env = process.env;
+    return env.LANG || env.LANGUAGE || env.LC_ALL || env.LC_MESSAGES;
   }
 }
 

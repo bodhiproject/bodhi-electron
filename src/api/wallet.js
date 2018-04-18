@@ -57,8 +57,10 @@ const Wallet = {
       throw new TypeError('amount needs to be defined');
     }
 
-    return qClient.sendToAddress(address, amount, comment, commentTo, subtractFeeFromAmount, senderAddress,
-      changeToAddress);
+    return qClient.sendToAddress(
+      address, amount, comment, commentTo, subtractFeeFromAmount, senderAddress,
+      changeToAddress,
+    );
   },
 
   async walletPassphrase(args) {

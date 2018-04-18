@@ -3,7 +3,7 @@
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
-  "version": "0.7.1-c0-d0",
+  "version": "0.7.2-c0-d0",
   "repository": "git@github.com:bodhiproject/bodhi-graphql.git",
   "main": "main.js",
   "keywords": [
@@ -18,9 +18,9 @@
     "start-elec": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
-    "build:mac": "npm install; ./node_modules/.bin/electron-builder build -m",
-    "build:win": "npm install; ./node_modules/.bin/electron-builder build -w",
-    "build:lin": "npm install; ./node_modules/.bin/electron-builder build -l"
+    "build:mac": "npm run install-dep; ./node_modules/.bin/electron-builder build -m",
+    "build:win": "npm run install-dep; ./node_modules/.bin/electron-builder build -w",
+    "build:lin": "npm run install-dep; ./node_modules/.bin/electron-builder build -l"
   },
   "build": {
     "appId": "network.bodhi.app",
@@ -126,6 +126,7 @@
     "nedb-promise": "^2.0.1",
     "node-fetch": "^1.7.3",
     "pg": "^7.4.0",
+    "portscanner": "^2.1.1",
     "qweb3": "^0.7.6",
     "restify": "^6.3.4",
     "restify-cors-middleware": "^1.1.0",

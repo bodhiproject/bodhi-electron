@@ -13,6 +13,8 @@ const RPC_ADDRESS_MAINNET = 'http://bodhi:bodhi@localhost:3889';
 const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
+  PORT_TESTNET: 13889,
+  PORT_MAINNET: 3889,
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
   TRANSFER_MIN_CONFIRMATIONS: 1,
@@ -32,13 +34,9 @@ const getQtumEnv = () => qtumEnv;
 
 const isMainnet = () => qtumEnv === blockchainEnv.MAINNET;
 
-const getQtumRPCAddress = () => {
-  return isMainnet() ? RPC_ADDRESS_MAINNET : RPC_ADDRESS_TESTNET;
-};
+const getQtumRPCAddress = () => (isMainnet() ? RPC_ADDRESS_MAINNET : RPC_ADDRESS_TESTNET);
 
-const getQtumExplorerUrl = () => {
-  return isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET;
-};
+const getQtumExplorerUrl = () => (isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET);
 
 /*
 * Gets the smart contract metadata based on version and environment.
