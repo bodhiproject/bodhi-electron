@@ -18,9 +18,9 @@
     "start-elec": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev",
     "test": "mocha --recursive src/test/.",
     "lint:fix": "eslint --fix -- src/.",
-    "build:mac": "npm install; ./node_modules/.bin/electron-builder build -m",
-    "build:win": "npm install; ./node_modules/.bin/electron-builder build -w",
-    "build:lin": "npm install; ./node_modules/.bin/electron-builder build -l"
+    "build:mac": "npm run install-dep; ./node_modules/.bin/electron-builder build -m",
+    "build:win": "npm run install-dep; ./node_modules/.bin/electron-builder build -w",
+    "build:lin": "npm run install-dep; ./node_modules/.bin/electron-builder build -l"
   },
   "build": {
     "appId": "network.bodhi.app",
