@@ -167,9 +167,9 @@ app.on('ready', () => {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
-    buttons: ['Mainnet 主链', 'Testnet 测试链', 'Quit 退出'],
-    title: 'Select QTUM Environment 选择量子链网路',
-    message: 'Select QTUM Environment\n选择量子链网路',
+    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
+    title: i18n.get('selectQtumEnvironment'),
+    message: i18n.get('selectQtumEnvironment'),
     defaultId: 2,
     cancelId: 2,
   }, (response) => {

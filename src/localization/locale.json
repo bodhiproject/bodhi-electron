@@ -4,5 +4,21 @@
   },
   "qtumWalletDialogMessage": {
     "en": "You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?"
+  },
+  "quit": {
+    "en": "Quit",
+    "zh": "退出"
+  },
+  "mainnet": {
+    "en": "Mainnet",
+    "zh": "主链"
+  },
+  "selectQtumEnvironment": {
+    "en": "Select QTUM Environment",
+    "zh": "选择量子链网路"
+  },
+  "testnet": {
+    "en": "Testnet",
+    "zh": "测试链"
   }
 }
