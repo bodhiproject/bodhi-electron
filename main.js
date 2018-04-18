@@ -4,6 +4,7 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
+const i18n = require('./src/localization/i18n');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -98,8 +99,8 @@ function initApp() {
   server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     dialog.showMessageBox({
       type: 'error',
-      buttons: ['Quit'],
-      title: 'Error',
+      buttons: [i18n.get('quit')],
+      title: i18n.get('error'),
       message: err,
     }, (response) => {
       killServer();
@@ -119,9 +120,9 @@ function showLaunchQtumWalletDialog() {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
-    buttons: ['Cancel', 'Launch'],
-    title: 'Launch Qtum Wallet?',
-    message: 'You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?',
+    buttons: [i18n.get('cancel'), i18n.get('launch')],
+    title: i18n.get('qtumWalletDialogTitle'),
+    message: i18n.get('qtumWalletDialogMessage'),
     defaultId: 0,
     cancelId: 0,
   }, (response) => {
@@ -132,9 +133,9 @@ function showLaunchQtumWalletDialog() {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
           type: 'error',
-          buttons: ['Ok'],
-          title: 'Error',
-          message: 'This function is disabled until initializing is finished.',
+          buttons: [i18n.get('ok')],
+          title: i18n.get('error'),
+          message: i18n.get('functionDisabledUntilInitialized'),
         });
       }
     }
@@ -166,9 +167,9 @@ app.on('ready', () => {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
-    buttons: ['Mainnet 主链', 'Testnet 测试链', 'Quit 退出'],
-    title: 'Select QTUM Environment 选择量子链网路',
-    message: 'Select QTUM Environment\n选择量子链网路',
+    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
+    title: i18n.get('selectQtumEnvironment'),
+    message: i18n.get('selectQtumEnvironment'),
     defaultId: 2,
     cancelId: 2,
   }, (response) => {
