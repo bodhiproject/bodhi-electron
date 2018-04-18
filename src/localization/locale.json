@@ -3,6 +3,6 @@
     "en": "Launch Qtum Wallet?"
   },
   "qtumWalletDialogMessage": {
-    "en": "You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?",
+    "en": "You are about to launch the Qtum Wallet. Bodhi will need to be shutdown to run Qtum Wallet. To run Bodhi again, you will have to close the Qtum Wallet and run Bodhi again.\n\nBodhi will shutdown shortly. Are you sure to want to continue?"
   }
 }

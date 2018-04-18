@@ -4,7 +4,7 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
-const i18n = require('./src/localization/i18n').getInstance();
+const i18n = require('./src/localization/i18n');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -121,8 +121,8 @@ function showLaunchQtumWalletDialog() {
   dialog.showMessageBox({
     type: 'question',
     buttons: ['Cancel', 'Launch'],
-    title: i18n.__('qtumWalletDialogTitle'),
-    message: i18n.__('qtumWalletDialogMessage'),
+    title: i18n.get('qtumWalletDialogTitle'),
+    message: i18n.get('qtumWalletDialogMessage'),
     defaultId: 0,
     cancelId: 0,
   }, (response) => {
