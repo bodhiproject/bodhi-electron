@@ -27,9 +27,7 @@
     "productName": "Bodhi",
     "mac": {
       "asar": true,
-      "asarUnpack": [
-        "qtum/mac/bin/*"
-      ],
+      "asarUnpack": "qtum/mac/bin/*",
       "category": "public.app-category.utilities",
       "files": [
         {
