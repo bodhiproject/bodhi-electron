@@ -3,6 +3,7 @@ const { spawn } = require('child_process');
 const { isMainnet } = require('./config/config');
 const Utils = require('./utils/utils');
 const logger = require('./utils/logger');
+const { execFile } = require('./constants');
 
 function startQtumWallet() {
   // Construct flags
@@ -12,7 +13,7 @@ function startQtumWallet() {
   }
 
   // Start qtum-qt
-  const qtumPath = Utils.getQtumPath(false);
+  const qtumPath = Utils.getQtumPath(execFile.QTUM_QT);
   logger.debug(`qtum-qt dir: ${qtumPath}`);
 
   const qtProcess = spawn(qtumPath, flags, {

@@ -5,72 +5,126 @@ const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
+const { execFile } = require('../constants');
 
 const DIR_DEV = 'dev';
 
 /*
 * Gets the dev env qtum path for either qtumd or qtum-qt.
-* @param forDaemon {Boolean} Flag to get qtumd or not.
+* @param execFile {String} The exec file type needed to be returned.
 * return {String} The full dev path for qtumd or qtum-qt.
 */
-function getDevQtumPath(forDaemon) {
+function getDevQtumPath(execFile) {
   // dev, must pass in the absolute path to the bin/ folder
   const qtumPath = (_.split(process.argv[2], '=', 2))[1];
-  if (forDaemon) {
-    return `${qtumPath}/qtumd`;
+  switch (execFile) {
+    case execFile.QTUMD: {
+      return `${qtumPath}/qtumd`;
+    }
+    case execFile.QTUM_QT: {
+      return `${qtumPath}/qtum-qt`;    
+    }
+    default: {
+      throw new Error(`Invalid execFile type: ${execFile}`);
+    }
   }
-  return `${qtumPath}/qtum-qt`;
 }
 
 /*
 * Gets the prod env qtum path for either qtumd or qtum-qt.
-* @param forDaemon {Boolean} Flag to get qtumd or not.
+* @param execFile {String} The exec file type needed to be returned.
 * return {String} The full prod path for qtumd or qtum-qt.
 */
-function getProdQtumPath(forDaemon) {
+function getProdQtumPath(execFile) {
   let path;
   const arch = process.arch;
+
   switch (process.platform) {
     case 'darwin': {
-      if (forDaemon) {
-        path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
-      } else {
-        path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
+      switch (execFile) {
+        case execFile.QTUMD: {
+          path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
+          break;
+        }
+        case execFile.QTUM_QT: {
+          path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
+          break;
+        }
+        default: {
+          throw new Error(`Invalid execFile type: ${execFile}`);
+        }
       }
       break;
     }
+
     case 'win32': {
       if (arch === 'x64') {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
-        } else {
-          path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
+        switch (execFile) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${execFile}`);
+          }
         }
-      } else if (forDaemon) {
-        path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-      } else {
-        path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+      } else { // x86 arch
+        switch (execFile) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${execFile}`);
+          }
+        } 
       }
       break;
     }
+
     case 'linux': {
       if (arch === 'x64') {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-        } else {
-          path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
+        switch (execFile) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${execFile}`);
+          }
         }
       } else if (arch === 'x32') {
-        if (forDaemon) {
-          path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
-        } else {
-          path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
+        switch (execFile) {
+          case execFile.QTUMD: {
+            path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
+            break;
+          }
+          case execFile.QTUM_QT: {
+            path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
+            break;
+          }
+          default: {
+            throw new Error(`Invalid execFile type: ${execFile}`);
+          }
         }
       } else {
         throw new Error(`Linux arch ${arch} not supported`);
       }
       break;
     }
+
     default: {
       throw new Error('Operating system not supported');
     }
@@ -80,12 +134,12 @@ function getProdQtumPath(forDaemon) {
 }
 
 class Utils {
-  static getQtumPath(forDaemon) {
+  static getQtumPath(execFile) {
     let qtumPath;
     if (_.includes(process.argv, '--dev')) {
-      qtumPath = getDevQtumPath(forDaemon);
+      qtumPath = getDevQtumPath(execFile);
     } else {
-      qtumPath = getProdQtumPath(forDaemon);
+      qtumPath = getProdQtumPath(execFile);
     }
     return qtumPath;
   }

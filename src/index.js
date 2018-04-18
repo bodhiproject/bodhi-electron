@@ -16,7 +16,7 @@ const schema = require('./schema');
 const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
-const { ipcEvent } = require('./constants');
+const { ipcEvent, execFile } = require('./constants');
 
 const qClient = require('./qclient').getInstance();
 
@@ -62,7 +62,7 @@ function startQtumProcess(reindex) {
     flags.push('-reindex');
   }
 
-  const qtumdPath = Utils.getQtumPath(true);
+  const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
   logger.debug(`qtumd dir: ${qtumdPath}`);
 
   qtumProcess = spawn(qtumdPath, flags);
