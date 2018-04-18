@@ -99,8 +99,8 @@ function initApp() {
   server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     dialog.showMessageBox({
       type: 'error',
-      buttons: ['Quit'],
-      title: 'Error',
+      buttons: [i18n.get('quit')],
+      title: i18n.get('error'),
       message: err,
     }, (response) => {
       killServer();
@@ -120,7 +120,7 @@ function showLaunchQtumWalletDialog() {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
-    buttons: ['Cancel', 'Launch'],
+    buttons: [i18n.get('cancel'), i18n.get('launch')],
     title: i18n.get('qtumWalletDialogTitle'),
     message: i18n.get('qtumWalletDialogMessage'),
     defaultId: 0,
@@ -133,9 +133,9 @@ function showLaunchQtumWalletDialog() {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
           type: 'error',
-          buttons: ['Ok'],
-          title: 'Error',
-          message: 'This function is disabled until initializing is finished.',
+          buttons: [i18n.get('ok')],
+          title: i18n.get('error'),
+          message: i18n.get('functionDisabledUntilInitialized'),
         });
       }
     }

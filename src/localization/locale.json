@@ -1,4 +1,23 @@
 {
+  "cancel": {
+    "en": "Cancel"
+  },
+  "error": {
+    "en": "Error"
+  },
+  "functionDisabledUntilInitialized": {
+    "en": "This function is disabled until initializing is finished."
+  },
+  "launch": {
+    "en": "Launch"
+  },
+  "mainnet": {
+    "en": "Mainnet",
+    "zh": "主链"
+  },
+  "ok": {
+    "en": "Ok"
+  },
   "qtumWalletDialogTitle": {
     "en": "Launch Qtum Wallet?"
   },
@@ -8,10 +27,6 @@
   "quit": {
     "en": "Quit",
     "zh": "退出"
-  },
-  "mainnet": {
-    "en": "Mainnet",
-    "zh": "主链"
   },
   "selectQtumEnvironment": {
     "en": "Select QTUM Environment",
