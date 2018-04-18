@@ -11,13 +11,14 @@ const DIR_DEV = 'dev';
 
 /*
 * Gets the dev env qtum path for either qtumd or qtum-qt.
-* @param execFile {String} The exec file type needed to be returned.
+* @param exec {String} The exec file type needed to be returned.
 * return {String} The full dev path for qtumd or qtum-qt.
 */
-function getDevQtumPath(execFile) {
+function getDevQtumPath(exec) {
   // dev, must pass in the absolute path to the bin/ folder
   const qtumPath = (_.split(process.argv[2], '=', 2))[1];
-  switch (execFile) {
+
+  switch (exec) {
     case execFile.QTUMD: {
       return `${qtumPath}/qtumd`;
     }
@@ -25,7 +26,7 @@ function getDevQtumPath(execFile) {
       return `${qtumPath}/qtum-qt`;    
     }
     default: {
-      throw new Error(`Invalid execFile type: ${execFile}`);
+      throw new Error(`Invalid execFile type: ${exec}`);
     }
   }
 }
@@ -35,13 +36,13 @@ function getDevQtumPath(execFile) {
 * @param execFile {String} The exec file type needed to be returned.
 * return {String} The full prod path for qtumd or qtum-qt.
 */
-function getProdQtumPath(execFile) {
+function getProdQtumPath(exec) {
   let path;
   const arch = process.arch;
 
   switch (process.platform) {
     case 'darwin': {
-      switch (execFile) {
+      switch (exec) {
         case execFile.QTUMD: {
           path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
           break;
@@ -51,7 +52,7 @@ function getProdQtumPath(execFile) {
           break;
         }
         default: {
-          throw new Error(`Invalid execFile type: ${execFile}`);
+          throw new Error(`Invalid execFile type: ${exec}`);
         }
       }
       break;
@@ -59,7 +60,7 @@ function getProdQtumPath(execFile) {
 
     case 'win32': {
       if (arch === 'x64') {
-        switch (execFile) {
+        switch (exec) {
           case execFile.QTUMD: {
             path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
             break;
@@ -69,11 +70,11 @@ function getProdQtumPath(execFile) {
             break;
           }
           default: {
-            throw new Error(`Invalid execFile type: ${execFile}`);
+            throw new Error(`Invalid execFile type: ${exec}`);
           }
         }
       } else { // x86 arch
-        switch (execFile) {
+        switch (exec) {
           case execFile.QTUMD: {
             path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
             break;
@@ -83,7 +84,7 @@ function getProdQtumPath(execFile) {
             break;
           }
           default: {
-            throw new Error(`Invalid execFile type: ${execFile}`);
+            throw new Error(`Invalid execFile type: ${exec}`);
           }
         } 
       }
@@ -92,7 +93,7 @@ function getProdQtumPath(execFile) {
 
     case 'linux': {
       if (arch === 'x64') {
-        switch (execFile) {
+        switch (exec) {
           case execFile.QTUMD: {
             path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
             break;
@@ -102,11 +103,11 @@ function getProdQtumPath(execFile) {
             break;
           }
           default: {
-            throw new Error(`Invalid execFile type: ${execFile}`);
+            throw new Error(`Invalid execFile type: ${exec}`);
           }
         }
       } else if (arch === 'x32') {
-        switch (execFile) {
+        switch (exec) {
           case execFile.QTUMD: {
             path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
             break;
@@ -116,7 +117,7 @@ function getProdQtumPath(execFile) {
             break;
           }
           default: {
-            throw new Error(`Invalid execFile type: ${execFile}`);
+            throw new Error(`Invalid execFile type: ${exec}`);
           }
         }
       } else {
@@ -134,12 +135,12 @@ function getProdQtumPath(execFile) {
 }
 
 class Utils {
-  static getQtumPath(execFile) {
+  static getQtumPath(exec) {
     let qtumPath;
     if (_.includes(process.argv, '--dev')) {
-      qtumPath = getDevQtumPath(execFile);
+      qtumPath = getDevQtumPath(exec);
     } else {
-      qtumPath = getProdQtumPath(execFile);
+      qtumPath = getProdQtumPath(exec);
     }
     return qtumPath;
   }
