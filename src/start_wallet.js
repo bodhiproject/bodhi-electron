@@ -15,7 +15,11 @@ function startQtumWallet() {
   const qtumPath = Utils.getQtumPath(false);
   logger.debug(`qtum-qt dir: ${qtumPath}`);
 
-  const qtProcess = spawn(qtumPath, flags);
+  const qtProcess = spawn(qtumPath, flags, {
+    detached: true,
+    stdio: 'ignore',
+  });
+  qtProcess.unref();
   logger.debug(`qtum-qt started on PID ${qtProcess.pid}`);
 
   // Kill backend process after qtum-qt has started
