@@ -23,7 +23,7 @@ function getDevQtumPath(exec) {
       return `${qtumPath}/qtumd`;
     }
     case execFile.QTUM_QT: {
-      return `${qtumPath}/qtum-qt`;    
+      return `${qtumPath}/qtum-qt`;
     }
     default: {
       throw new Error(`Invalid execFile type: ${exec}`);
@@ -86,7 +86,7 @@ function getProdQtumPath(exec) {
           default: {
             throw new Error(`Invalid execFile type: ${exec}`);
           }
-        } 
+        }
       }
       break;
     }
