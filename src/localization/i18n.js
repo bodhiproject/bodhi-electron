@@ -7,12 +7,12 @@ const locale = require('./locale.json');
 class i18n {
   constructor() {
     // Set locale based on OS language
-    let lang = 'en';
+    let lang = 'zh';
     const osLang = Utils.getOsLanguage();
     if (osLang) {
-      if (osLang.includes('en')) {
+      if (osLang.startsWith('en')) {
         lang = 'en';
-      } else if (osLang.includes('zh')) {
+      } else if (osLang.startsWith('zh')) {
         lang = 'zh';
       }
     }
@@ -26,6 +26,8 @@ class i18n {
     if (!_.isEmpty(str)) {
       return str;
     }
+    
+    // Could not find translated string, default to English
     return locale[strName]['en'];
   }
 }
