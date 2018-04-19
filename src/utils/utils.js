@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const _ = require('lodash');
-const { app } = require('electron');
+const { app, remote } = require('electron');
 const Web3Utils = require('web3-utils');
 
 const { Config, isMainnet } = require('../config/config');
@@ -223,7 +223,13 @@ class Utils {
   }
 
   static getOsLanguage() {
-    const env = process.env;
+    let env;
+    if (_.includes(process.argv, '--dev')) {
+      env = process.env;
+    } else {
+      env = remote.getGlobal('process').env;
+    }
+
     return env.LANG || env.LANGUAGE || env.LC_ALL || env.LC_MESSAGES;
   }
 }
