@@ -1,5 +1,9 @@
 [
   {
+    "id": "help",
+    "defaultMessage": "Help"
+  },
+  {
     "id": "navbar.qtumPrediction",
     "defaultMessage": "QTUM Prediction"
   },

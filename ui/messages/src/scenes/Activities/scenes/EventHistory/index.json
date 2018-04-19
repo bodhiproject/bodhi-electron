@@ -16,10 +16,6 @@
     "defaultMessage": "Sort"
   },
   {
-    "id": "eventHistory.viewEvent",
-    "defaultMessage": "View Event"
-  },
-  {
     "id": "str.emptyTxHistory",
     "defaultMessage": "You do not have any transactions right now."
   }
