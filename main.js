@@ -131,12 +131,11 @@ function showSelectEnvDialog() {
           dialog.showMessageBox({
             type: 'info',
             buttons: [],
-            title: 'Contact Us 联系菩提',
-            message: 'Please Email contact@bodhi.network For Early Access' +
-              '\n\n请联系 contact@bodhi.network 获取主链体验版',
+            title: i18n.get('earlyAccessDialogTitle'),
+            message: i18n.get('earlyAccessDialogMessage'),
           });
           showSelectEnvDialog();
-        } else {
+        } else { // Mainnet/Testnet allowed
           setQtumEnv(blockchainEnv.MAINNET);
           await initDB();
           startServer();
