@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { app } = require('electron');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
@@ -8,7 +9,7 @@ class i18n {
   constructor() {
     // Set locale based on OS language
     let lang = 'zh';
-    const osLang = Utils.getOsLanguage();
+    const osLang = app.getLocale();
     if (osLang) {
       if (osLang.startsWith('en')) {
         lang = 'en';
