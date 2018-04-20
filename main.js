@@ -4,7 +4,6 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
-const i18n = require('./src/localization/i18n');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -12,6 +11,7 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let server;
+let i18n;
 
 function createWindow() {
   // Create the browser window.
@@ -163,6 +163,9 @@ function exit(signal) {
 // This method will be call·ed when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  // Must wait for app ready before app.getLocale() on Windows
+  i18n = require('./src/localization/i18n');
+
   // Show environment selection dialog
   app.focus();
   dialog.showMessageBox({
