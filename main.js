@@ -159,10 +159,7 @@ function exit(signal) {
   app.quit();
 }
 
-/* App Events */
-// This method will be call·ed when Electron has finished initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', () => {
+function chooseNetwork() {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
 
@@ -179,11 +176,18 @@ app.on('ready', () => {
     // Set env var so sync knows which flags to add on startup
     switch (response) {
       case 0: {
-        setQtumEnv(blockchainEnv.MAINNET);
+        // setQtumEnv(blockchainEnv.MAINNET);
         // Start server and init Electron windows
-        logger.info('Choose Mainnet');
-        server = require('./src/index');
-        initApp();
+        // logger.info('Choose Mainnet');
+        // server = require('./src/index');
+        // initApp();
+        dialog.showMessageBox({
+          type: 'info',
+          buttons: [],
+          title: i18n.get('earlyAccessDialogTitle'),
+          message: i18n.get('earlyAccessDialogMessage'),
+        });
+        chooseNetwork();
         break;
       }
       case 1: {
@@ -203,6 +207,13 @@ app.on('ready', () => {
       }
     }
   });
+}
+
+/* App Events */
+// This method will be called when Electron has finished initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', () => {
+  chooseNetwork();
 });
 
 // Quit when all windows are closed.
