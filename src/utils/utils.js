@@ -221,17 +221,6 @@ class Utils {
     const maxVote = threshold.sub(currentTotal);
     return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
   }
-
-  static getOsLanguage() {
-    let env =
-    if (_.includes(process.argv, '--dev')) {
-      env = process.env;
-    } else {
-      env = remote.getGlobal('process').env;
-    }
-
-    return env.LANG || env.LANGUAGE || env.LC_ALL || env.LC_MESSAGES;
-  }
 }
 
 module.exports = Utils;
