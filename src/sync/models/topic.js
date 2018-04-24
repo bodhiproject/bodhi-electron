@@ -3,6 +3,8 @@
 const _ = require('lodash');
 const { Decoder, Utils } = require('qweb3');
 
+const { isMainnet } = require('../../config/config');
+
 class Topic {
   constructor(blockNum, txid, rawLog) {
     if (!_.isEmpty(rawLog)) {
@@ -32,7 +34,7 @@ class Topic {
       txid: this.txid,
       version: this.version,
       address: this.topicAddress,
-      creatorAddress: Decoder.toQtumAddress(this.creatorAddress),
+      creatorAddress: Decoder.toQtumAddress(this.creatorAddress, isMainnet()),
       escrowAmount: this.escrowAmount,
       name: this.name,
       options: this.resultNames,
