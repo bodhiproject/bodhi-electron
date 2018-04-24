@@ -4,6 +4,8 @@ const _ = require('lodash');
 const Decoder = require('qweb3').Decoder;
 const Web3Utils = require('web3-utils');
 
+const { isMainnet } = require('../../config/config');
+
 class CentralizedOracle {
   constructor(blockNum, txid, rawLog) {
     if (!_.isEmpty(rawLog)) {
@@ -34,7 +36,7 @@ class CentralizedOracle {
       txid: this.txid,
       topicAddress: this.eventAddress,
       resultSetterAddress: this.oracle,
-      resultSetterQAddress: Decoder.toQtumAddress(this.oracle),
+      resultSetterQAddress: Decoder.toQtumAddress(this.oracle, isMainnet()),
       status: 'VOTING',
       token: 'QTUM',
       name: this.name,

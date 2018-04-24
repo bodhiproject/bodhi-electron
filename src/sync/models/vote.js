@@ -4,6 +4,8 @@ const _ = require('lodash');
 const { Decoder, Utils } = require('qweb3');
 const Web3Utils = require('web3-utils');
 
+const { isMainnet } = require('../../config/config');
+
 class Vote {
   constructor(blockNum, txid, rawLog) {
     if (!_.isEmpty(rawLog)) {
@@ -28,7 +30,7 @@ class Vote {
       txid: this.txid,
       version: this.version,
       voterAddress: this.participant,
-      voterQAddress: Decoder.toQtumAddress(this.participant),
+      voterQAddress: Decoder.toQtumAddress(this.participant, isMainnet()),
       topicAddress: '',
       oracleAddress: this.oracleAddress,
       optionIdx: this.resultIndex,
