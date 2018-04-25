@@ -24,8 +24,12 @@ class Tracking {
     }
   }
 
-  static appStart() {
-    this.track('AppStart');
+  static mainnetStart() {
+    this.track('mainnet-start');
+  }
+
+  static testnetStart() {
+    this.track('testnet-start');
   }
 }
 
