@@ -20,7 +20,7 @@ class Tracking {
 
     // Only track in production build
     if (process.env && process.env.NODE_ENV === 'production') {
-      mixpanel.track(eventName);
+      mixpanel.track(eventName, { id: getTrackingId() });
     }
   }
 
@@ -29,15 +29,8 @@ class Tracking {
   }
 }
 
-function getMacAddress() {
-  const interfaces = os.networkInterfaces();
-  if (!_.isEmpty(interfaces.eth0)) {
-    return interfaces.eth0[0].mac;
-  }
-  return null;
+function getTrackingId() {
+  return `${os.hostname()}.${os.userInfo().username}.${os.platform()}.${os.arch()}`;
 }
 
-module.exports = {
-  Tracking,
-  getMacAddress,
-};
+module.exports = Tracking;
