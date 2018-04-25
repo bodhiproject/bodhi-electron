@@ -81,6 +81,18 @@ const Wallet = {
 
     return qClient.walletPassphrase(passphrase, timeout);
   },
+
+  async encryptWallet(args) {
+    const {
+      passphrase, // string
+    } = args;
+
+    if (_.isUndefined(passphrase)) {
+      throw new TypeError('passphrase needs to be defined');
+    }
+
+    return qClient.encryptWallet(passphrase);
+  },
 };
 
 module.exports = Wallet;

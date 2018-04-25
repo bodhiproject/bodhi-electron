@@ -127,7 +127,7 @@
     "node-fetch": "^1.7.3",
     "pg": "^7.4.0",
     "portscanner": "^2.1.1",
-    "qweb3": "^0.7.6",
+    "qweb3": "^0.7.7",
     "restify": "^6.3.4",
     "restify-cors-middleware": "^1.1.0",
     "restify-router": "^0.5.0",

@@ -90,6 +90,14 @@ apiRouter.post('/wallet-passphrase', (req, res, next) => {
     });
 });
 
+apiRouter.post('/encrypt-wallet', (req, res, next) => {
+  Wallet.encryptWallet(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
 /* Blockchain */
 apiRouter.post('/get-block', (req, res, next) => {
   Blockchain.getBlock(req.params)
