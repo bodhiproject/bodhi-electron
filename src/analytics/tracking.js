@@ -15,11 +15,11 @@ class Tracking {
 
     // Instantiate if not instantiated yet
     if (!mixpanel) {
-      mixpanel = Mixpanel.init(AppConfig.analytics.mixpanelToken);
+      mixpanel = Mixpanel.init(MIXPANEL_TOKEN);
     }
 
     // Only track in production build
-    if (process.env && process.env.NODE_ENV === 'production') {
+    if (!_.includes(process.argv, '--dev')) {
       mixpanel.track(eventName, { id: getTrackingId() });
     }
   }
