@@ -1,9 +1,11 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 const _ = require('lodash');
+const path = require('path');
 const Utils = require('qweb3').Utils;
 
 const Wallet = require('../../api/wallet');
+const TestConfig = require('./config/test_config');
 
 Chai.use(ChaiAsPromised);
 const assert = Chai.assert;
@@ -65,6 +67,30 @@ describe('Wallet', () => {
       const res = await Wallet.listUnspent();
       assert.isDefined(res);
       assert.isArray(res);
+    });
+  });
+
+  !TestConfig.WALLET_TESTS ? describe.skip : describe('encrypted wallet', () => {
+    describe('backupWallet()', () => {
+      it('backup the wallet', async () => {
+        const res = await Wallet.backupWallet({ destination: path.join(__dirname, './data/backup.dat') });
+        assert.notTypeOf(res, 'Error');
+      });
+    });
+
+    describe('importWallet()', () => {
+      it('throw an error if importing a non-existent file', async () => {
+        try {
+          await Wallet.importWallet({ filename: path.join(__dirname, './data/wallet.dat') });
+        } catch (err) {
+          assert.isDefined(err);
+          assert.equal(err, 'Error: Cannot open wallet dump file');
+        }
+      });
+      it('import the wallet from a wallet dump file', async () => {
+        const res = await Wallet.importWallet({ filename: path.join(__dirname, './data/wallet.dat') });
+        assert.notTypeOf(res, 'Error');
+      });
     });
   });
 });

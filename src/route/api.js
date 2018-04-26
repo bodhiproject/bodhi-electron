@@ -98,6 +98,34 @@ apiRouter.post('/encrypt-wallet', (req, res, next) => {
       onRequestError(res, err, next);
     });
 });
+
+apiRouter.post('/wallet-passphrase-change', (req, res, next) => {
+  Wallet.walletPassphraseChange(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/backup-wallet', (req, res, next) => {
+  Wallet.backupWallet(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/import-wallet', (req, res, next) => {
+  Wallet.importWallet(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
 /* Blockchain */
 apiRouter.post('/get-block', (req, res, next) => {
   Blockchain.getBlock(req.params)
