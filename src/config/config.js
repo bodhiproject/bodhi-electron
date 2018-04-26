@@ -12,8 +12,8 @@ const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
   RPC_USER: 'bodhi',
-  PORT_TESTNET: 13889,
-  PORT_MAINNET: 3889,
+  RPC_PORT_TESTNET: 13889,
+  RPC_PORT_MAINNET: 3889,
   DEFAULT_LOGLVL: 'info',
   CONTRACT_VERSION_NUM: 0,
   TRANSFER_MIN_CONFIRMATIONS: 1,
@@ -48,7 +48,7 @@ const getRPCPassword = () => {
 }
 
 const getQtumRPCAddress = () => {
-  const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
+  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
   return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
 };
 

@@ -131,7 +131,7 @@ function startServices() {
 
 // Check if qtumd port is in use before starting qtum-qt
 function checkQtumPort() {
-  const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
+  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
   portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
     if (status === 'closed') {
       clearInterval(shutdownInterval);
