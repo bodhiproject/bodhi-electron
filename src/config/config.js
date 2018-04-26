@@ -22,11 +22,8 @@ const Config = {
   CREATE_DORACLE_GAS_LIMIT: 1500000,
 };
 
-// Qtumd environment var: testnet/mainnet
-let qtumEnv;
-
-// Generate random password for every session
-let rpcPassword = getRandomPassword();
+let qtumEnv; // Qtumd environment var: testnet/mainnet
+let rpcPassword = getRandomPassword(); // Generate random password for every session
 
 const setQtumEnv = (env) => {
   qtumEnv = env;
