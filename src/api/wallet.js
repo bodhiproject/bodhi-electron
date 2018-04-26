@@ -81,6 +81,58 @@ const Wallet = {
 
     return qClient.walletPassphrase(passphrase, timeout);
   },
+
+  async encryptWallet(args) {
+    const {
+      passphrase, // string
+    } = args;
+
+    if (_.isUndefined(passphrase)) {
+      throw new TypeError('passphrase needs to be defined');
+    }
+
+    return qClient.encryptWallet(passphrase);
+  },
+
+  async walletPassphraseChange(args) {
+    const {
+      oldPassphrase, // string
+      newPassphrase, // string
+    } = args;
+
+    if (_.isUndefined(oldPassphrase)) {
+      throw new TypeError('oldPassphrase needs to be defined');
+    }
+    if (_.isUndefined(newPassphrase)) {
+      throw new TypeError('newPassphrase needs to be defined');
+    }
+
+    return qClient.walletPassphraseChange(oldPassphrase, newPassphrase);
+  },
+
+  async backupWallet(args) {
+    const {
+      destination, // string
+    } = args;
+
+    if (_.isUndefined(destination)) {
+      throw new TypeError('destination needs to be defined');
+    }
+
+    return qClient.backupWallet(destination);
+  },
+
+  async importWallet(args) {
+    const {
+      filename, // string
+    } = args;
+
+    if (_.isUndefined(filename)) {
+      throw new TypeError('filename needs to be defined');
+    }
+
+    return qClient.importWallet(filename);
+  },
 };
 
 module.exports = Wallet;

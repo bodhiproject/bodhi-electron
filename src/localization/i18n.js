@@ -27,9 +27,9 @@ class i18n {
     if (!_.isEmpty(str)) {
       return str;
     }
-    
+
     // Could not find translated string, default to English
-    return locale[strName]['en'];
+    return locale[strName].en;
   }
 }
 
