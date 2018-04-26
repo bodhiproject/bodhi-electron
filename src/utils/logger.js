@@ -37,6 +37,7 @@ const logger = new (winston.Logger)({
     new winston.transports.Papertrail({
       host: 'logs5.papertrailapp.com',
       port: 46145,
+      level: 'debug',
       logFormat: (level, message) => `<<< ${level} >>> ${message}`,
     }),
   ],
