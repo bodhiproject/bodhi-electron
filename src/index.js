@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { app } = require('electron');
 const portscanner = require('portscanner');
 
-const { Config, isMainnet, rpcPassword } = require('./config/config');
+const { Config, isMainnet, getRPCPassword } = require('./config/config');
 const logger = require('./utils/logger');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
@@ -53,7 +53,7 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
-  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', `-rpcpassword=${rpcPassword}`];
+  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', `-rpcpassword=${getRPCPassword()}`];
   if (!isMainnet()) {
     flags.push('-testnet');
   }
