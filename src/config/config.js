@@ -11,7 +11,7 @@ const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
-  RPC_USERNAME: 'bodhi',
+  RPC_USER: 'bodhi',
   PORT_TESTNET: 13889,
   PORT_MAINNET: 3889,
   DEFAULT_LOGLVL: 'info',
@@ -49,7 +49,7 @@ const getRPCPassword = () => {
 
 const getQtumRPCAddress = () => {
   const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
-  return `http://${Config.RPC_USERNAME}:${getRPCPassword()}@localhost:${port}`;
+  return `http://${Config.RPC_USER}:${getRPCPassword()}@localhost:${port}`;
 };
 
 const getQtumExplorerUrl = () => (isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET);

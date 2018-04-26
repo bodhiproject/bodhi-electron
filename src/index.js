@@ -53,7 +53,7 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
-  const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USERNAME}`, `-rpcpassword=${getRPCPassword()}`];
+  const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
   if (!isMainnet()) {
     flags.push('-testnet');
   }
