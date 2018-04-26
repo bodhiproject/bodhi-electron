@@ -2,6 +2,7 @@ require('dotenv').config();
 const fs = require('fs-extra');
 const moment = require('moment');
 const winston = require('winston');
+require('winston-papertrail').Papertrail;
 
 const Utils = require('./utils');
 const { Config } = require('../config/config');
@@ -32,6 +33,11 @@ const logger = new (winston.Logger)({
         return `${options.timestamp()} ${winstonCfg.colorize(options.level, options.level.toUpperCase())} ${(options.message ? options.message : '')} ${(options.meta && Object.keys(options.meta).length ? `\n\t${JSON.stringify(options.meta)}` : '')}`;
       },
       json: false,
+    }),
+    new winston.transports.Papertrail({
+      host: 'logs5.papertrailapp.com',
+      port: 46145,
+      logFormat: (level, message) => `<<< ${level} >>> ${message}`,
     }),
   ],
   exitOnError: false,
