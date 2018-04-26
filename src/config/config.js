@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const crypto = require('crypto');
 
 const { blockchainEnv } = require('../constants');
 const mainnetMetadata = require('./mainnet/contract_metadata');
@@ -55,6 +56,15 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
   return mainnetMetadata[versionNum];
 }
 
+/*
+* Creates a randomized RPC password.
+* This is to protect against external attacks when the username/password are already known: bodhi/bodhi.
+* @return {String} Randomized password.
+*/
+function getRandomPassword() {
+  return crypto.randomBytes(5).toString('hex');
+}
+
 module.exports = {
   Config,
   getQtumEnv,
@@ -63,4 +73,5 @@ module.exports = {
   getQtumRPCAddress,
   getQtumExplorerUrl,
   getContractMetadata,
+  getRandomPassword,
 };
