@@ -73,7 +73,7 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
 
 /*
 * Creates a randomized RPC password.
-* This is to protect against external attacks when the username/password are already known: bodhi/bodhi.
+* Protects against external RPC attacks when the username/password are already known: bodhi/bodhi.
 * @return {String} Randomized password.
 */
 function getRandomPassword() {
