@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { app } = require('electron');
 const portscanner = require('portscanner');
 
-const { Config, isMainnet } = require('./config/config');
+const { Config, isMainnet, rpcPassword } = require('./config/config');
 const logger = require('./utils/logger');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
@@ -17,7 +17,6 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { ipcEvent, execFile } = require('./constants');
-
 const qClient = require('./qclient').getInstance();
 
 const emitter = new EventEmitter();
@@ -54,7 +53,7 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
-  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', `-rpcpassword=${rpcPassword}`];
   if (!isMainnet()) {
     flags.push('-testnet');
   }

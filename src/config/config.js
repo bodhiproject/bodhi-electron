@@ -37,8 +37,8 @@ const getQtumEnv = () => qtumEnv;
 const isMainnet = () => qtumEnv === blockchainEnv.MAINNET;
 
 const getQtumRPCAddress = () => {
-  const port = isMainnet() ? PORT_MAINNET : PORT_TESTNET;
-  return `http://${RPC_USERNAME}:${rpcPassword}@localhost:${port}`;
+  const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
+  return `http://${Config.RPC_USERNAME}:${rpcPassword}@localhost:${port}`;
 };
 
 const getQtumExplorerUrl = () => (isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET);
@@ -77,4 +77,5 @@ module.exports = {
   getQtumRPCAddress,
   getQtumExplorerUrl,
   getContractMetadata,
+  rpcPassword,
 };
