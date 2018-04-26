@@ -8,12 +8,10 @@ const testnetMetadata = require('./testnet/contract_metadata');
 const EXPLORER_TESTNET = 'https://testnet.qtum.org';
 const EXPLORER_MAINNET = 'https://explorer.qtum.org';
 
-const RPC_ADDRESS_TESTNET = 'http://bodhi:bodhi@localhost:13889';
-const RPC_ADDRESS_MAINNET = 'http://bodhi:bodhi@localhost:3889';
-
 const Config = {
   HOSTNAME: '127.0.0.1',
   PORT: 5555,
+  RPC_USERNAME: 'bodhi',
   PORT_TESTNET: 13889,
   PORT_MAINNET: 3889,
   DEFAULT_LOGLVL: 'info',
@@ -27,6 +25,9 @@ const Config = {
 // Qtumd environment var: testnet/mainnet
 let qtumEnv;
 
+// Generate random password for every session
+let rpcPassword = getRandomPassword();
+
 const setQtumEnv = (env) => {
   qtumEnv = env;
 };
@@ -35,7 +36,10 @@ const getQtumEnv = () => qtumEnv;
 
 const isMainnet = () => qtumEnv === blockchainEnv.MAINNET;
 
-const getQtumRPCAddress = () => (isMainnet() ? RPC_ADDRESS_MAINNET : RPC_ADDRESS_TESTNET);
+const getQtumRPCAddress = () => {
+  const port = isMainnet() ? PORT_MAINNET : PORT_TESTNET;
+  return `http://${RPC_USERNAME}:${rpcPassword}@localhost:${port}`;
+};
 
 const getQtumExplorerUrl = () => (isMainnet() ? EXPLORER_MAINNET : EXPLORER_TESTNET);
 
@@ -73,5 +77,4 @@ module.exports = {
   getQtumRPCAddress,
   getQtumExplorerUrl,
   getContractMetadata,
-  getRandomPassword,
 };
