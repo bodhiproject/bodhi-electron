@@ -4,6 +4,7 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
+const Tracking = require('./src/analytics/tracking');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -184,6 +185,7 @@ app.on('ready', () => {
         logger.info('Choose Mainnet');
         server = require('./src/index');
         initApp();
+        Tracking.mainnetStart();
         break;
       }
       case 1: {
@@ -192,6 +194,7 @@ app.on('ready', () => {
         logger.info('Choose Testnet');
         server = require('./src/index');
         initApp();
+        Tracking.testnetStart();
         break;
       }
       case 2: {
