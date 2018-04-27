@@ -120,7 +120,7 @@ function startServices() {
 
   setTimeout(() => {  
     emitter.emit(ipcEvent.QTUMD_STARTED);
-  }, 1000);
+  }, 2000);
 }
 
 async function checkQtumdInit() {
