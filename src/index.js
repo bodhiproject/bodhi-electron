@@ -45,11 +45,16 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
-async function checkQtumd() {
-  const running = await qClient.isConnected();
-  if (running) {
+async function checkQtumdInit() {
+  try {
+    // getInfo throws an error if trying to be called before qtumd is running
+    const info = await qClient.getInfo();
+
+    // no error was caught, qtumd is initialized
     clearInterval(checkInterval);
     startServices();
+  } catch (err) {
+    logger.debug(err.message);
   }
 }
 
@@ -100,7 +105,7 @@ function startQtumProcess(reindex) {
   });
 
   // repeatedly check if qtumd is running
-  checkInterval = setInterval(checkQtumd, 1000);
+  checkInterval = setInterval(checkQtumdInit, 200);
 }
 
 async function startAPI() {
