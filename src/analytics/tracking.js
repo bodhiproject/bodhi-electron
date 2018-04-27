@@ -2,6 +2,8 @@ const Mixpanel = require('mixpanel');
 const _ = require('lodash');
 const os = require('os');
 
+const Utils = require('../utils/utils');
+
 const MIXPANEL_TOKEN = '5c13e6b02fc222c0adae2f1f8cd923b0';
 
 let mixpanel;
@@ -19,7 +21,7 @@ class Tracking {
     }
 
     // Only track in production build
-    if (!_.includes(process.argv, '--dev')) {
+    if (!Utils.isDevEnv()) {
       mixpanel.track(eventName, { id: getTrackingId() });
     }
   }
