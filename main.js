@@ -14,6 +14,10 @@ let uiWin;
 let server;
 let i18n;
 
+function startServer() {
+  server = require('./src/index');
+}
+
 function createWindow() {
   // Create the browser window.
   uiWin = new BrowserWindow({
@@ -177,23 +181,24 @@ app.on('ready', () => {
     defaultId: 2,
     cancelId: 2,
   }, (response) => {
-    // Set env var so sync knows which flags to add on startup
     switch (response) {
       case 0: {
-        setQtumEnv(blockchainEnv.MAINNET);
-        // Start server and init Electron windows
         logger.info('Choose Mainnet');
-        server = require('./src/index');
+
+        setQtumEnv(blockchainEnv.MAINNET);
+        startServer();
         initApp();
+
         Tracking.mainnetStart();
         break;
       }
       case 1: {
-        setQtumEnv(blockchainEnv.TESTNET);
-        // Start server and init Electron windows
         logger.info('Choose Testnet');
-        server = require('./src/index');
+        
+        setQtumEnv(blockchainEnv.TESTNET);
+        startServer();
         initApp();
+
         Tracking.testnetStart();
         break;
       }
