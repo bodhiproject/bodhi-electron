@@ -145,7 +145,7 @@ function checkQtumPort() {
       // Slight delay before sending qtumd killed signal
       setTimeout(() => {
         emitter.emit(ipcEvent.QTUMD_KILLED);
-      }, 500);
+      }, 1500);
     } else {
       logger.debug('waiting for qtumd to shutting down');
     }
