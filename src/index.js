@@ -115,9 +115,10 @@ async function startAPI() {
 }
 
 function startServices() {
-  setTimeout(() => {
-    startSync();
-    startAPI();
+  startSync();
+  startAPI();
+
+  setTimeout(() => {  
     emitter.emit(ipcEvent.QTUMD_STARTED);
   }, 1000);
 }
