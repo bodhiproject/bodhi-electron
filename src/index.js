@@ -105,7 +105,7 @@ function startQtumProcess(reindex) {
   });
 
   // repeatedly check if qtumd is running
-  checkInterval = setInterval(checkQtumdInit, 200);
+  checkInterval = setInterval(checkQtumdInit, 1000);
 }
 
 async function startAPI() {
