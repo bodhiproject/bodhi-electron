@@ -45,19 +45,6 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
-async function checkQtumdInit() {
-  try {
-    // getInfo throws an error if trying to be called before qtumd is running
-    const info = await qClient.getInfo();
-
-    // no error was caught, qtumd is initialized
-    clearInterval(checkInterval);
-    startServices();
-  } catch (err) {
-    logger.debug(err.message);
-  }
-}
-
 function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
   if (!isMainnet()) {
@@ -132,7 +119,20 @@ function startServices() {
     startSync();
     startAPI();
     emitter.emit(ipcEvent.QTUMD_STARTED);
-  }, 3000);
+  }, 1000);
+}
+
+async function checkQtumdInit() {
+  try {
+    // getInfo throws an error if trying to be called before qtumd is running
+    const info = await qClient.getInfo();
+
+    // no error was caught, qtumd is initialized
+    clearInterval(checkInterval);
+    startServices();
+  } catch (err) {
+    logger.debug(err.message);
+  }
 }
 
 // Check if qtumd port is in use before starting qtum-qt
