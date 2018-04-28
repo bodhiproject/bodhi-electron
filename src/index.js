@@ -7,6 +7,7 @@ const { execute, subscribe } = require('graphql');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const EventEmitter = require('events');
 const { app } = require('electron');
+const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
 const { Config, isMainnet } = require('./config/config');
@@ -24,6 +25,7 @@ const emitter = new EventEmitter();
 
 let qtumProcess;
 let checkInterval;
+let checkApiInterval;
 let shutdownInterval;
 
 // Restify setup
@@ -118,11 +120,28 @@ function startServices() {
   startSync();
   startAPI();
 
-  setTimeout(() => {  
-    emitter.emit(ipcEvent.QTUMD_STARTED);
-  }, 2000);
+  checkApiInterval = setInterval(checkApiInit, 500);
 }
 
+// Ensure API is running before loading UI
+async function checkApiInit() {
+  try {
+    const res = await fetch(`http://${Config.HOSTNAME}:${Config.PORT}/graphql`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{"query":"{syncInfo{syncBlockNum,syncBlockTime,syncPercent}}"}',
+    });
+
+    if (res.status >= 200 && res.status < 300) {
+      clearInterval(checkApiInterval);
+      setTimeout(() => emitter.emit(ipcEvent.QTUMD_STARTED), 1000);
+    }
+  } catch (err) {
+    logger.debug(err.message);
+  }
+}
+
+// Ensure qtumd is running before starting sync/API
 async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
