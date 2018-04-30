@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
+const prompt = require('electron-prompt');
 
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
@@ -171,46 +172,58 @@ app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
 
+  prompt({
+    title: 'Prompt example',
+    label: 'URL:',
+    value: 'http://example.org',
+    type: 'input',
+    // inputAttrs: { // attrs to be set if using 'input'
+    //   type: 'url'
+    // },
+  }).then((r) => {
+    console.log('result', r); // null if window was closed, or user clicked Cancel
+  }).catch(console.error);
+
   // Show environment selection dialog
   app.focus();
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
-    title: i18n.get('selectQtumEnvironment'),
-    message: i18n.get('selectQtumEnvironment'),
-    defaultId: 2,
-    cancelId: 2,
-  }, (response) => {
-    switch (response) {
-      case 0: {
-        logger.info('Choose Mainnet');
+  // dialog.showMessageBox({
+  //   type: 'question',
+  //   buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
+  //   title: i18n.get('selectQtumEnvironment'),
+  //   message: i18n.get('selectQtumEnvironment'),
+  //   defaultId: 2,
+  //   cancelId: 2,
+  // }, (response) => {
+  //   switch (response) {
+  //     case 0: {
+  //       logger.info('Choose Mainnet');
 
-        setQtumEnv(blockchainEnv.MAINNET);
-        startServer();
-        initApp();
+  //       setQtumEnv(blockchainEnv.MAINNET);
+  //       startServer();
+  //       initApp();
 
-        Tracking.mainnetStart();
-        break;
-      }
-      case 1: {
-        logger.info('Choose Testnet');
+  //       Tracking.mainnetStart();
+  //       break;
+  //     }
+  //     case 1: {
+  //       logger.info('Choose Testnet');
         
-        setQtumEnv(blockchainEnv.TESTNET);
-        startServer();
-        initApp();
+  //       setQtumEnv(blockchainEnv.TESTNET);
+  //       startServer();
+  //       initApp();
 
-        Tracking.testnetStart();
-        break;
-      }
-      case 2: {
-        app.quit();
-        return;
-      }
-      default: {
-        throw new Error(`Invalid dialog button selection ${response}`);
-      }
-    }
-  });
+  //       Tracking.testnetStart();
+  //       break;
+  //     }
+  //     case 2: {
+  //       app.quit();
+  //       return;
+  //     }
+  //     default: {
+  //       throw new Error(`Invalid dialog button selection ${response}`);
+  //     }
+  //   }
+  // });
 });
 
 // Quit when all windows are closed.
