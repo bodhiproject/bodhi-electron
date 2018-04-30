@@ -122,6 +122,20 @@ function initApp() {
   });
 }
 
+function showWalletUnlockPrompt() {
+  prompt({
+    title: 'Unlock Wallet',
+    label: 'Enter your wallet passphrase:',
+    value: '',
+    type: 'input',
+    // inputAttrs: { // attrs to be set if using 'input'
+    //   type: 'url'
+    // },
+  }).then((r) => {
+    console.log('result', r); // null if window was closed, or user clicked Cancel
+  }).catch(console.error);
+}
+
 function showLaunchQtumWalletDialog() {
   app.focus();
   dialog.showMessageBox({
@@ -171,18 +185,6 @@ function exit(signal) {
 app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
-
-  prompt({
-    title: 'Prompt example',
-    label: 'URL:',
-    value: 'http://example.org',
-    type: 'input',
-    // inputAttrs: { // attrs to be set if using 'input'
-    //   type: 'url'
-    // },
-  }).then((r) => {
-    console.log('result', r); // null if window was closed, or user clicked Cancel
-  }).catch(console.error);
 
   // Show environment selection dialog
   app.focus();
