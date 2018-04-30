@@ -114,6 +114,11 @@ function initApp() {
     });
   });
 
+  // Show wallet unlock prompt if wallet is encrypted
+  server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+    showWalletUnlockPrompt();
+  });
+
   // Delay, then start qtum-qt
   server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
     setTimeout(() => {
@@ -128,11 +133,9 @@ function showWalletUnlockPrompt() {
     label: 'Enter your wallet passphrase:',
     value: '',
     type: 'input',
-    // inputAttrs: { // attrs to be set if using 'input'
-    //   type: 'url'
-    // },
   }).then((r) => {
-    console.log('result', r); // null if window was closed, or user clicked Cancel
+    // null if window was closed, or user clicked Cancel
+    console.log('result', r);
   }).catch(console.error);
 }
 
