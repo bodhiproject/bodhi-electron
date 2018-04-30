@@ -20,6 +20,7 @@ const Config = {
   DEFAULT_GAS_LIMIT: 250000,
   DEFAULT_GAS_PRICE: 0.0000004,
   CREATE_DORACLE_GAS_LIMIT: 1500000,
+  UNLOCK_SECONDS: 86400,
 };
 
 let qtumEnv; // Qtumd environment var: testnet/mainnet
