@@ -7,7 +7,6 @@ const moment = require('moment');
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
 const { execFile } = require('../constants');
-const Wallet = require('./api/wallet');
 
 const DIR_DEV = 'dev';
 
@@ -137,20 +136,6 @@ function getProdQtumPath(exec) {
 }
 
 class Utils {
-  static async needToUnlockWallet() {
-    const res = await Wallet.getWalletInfo();
-    return !_.isUndefined(unlockedUntil);
-  }
-
-  static async unlockWallet(passphrase) {
-    try {
-      const res = await Wallet.walletPassphrase(passphrase, Config.UNLOCK_SECONDS);
-
-    } catch (err) {
-      return { err };
-    }
-  }
-
   static getQtumPath(exec) {
     let qtumPath;
     if (_.includes(process.argv, '--dev')) {

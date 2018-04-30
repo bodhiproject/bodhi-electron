@@ -6,6 +6,8 @@ const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config'
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
 const Tracking = require('./src/analytics/tracking');
+const Utils = require('./src/utils/utils');
+const Wallet = require('./src/api/wallet');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -127,16 +129,76 @@ function initApp() {
   });
 }
 
+// Show environment selection dialog
+function showSelectEnvDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
+    title: i18n.get('selectQtumEnvironment'),
+    message: i18n.get('selectQtumEnvironment'),
+    defaultId: 2,
+    cancelId: 2,
+  }, (response) => {
+    switch (response) {
+      case 0: {
+        logger.info('Choose Mainnet');
+
+        setQtumEnv(blockchainEnv.MAINNET);
+        startServer();
+        initApp();
+
+        Tracking.mainnetStart();
+        break;
+      }
+      case 1: {
+        logger.info('Choose Testnet');
+        
+        setQtumEnv(blockchainEnv.TESTNET);
+        startServer();
+        initApp();
+
+        Tracking.testnetStart();
+        break;
+      }
+      case 2: {
+        app.quit();
+        return;
+      }
+      default: {
+        throw new Error(`Invalid dialog button selection ${response}`);
+      }
+    }
+  });
+}
+
 function showWalletUnlockPrompt() {
   prompt({
     title: 'Unlock Wallet',
     label: 'Enter your wallet passphrase:',
     value: '',
     type: 'input',
-  }).then((r) => {
+  }).then(async (res) => {
     // null if window was closed, or user clicked Cancel
-    console.log('result', r);
-  }).catch(console.error);
+    if (res === null) {
+      showSelectEnvDialog();
+    } else {
+      // Unlock wallet
+      await Wallet.walletPassphrase(res, Config.UNLOCK_SECONDS);
+      const info = await Wallet.getWalletInfo();
+      console.log(info);
+      if (info.unlocked_until > 0) {
+        logger.info('Wallet unlocked');
+        // start services
+      } else {
+        logger.error('Wallet unlock failed');
+        // show error dialog
+      }
+    }
+  }).catch((err) => {
+    logger.error(err.message);
+    // show error dialog
+  });
 }
 
 function showLaunchQtumWalletDialog() {
@@ -188,47 +250,7 @@ function exit(signal) {
 app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
-
-  // Show environment selection dialog
-  app.focus();
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
-    title: i18n.get('selectQtumEnvironment'),
-    message: i18n.get('selectQtumEnvironment'),
-    defaultId: 2,
-    cancelId: 2,
-  }, (response) => {
-    switch (response) {
-      case 0: {
-        logger.info('Choose Mainnet');
-
-        setQtumEnv(blockchainEnv.MAINNET);
-        startServer();
-        initApp();
-
-        Tracking.mainnetStart();
-        break;
-      }
-      case 1: {
-        logger.info('Choose Testnet');
-        
-        setQtumEnv(blockchainEnv.TESTNET);
-        startServer();
-        initApp();
-
-        Tracking.testnetStart();
-        break;
-      }
-      case 2: {
-        app.quit();
-        return;
-      }
-      default: {
-        throw new Error(`Invalid dialog button selection ${response}`);
-      }
-    }
-  });
+  showSelectEnvDialog();
 });
 
 // Quit when all windows are closed.
