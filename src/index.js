@@ -19,7 +19,6 @@ const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { ipcEvent, execFile } = require('./constants');
 const qClient = require('./qclient').getInstance();
-const Wallet = require('./api/wallet');
 
 /*
 * Order of Operations
@@ -131,6 +130,16 @@ function startServices() {
   checkApiInterval = setInterval(checkApiInit, 500);
 }
 
+// Checks if the wallet is encrypted to prompt the wallet unlock dialog
+async function checkWalletEncryption() {
+  if (Utils.needToUnlockWallet()) {
+    // Show wallet unlock prompt
+    emitter.emit(ipcEvent.SHOW_WALLET_UNLOCK);
+  } else {
+    startServices();
+  }
+}
+
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
@@ -146,19 +155,6 @@ async function checkApiInit() {
     }
   } catch (err) {
     logger.debug(err.message);
-  }
-}
-
-// Checks if the wallet is encrypted to prompt the wallet unlock dialog
-async function checkWalletEncryption() {
-  const res = await Wallet.getWalletInfo();
-  const isEncrypted = res && res.unlocked_until;
-
-  if (isEncrypted) {
-    // Show wallet unlock prompt
-    emitter.emit(ipcEvent.SHOW_WALLET_UNLOCK);
-  } else {
-    startServices();
   }
 }
 
