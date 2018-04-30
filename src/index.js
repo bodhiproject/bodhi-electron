@@ -9,7 +9,7 @@ const EventEmitter = require('events');
 const { app } = require('electron');
 const portscanner = require('portscanner');
 
-const { Config, isMainnet } = require('./config/config');
+const { Config, isMainnet, getRPCPassword } = require('./config/config');
 const logger = require('./utils/logger');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
@@ -17,7 +17,6 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { ipcEvent, execFile } = require('./constants');
-
 const qClient = require('./qclient').getInstance();
 
 const emitter = new EventEmitter();
@@ -54,7 +53,7 @@ async function checkQtumd() {
 }
 
 function startQtumProcess(reindex) {
-  const flags = ['-logevents', '-rpcworkqueue=32', '-rpcuser=bodhi', '-rpcpassword=bodhi'];
+  const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
   if (!isMainnet()) {
     flags.push('-testnet');
   }
@@ -132,7 +131,7 @@ function startServices() {
 
 // Check if qtumd port is in use before starting qtum-qt
 function checkQtumPort() {
-  const port = isMainnet() ? Config.PORT_MAINNET : Config.PORT_TESTNET;
+  const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
   portscanner.checkPortStatus(port, Config.HOSTNAME, (error, status) => {
     if (status === 'closed') {
       clearInterval(shutdownInterval);
