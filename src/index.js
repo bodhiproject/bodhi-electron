@@ -19,6 +19,7 @@ const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { ipcEvent, execFile } = require('./constants');
 const qClient = require('./qclient').getInstance();
+const Wallet = require('./api/wallet');
 
 /*
 * Order of Operations
@@ -132,11 +133,12 @@ function startServices() {
 
 // Checks if the wallet is encrypted to prompt the wallet unlock dialog
 async function checkWalletEncryption() {
-  if (Utils.needToUnlockWallet()) {
+  const res = await Wallet.getWalletInfo();
+  if (_.isUndefined(res.unlocked_until)) {
+    startServices();
+  } else {
     // Show wallet unlock prompt
     emitter.emit(ipcEvent.SHOW_WALLET_UNLOCK);
-  } else {
-    startServices();
   }
 }
 
