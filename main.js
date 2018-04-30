@@ -186,44 +186,44 @@ app.on('ready', () => {
 
   // Show environment selection dialog
   app.focus();
-  // dialog.showMessageBox({
-  //   type: 'question',
-  //   buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
-  //   title: i18n.get('selectQtumEnvironment'),
-  //   message: i18n.get('selectQtumEnvironment'),
-  //   defaultId: 2,
-  //   cancelId: 2,
-  // }, (response) => {
-  //   switch (response) {
-  //     case 0: {
-  //       logger.info('Choose Mainnet');
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
+    title: i18n.get('selectQtumEnvironment'),
+    message: i18n.get('selectQtumEnvironment'),
+    defaultId: 2,
+    cancelId: 2,
+  }, (response) => {
+    switch (response) {
+      case 0: {
+        logger.info('Choose Mainnet');
 
-  //       setQtumEnv(blockchainEnv.MAINNET);
-  //       startServer();
-  //       initApp();
+        setQtumEnv(blockchainEnv.MAINNET);
+        startServer();
+        initApp();
 
-  //       Tracking.mainnetStart();
-  //       break;
-  //     }
-  //     case 1: {
-  //       logger.info('Choose Testnet');
+        Tracking.mainnetStart();
+        break;
+      }
+      case 1: {
+        logger.info('Choose Testnet');
         
-  //       setQtumEnv(blockchainEnv.TESTNET);
-  //       startServer();
-  //       initApp();
+        setQtumEnv(blockchainEnv.TESTNET);
+        startServer();
+        initApp();
 
-  //       Tracking.testnetStart();
-  //       break;
-  //     }
-  //     case 2: {
-  //       app.quit();
-  //       return;
-  //     }
-  //     default: {
-  //       throw new Error(`Invalid dialog button selection ${response}`);
-  //     }
-  //   }
-  // });
+        Tracking.testnetStart();
+        break;
+      }
+      case 2: {
+        app.quit();
+        return;
+      }
+      default: {
+        throw new Error(`Invalid dialog button selection ${response}`);
+      }
+    }
+  });
 });
 
 // Quit when all windows are closed.
