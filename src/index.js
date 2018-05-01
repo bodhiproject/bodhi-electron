@@ -149,7 +149,7 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => emitter.emit(ipcEvent.QTUMD_STARTED), 1000);
+      setTimeout(() => emitter.emit(ipcEvent.SERVICES_RUNNING), 1000);
     }
   } catch (err) {
     logger.debug(err.message);
