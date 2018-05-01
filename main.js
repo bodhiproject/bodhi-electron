@@ -204,8 +204,7 @@ function showLaunchQtumWalletDialog() {
     cancelId: 0,
   }, (response) => {
     if (response === 1) {
-      // TODO: ADD FLAG FOR QTUMD RUNNING
-      if (server) {
+      if (server.getQtumProcess()) {
         server.terminateDaemon();
       } else {
         // Show dialog to wait for initializing to finish
