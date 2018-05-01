@@ -143,13 +143,25 @@ function showSelectEnvDialog() {
 }
 
 function showWalletErrorDialog(message) {
+  const buttons = [i18n.get('quit')];
+
+  if (message.includes('The wallet passphrase entered was incorrect.')) {
+    buttons.push(i18n.get('retry'));
+  }
+
   dialog.showMessageBox({
     type: 'error',
-    buttons: [i18n.get('quit')],
     title: i18n.get('error'),
     message,
+    buttons,
+    defaultId: 0,
+    cancelId: 0,
   }, (response) => {
-    app.quit();
+    if (response === 0) {
+      app.quit();
+    } else {
+      showWalletUnlockPrompt(); 
+    }
   });
 }
 
