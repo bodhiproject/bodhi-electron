@@ -256,13 +256,6 @@ app.on('ready', () => {
   showSelectEnvDialog();
 });
 
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
-  logger.debug('window-all-closed');
-  killServer();
-  app.quit();
-});
-
 app.on('activate', () => {
   logger.debug('activate');
   // On macOS it's common to re-create a window in the app when the
@@ -272,9 +265,23 @@ app.on('activate', () => {
   }
 });
 
-app.on('before-quit', () => {
+// Emitted when all windows have been closed.
+app.on('window-all-closed', () => {
+  logger.debug('window-all-closed');
+  exit();
+});
+
+// Emitted before the application starts closing its windows.
+app.on('before-quit', (event) => {
   logger.debug('before-quit');
-  killServer();
+
+  if (server.isWalletEncrypted()) {
+    // TODO: lock wallet then kill server
+
+    killServer();
+  } else {
+    killServer();
+  }
 });
 
 // Load UI when services are running
@@ -293,8 +300,7 @@ server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     title: i18n.get('error'),
     message: err,
   }, (response) => {
-    killServer();
-    app.quit();
+    exit();
   });
 });
 

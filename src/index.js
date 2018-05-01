@@ -24,6 +24,7 @@ const Wallet = require('./api/wallet');
 const emitter = new EventEmitter();
 
 let qtumProcess;
+let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
@@ -46,6 +47,10 @@ server.on('after', (req, res, route, err) => {
     logger.error(`${err.message}`);
   }
 });
+
+function isWalletEncrypted() {
+  return isEncrypted;
+}
 
 function getQtumProcess() {
   return qtumProcess;
@@ -130,11 +135,14 @@ function startServices() {
 // Checks if the wallet is encrypted to prompt the wallet unlock dialog
 async function checkWalletEncryption() {
   const res = await Wallet.getWalletInfo();
-  if (_.isUndefined(res.unlocked_until)) {
-    startServices();
-  } else {
+  isEncrypted = !_.isUndefined(res.unlocked_until);
+  console.log('setting encrypted', isEncrypted);
+
+  if (isEncrypted) {
     // Show wallet unlock prompt
     emitter.emit(ipcEvent.SHOW_WALLET_UNLOCK);
+  } else {
+    startServices();
   }
 }
 
@@ -213,4 +221,5 @@ module.exports = {
   terminateDaemon,
   getQtumProcess,
   emitter,
+  isWalletEncrypted,
 };
