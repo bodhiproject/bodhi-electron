@@ -13,8 +13,6 @@ const { Config, getContractMetadata } = require('../config/config');
 const { txState } = require('../constants');
 const Utils = require('../utils/utils');
 
-const contractMetadata = getContractMetadata();
-
 async function updatePendingTxs(db, currentBlockCount) {
   let pendingTxs;
   try {
@@ -243,7 +241,7 @@ async function onFailedTx(tx, db) {
   switch (tx.type) {
     // Approve failed. Reset allowance and delete created Topic/COracle.
     case 'APPROVECREATEEVENT': {
-      resetApproveAmount(db, tx, contractMetadata.AddressManager.address);
+      resetApproveAmount(db, tx, getContractMetadata().AddressManager.address);
       removeCreatedTopicAndOracle(db, tx);
       break;
     }

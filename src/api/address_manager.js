@@ -4,8 +4,10 @@ const { Contract } = require('qweb3');
 const { getContractMetadata, getQtumRPCAddress } = require('../config/config');
 const Utils = require('../utils/utils');
 
-const metadata = getContractMetadata();
-const contract = new Contract(getQtumRPCAddress(), metadata.AddressManager.address, metadata.AddressManager.abi);
+function getContract() {
+  const metadata = getContractMetadata();
+  return new Contract(getQtumRPCAddress(), metadata.AddressManager.address, metadata.AddressManager.abi);
+}
 
 const AddressManager = {
   async eventEscrowAmount(args) {
@@ -17,7 +19,7 @@ const AddressManager = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    const res = await contract.call('eventEscrowAmount', {
+    const res = await getContract().call('eventEscrowAmount', {
       methodArgs: [],
       senderAddress,
     });
@@ -34,7 +36,7 @@ const AddressManager = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    const res = await contract.call('getLastEventFactoryIndex', {
+    const res = await getContract().call('getLastEventFactoryIndex', {
       methodArgs: [],
       senderAddress,
     });
@@ -51,7 +53,7 @@ const AddressManager = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    const res = await contract.call('getLastOracleFactoryIndex', {
+    const res = await getContract().call('getLastOracleFactoryIndex', {
       methodArgs: [],
       senderAddress,
     });
