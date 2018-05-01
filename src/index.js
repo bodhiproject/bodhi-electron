@@ -168,7 +168,6 @@ async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
     const info = await getInstance().getInfo();
-    console.log('get info success');
 
     // no error was caught, qtumd is initialized
     clearInterval(checkInterval);
