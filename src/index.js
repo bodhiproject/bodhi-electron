@@ -55,6 +55,10 @@ server.on('after', (req, res, route, err) => {
   }
 });
 
+function getQtumProcess() {
+  return qtumProcess;
+}
+
 function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
   if (!isMainnet()) {
@@ -211,8 +215,10 @@ process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
-startQtumProcess(false);
-
-exports.process = qtumProcess;
-exports.emitter = emitter;
-exports.terminateDaemon = terminateDaemon;
+module.exports = {
+  startQtumProcess,
+  startServices,
+  terminateDaemon,
+  getQtumProcess,
+  emitter,
+};
