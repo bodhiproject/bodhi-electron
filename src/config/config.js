@@ -32,7 +32,14 @@ const setQtumEnv = (env) => {
 
 const getQtumEnv = () => qtumEnv;
 
-const isMainnet = () => qtumEnv === blockchainEnv.MAINNET;
+const isMainnet = () => {
+  // Throw an error to ensure no code is using this check before it is initialized
+  if (!qtumEnv) {
+    throw new Error('qtumEnv not initialized yet before checking env');
+  }
+
+  return qtumEnv === blockchainEnv.MAINNET;
+}
 
 const getRPCPassword = () => {
   let password = rpcPassword;
@@ -63,10 +70,10 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
     throw new Error('Must supply a version number');
   }
 
-  if (qtumEnv === blockchainEnv.TESTNET) {
-    return testnetMetadata[versionNum];
+  if (isMainnet()) {
+    return mainnetMetadata[versionNum];
   }
-  return mainnetMetadata[versionNum];
+  return testnetMetadata[versionNum];
 }
 
 /*
