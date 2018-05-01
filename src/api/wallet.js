@@ -82,6 +82,10 @@ const Wallet = {
     return qClient.walletPassphrase(passphrase, timeout);
   },
 
+  async walletLock() {
+    return qClient.walletLock();
+  },
+
   async encryptWallet(args) {
     const {
       passphrase, // string
