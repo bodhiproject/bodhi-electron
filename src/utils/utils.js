@@ -2,7 +2,6 @@ const fs = require('fs-extra');
 const _ = require('lodash');
 const { app } = require('electron');
 const Web3Utils = require('web3-utils');
-const moment = require('moment');
 
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
