@@ -23,16 +23,18 @@ const wallet = require('../api/wallet');
 
 const { getInstance } = require('../qclient');
 
-const contractMetadata = getContractMetadata();
-
 const RPC_BATCH_SIZE = 10;
 const BLOCK_BATCH_SIZE = 200;
 const SYNC_THRESHOLD_SECS = 1200;
-const CONTRACT_START_BLOCK_NUM = contractMetadata.contractDeployedBlock;
+
 // hardcode sender address as it doesnt matter
-const SENDER_ADDRESS = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
+let contractMetadata;
+let senderAddress;
 
 const startSync = async () => {
+  contractMetadata = getContractMetadata();
+  senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
+
   const db = await connectDB();
   sync(db);
 };
@@ -85,7 +87,7 @@ async function sync(db) {
   const currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
 
   // Start sync based on last block written to DB
-  let startBlock = CONTRACT_START_BLOCK_NUM;
+  let startBlock = contractMetadata.contractDeployedBlock;
   const blocks = await db.Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
   if (blocks.length > 0) {
     startBlock = Math.max(blocks[0].blockNum + 1, startBlock);
@@ -610,7 +612,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     try {
       const res = await baseContract.getTotalBets({
         contractAddress: oracleAddress,
-        senderAddress: SENDER_ADDRESS,
+        senderAddress,
       });
       amounts = res[0];
     } catch (err) {
@@ -621,7 +623,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
     try {
       const res = await baseContract.getTotalVotes({
         contractAddress: oracleAddress,
-        senderAddress: SENDER_ADDRESS,
+        senderAddress,
       });
       amounts = res[0];
     } catch (err) {
@@ -657,7 +659,7 @@ async function updateTopicBalance(topicAddress, db) {
   try {
     const res = await baseContract.getTotalBets({
       contractAddress: topicAddress,
-      senderAddress: SENDER_ADDRESS,
+      senderAddress,
     });
     totalBets = res[0];
   } catch (err) {
@@ -668,7 +670,7 @@ async function updateTopicBalance(topicAddress, db) {
   try {
     const res = await baseContract.getTotalVotes({
       contractAddress: topicAddress,
-      senderAddress: SENDER_ADDRESS,
+      senderAddress,
     });
     totalVotes = res[0];
   } catch (err) {

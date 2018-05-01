@@ -4,8 +4,10 @@ const { Contract } = require('qweb3');
 const { getContractMetadata, getQtumRPCAddress } = require('../config/config');
 const Utils = require('../utils/utils');
 
-const metadata = getContractMetadata();
-const contract = new Contract(getQtumRPCAddress(), metadata.BodhiToken.address, metadata.BodhiToken.abi);
+function getContract() {
+  const metadata = getContractMetadata();
+  return new Contract(getQtumRPCAddress(), metadata.BodhiToken.address, metadata.BodhiToken.abi);
+}
 
 const BodhiToken = {
   async approve(args) {
@@ -25,7 +27,7 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.send('approve', {
+    return getContract().send('approve', {
       methodArgs: [spender, value],
       senderAddress,
     });
@@ -48,7 +50,7 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.send('transfer', {
+    return getContract().send('transfer', {
       methodArgs: [to, value],
       senderAddress,
     });
@@ -71,7 +73,7 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    const res = await contract.call('allowance', {
+    const res = await getContract().call('allowance', {
       methodArgs: [owner, spender],
       senderAddress,
     });
@@ -93,7 +95,7 @@ const BodhiToken = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    const res = await contract.call('balanceOf', {
+    const res = await getContract().call('balanceOf', {
       methodArgs: [owner],
       senderAddress,
     });

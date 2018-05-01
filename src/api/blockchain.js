@@ -1,10 +1,7 @@
 const _ = require('lodash');
 
 const { getContractMetadata } = require('../config/config');
-
 const { getInstance } = require('../qclient');
-
-const metadata = getContractMetadata();
 
 const Blockchain = {
   async getBlock(args) {
@@ -76,7 +73,7 @@ const Blockchain = {
       topics = [];
     }
 
-    return getInstance().searchLogs(fromBlock, toBlock, addresses, topics, metadata, true);
+    return getInstance().searchLogs(fromBlock, toBlock, addresses, topics, getContractMetadata(), true);
   },
 };
 
