@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
 
+const server = require('./src/index');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
@@ -14,11 +15,10 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
-let server;
 let i18n;
 
 function startServer() {
-  server = require('./src/index');
+  server.startQtumProcess(false);
 }
 
 function createWindow() {
@@ -189,7 +189,7 @@ function showWalletUnlockPrompt() {
       console.log(info);
       if (info.unlocked_until > 0) {
         logger.info('Wallet unlocked');
-        // start services
+        server.startServices();
       } else {
         logger.error('Wallet unlock failed');
         // show error dialog
@@ -212,6 +212,7 @@ function showLaunchQtumWalletDialog() {
     cancelId: 0,
   }, (response) => {
     if (response === 1) {
+      // TODO: ADD FLAG FOR QTUMD RUNNING
       if (server) {
         server.terminateDaemon();
       } else {
@@ -228,12 +229,13 @@ function showLaunchQtumWalletDialog() {
 }
 
 function killServer() {
-  if (server && server.process) {
+  const proc = server.getQtumProcess();
+  if (proc) {
     try {
-      logger.debug('Killing process', server.process.pid);
-      server.process.kill();
+      logger.debug('Killing process', proc.pid);
+      proc.kill();
     } catch (err) {
-      logger.error(`Error killing process ${server.process.pid}:`, err);
+      logger.error(`Error killing process ${proc.pid}:`, err);
     }
   }
 }
