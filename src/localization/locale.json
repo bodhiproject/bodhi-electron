@@ -5,7 +5,7 @@
   },
   "enterYourWalletPassphrase": {
     "en": "Enter your wallet passphrase:",
-    "zh": "Enter your wallet passphrase:"
+    "zh": "输入您的钱包密码:"
   },
   "error": {
     "en": "Error",
@@ -41,7 +41,7 @@
   },
   "retry": {
     "en": "Retry",
-    "zh": "Retry"
+    "zh": "重试"
   },
   "selectQtumEnvironment": {
     "en": "Select QTUM Environment",
@@ -53,10 +53,10 @@
   },
   "unlockWallet": {
     "en": "Unlock Wallet",
-    "zh": "Unlock Wallet"
+    "zh": "解锁钱包"
   },
   "walletUnlockFailed": {
     "en": "Wallet unlock failed",
-    "zh": "Wallet unlock failed"
+    "zh": "钱包解锁失败"
   }
 }
