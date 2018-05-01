@@ -3,16 +3,32 @@ const datastore = require('nedb-promise');
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
 
-const basePath = `${Utils.getDataDir()}/nedb`;
-const topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
-const oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
-const votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
-const blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
-const transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
+let topics;
+let oracles;
+let votes;
+let blocks;
+let transactions;
+let dbPromises;
 
-const dbPromises = [topics, oracles, votes, blocks, transactions];
+// Init datastores
+async function initDB() {
+  const basePath = `${Utils.getDataDir()}/nedb`;
+  logger.info(`DB path: ${basePath}`);
+
+  topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
+  oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
+  votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
+  blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
+  transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
+  dbPromises = [topics, oracles, votes, blocks, transactions];
+}
 
 async function connectDB() {
+  if (!topics || !oracles || !votes || !blocks || !transactions || !dbPromises) {
+    logger.error('DB not initialized');
+    return;
+  }
+
   try {
     await Promise.all(dbPromises);
     await topics.ensureIndex({ fieldName: 'txid', unique: true });
@@ -168,6 +184,7 @@ class DBHelper {
 }
 
 module.exports = {
+  initDB,
   connectDB,
   DBHelper,
 };

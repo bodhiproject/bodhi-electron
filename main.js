@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
 
+const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
@@ -126,6 +127,7 @@ function showSelectEnvDialog() {
         logger.info('Choose Mainnet');
 
         setQtumEnv(blockchainEnv.MAINNET);
+        initDB();
         startServer();
         initUiWin();
 
@@ -136,6 +138,7 @@ function showSelectEnvDialog() {
         logger.info('Choose Testnet');
         
         setQtumEnv(blockchainEnv.TESTNET);
+        initDB();
         startServer();
         initUiWin();
 
