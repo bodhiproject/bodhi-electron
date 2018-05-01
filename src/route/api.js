@@ -11,7 +11,7 @@ const Oracle = require('../api/oracle');
 const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 
-const qweb3 = require('../qclient').getInstance();
+const { getInstance } = require('../qclient');
 
 const apiRouter = new Router();
 
@@ -27,7 +27,7 @@ function onRequestError(res, err, next) {
 
 /* Misc */
 apiRouter.post('/is-connected', (req, res, next) => {
-  qweb3.isConnected()
+  getInstance().isConnected()
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

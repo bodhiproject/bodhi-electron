@@ -18,7 +18,7 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { ipcEvent, execFile } = require('./constants');
-const qClient = require('./qclient').getInstance();
+const { getInstance } = require('./qclient');
 const Wallet = require('./api/wallet');
 
 const emitter = new EventEmitter();
@@ -136,7 +136,6 @@ function startServices() {
 async function checkWalletEncryption() {
   const res = await Wallet.getWalletInfo();
   isEncrypted = !_.isUndefined(res.unlocked_until);
-  console.log('setting encrypted', isEncrypted);
 
   if (isEncrypted) {
     // Show wallet unlock prompt
@@ -168,7 +167,8 @@ async function checkApiInit() {
 async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
-    const info = await qClient.getInfo();
+    const info = await getInstance().getInfo();
+    console.log('get info success');
 
     // no error was caught, qtumd is initialized
     clearInterval(checkInterval);

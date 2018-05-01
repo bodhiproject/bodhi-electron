@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const qClient = require('../qclient').getInstance();
+const { getInstance } = require('../qclient');
 
 const Wallet = {
   async getAccountAddress(args) {
@@ -12,7 +12,7 @@ const Wallet = {
       throw new TypeError('accountName needs to be defined');
     }
 
-    return qClient.getAccountAddress(accountName);
+    return getInstance().getAccountAddress(accountName);
   },
 
   async getTransaction(args) {
@@ -24,19 +24,19 @@ const Wallet = {
       throw new TypeError('txid needs to be defined');
     }
 
-    return qClient.getTransaction(txid);
+    return getInstance().getTransaction(txid);
   },
 
   async getWalletInfo() {
-    return qClient.getWalletInfo();
+    return getInstance().getWalletInfo();
   },
 
   async listAddressGroupings() {
-    return qClient.listAddressGroupings();
+    return getInstance().listAddressGroupings();
   },
 
   async listUnspent() {
-    return qClient.listUnspent();
+    return getInstance().listUnspent();
   },
 
   async sendToAddress(args) {
@@ -57,7 +57,7 @@ const Wallet = {
       throw new TypeError('amount needs to be defined');
     }
 
-    return qClient.sendToAddress(
+    return getInstance().sendToAddress(
       address, amount, comment, commentTo, subtractFeeFromAmount, senderAddress,
       changeToAddress,
     );
@@ -79,11 +79,11 @@ const Wallet = {
       throw new TypeError('timeout needs to be greater than 0');
     }
 
-    return qClient.walletPassphrase(passphrase, timeout);
+    return getInstance().walletPassphrase(passphrase, timeout);
   },
 
   async walletLock() {
-    return qClient.walletLock();
+    return getInstance().walletLock();
   },
 
   async encryptWallet(args) {
@@ -95,7 +95,7 @@ const Wallet = {
       throw new TypeError('passphrase needs to be defined');
     }
 
-    return qClient.encryptWallet(passphrase);
+    return getInstance().encryptWallet(passphrase);
   },
 
   async walletPassphraseChange(args) {
@@ -111,7 +111,7 @@ const Wallet = {
       throw new TypeError('newPassphrase needs to be defined');
     }
 
-    return qClient.walletPassphraseChange(oldPassphrase, newPassphrase);
+    return getInstance().walletPassphraseChange(oldPassphrase, newPassphrase);
   },
 
   async backupWallet(args) {
@@ -123,7 +123,7 @@ const Wallet = {
       throw new TypeError('destination needs to be defined');
     }
 
-    return qClient.backupWallet(destination);
+    return getInstance().backupWallet(destination);
   },
 
   async importWallet(args) {
@@ -135,7 +135,7 @@ const Wallet = {
       throw new TypeError('filename needs to be defined');
     }
 
-    return qClient.importWallet(filename);
+    return getInstance().importWallet(filename);
   },
 };
 

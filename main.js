@@ -182,6 +182,9 @@ function showWalletUnlockPrompt() {
     label: i18n.get('enterYourWalletPassphrase'),
     value: '',
     type: 'input',
+    inputAttrs: {
+      type: 'password'
+    },
   }).then(async (res) => {
     // null if window was closed, or user clicked Cancel
     if (res === null) {
