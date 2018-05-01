@@ -256,6 +256,7 @@ app.on('ready', () => {
   showSelectEnvDialog();
 });
 
+// Emitted when the application is activated.
 app.on('activate', () => {
   logger.debug('activate');
   // On macOS it's common to re-create a window in the app when the
@@ -271,16 +272,9 @@ app.on('window-all-closed', () => {
 });
 
 // Emitted before the application starts closing its windows.
-app.on('before-quit', (event) => {
+app.on('before-quit', () => {
   logger.debug('before-quit');
-
-  if (server.isWalletEncrypted()) {
-    // TODO: lock wallet then kill server
-
-    killServer();
-  } else {
-    killServer();
-  }
+  killServer();
 });
 
 // Load UI when services are running
