@@ -154,7 +154,7 @@ function showWalletUnlockPrompt() {
       showSelectEnvDialog();
     } else {
       // Unlock wallet
-      await Wallet.walletPassphrase(res, Config.UNLOCK_SECONDS);
+      await Wallet.walletPassphrase({ passphrase: res, timeout: Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
       console.log(info);
       if (info.unlocked_until > 0) {
