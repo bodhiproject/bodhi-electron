@@ -21,14 +21,6 @@ const { ipcEvent, execFile } = require('./constants');
 const qClient = require('./qclient').getInstance();
 const Wallet = require('./api/wallet');
 
-/*
-* Order of Operations
-* 1. Start qtumd
-* 2. Prompt for wallet unlock if necessary
-* 3. Start sync/API
-* 4. Emit services started signal
-*/
-
 const emitter = new EventEmitter();
 
 let qtumProcess;

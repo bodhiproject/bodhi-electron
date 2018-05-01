@@ -10,6 +10,17 @@ const Tracking = require('./src/analytics/tracking');
 const Utils = require('./src/utils/utils');
 const Wallet = require('./src/api/wallet');
 
+/*
+* Order of Operations
+* 1. Show select env dialog
+* 2. Start qtumd
+* 3. Start loading window
+* 4. Check wallet encryption
+* 5. Show wallet unlock dialog if necessary
+* 6. Start sync/API
+* 7. Load UI
+*/
+
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -24,8 +35,8 @@ function startServer() {
 function createWindow() {
   // Create the browser window.
   uiWin = new BrowserWindow({
-    width: 10000,
-    height: 10000,
+    width: 400,
+    height: 400,
     webPreferences: {
       nativeWindowOpen: true,
     },
@@ -269,6 +280,7 @@ app.on('before-quit', () => {
 // Load app main page when qtumd is fully initialized
 server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
   if (uiWin) {
+    uiWin.maximize();
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
   }
 });
