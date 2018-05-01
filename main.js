@@ -277,8 +277,8 @@ app.on('before-quit', () => {
   killServer();
 });
 
-// Load app main page when qtumd is fully initialized
-server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
+// Load UI when services are running
+server.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
   if (uiWin) {
     uiWin.maximize();
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
