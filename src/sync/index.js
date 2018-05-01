@@ -21,7 +21,7 @@ const bodhiToken = require('../api/bodhi_token');
 const baseContract = require('../api/base_contract');
 const wallet = require('../api/wallet');
 
-const qclient = require('../qclient').getInstance();
+const { getInstance } = require('../qclient');
 
 const contractMetadata = getContractMetadata();
 
@@ -80,9 +80,9 @@ async function sync(db) {
   const topicsNeedBalanceUpdate = new Set();
   const oraclesNeedBalanceUpdate = new Set();
 
-  const currentBlockCount = Math.max(0, await qclient.getBlockCount());
-  const currentBlockHash = await qclient.getBlockHash(currentBlockCount);
-  const currentBlockTime = (await qclient.getBlock(currentBlockHash)).time;
+  const currentBlockCount = Math.max(0, await getInstance().getBlockCount());
+  const currentBlockHash = await getInstance().getBlockHash(currentBlockCount);
+  const currentBlockTime = (await getInstance().getBlock(currentBlockHash)).time;
 
   // Start sync based on last block written to DB
   let startBlock = CONTRACT_START_BLOCK_NUM;
@@ -198,7 +198,7 @@ async function fetchTopicAddressFromOracle(db, address) {
 async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
-    result = await qclient.searchLogs(
+    result = await getInstance().searchLogs(
       startBlock, endBlock, contractMetadata.EventFactory.address,
       [contractMetadata.EventFactory.TopicCreated], contractMetadata, removeHexPrefix,
     );
@@ -245,7 +245,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
 async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
-    result = await qclient.searchLogs(
+    result = await getInstance().searchLogs(
       startBlock, endBlock, contractMetadata.EventFactory.address,
       [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, removeHexPrefix,
     );
@@ -296,7 +296,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
 async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime) {
   let result;
   try {
-    result = await qclient.searchLogs(
+    result = await getInstance().searchLogs(
       startBlock, endBlock, [], contractMetadata.OracleFactory.DecentralizedOracleCreated,
       contractMetadata, removeHexPrefix,
     );
@@ -341,7 +341,7 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
 async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
   let result;
   try {
-    result = await qclient.searchLogs(
+    result = await getInstance().searchLogs(
       startBlock, endBlock, [], contractMetadata.CentralizedOracle.OracleResultVoted,
       contractMetadata, removeHexPrefix,
     );
@@ -390,7 +390,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
 async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate) {
   let result;
   try {
-    result = await qclient.searchLogs(
+    result = await getInstance().searchLogs(
       startBlock, endBlock, [], contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata,
       removeHexPrefix,
     );
@@ -435,7 +435,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
 async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate) {
   let result;
   try {
-    result = await qclient.searchLogs(
+    result = await getInstance().searchLogs(
       startBlock, endBlock, [], contractMetadata.TopicEvent.FinalResultSet, contractMetadata,
       removeHexPrefix,
     );
@@ -491,8 +491,8 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
 
   for (let i = startBlock; i <= endBlock; i++) {
     try {
-      blockHash = await qclient.getBlockHash(i);
-      blockTime = (await qclient.getBlock(blockHash)).time;
+      blockHash = await getInstance().getBlockHash(i);
+      blockTime = (await getInstance().getBlock(blockHash)).time;
     } catch (err) {
       logger.error(err);
     }
@@ -517,7 +517,7 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
 async function peerHighestSyncedHeader() {
   let peerBlockHeader = null;
   try {
-    const res = await qclient.getPeerInfo();
+    const res = await getInstance().getPeerInfo();
     _.each(res, (nodeInfo) => {
       if (_.isNumber(nodeInfo.synced_headers) && nodeInfo.synced_headers !== -1) {
         peerBlockHeader = Math.max(nodeInfo.synced_headers, peerBlockHeader);
@@ -691,7 +691,7 @@ async function getAddressBalances() {
   const addressObjs = [];
   const addressList = [];
   try {
-    const res = await qclient.listAddressGroupings();
+    const res = await getInstance().listAddressGroupings();
     // grouping: [["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.01], ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.02]], [...]
     _.each(res, (grouping) => {
       // addressArrItem: ["qNh8krU54KBemhzX4zWG9h3WGpuCNYmeBd", 0.08164600]

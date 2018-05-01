@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const { getContractMetadata } = require('../config/config');
 
-const qClient = require('../qclient').getInstance();
+const { getInstance } = require('../qclient');
 
 const metadata = getContractMetadata();
 
@@ -16,15 +16,15 @@ const Blockchain = {
       throw new TypeError('blockHash needs to be defined');
     }
 
-    return qClient.getBlock(blockHash);
+    return getInstance().getBlock(blockHash);
   },
 
   async getBlockchainInfo() {
-    return qClient.getBlockchainInfo();
+    return getInstance().getBlockchainInfo();
   },
 
   async getBlockCount() {
-    return qClient.getBlockCount();
+    return getInstance().getBlockCount();
   },
 
   async getBlockHash(args) {
@@ -36,7 +36,7 @@ const Blockchain = {
       throw new TypeError('blockNum needs to be defined');
     }
 
-    return qClient.getBlockHash(blockNum);
+    return getInstance().getBlockHash(blockNum);
   },
 
   async getTransactionReceipt(args) {
@@ -48,7 +48,7 @@ const Blockchain = {
       throw new TypeError('transactionId needs to be defined');
     }
 
-    return qClient.getTransactionReceipt(transactionId);
+    return getInstance().getTransactionReceipt(transactionId);
   },
 
   async searchLogs(args) {
@@ -76,7 +76,7 @@ const Blockchain = {
       topics = [];
     }
 
-    return qClient.searchLogs(fromBlock, toBlock, addresses, topics, metadata, true);
+    return getInstance().searchLogs(fromBlock, toBlock, addresses, topics, metadata, true);
   },
 };
 
