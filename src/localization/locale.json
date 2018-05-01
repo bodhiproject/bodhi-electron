@@ -3,6 +3,10 @@
     "en": "Cancel",
     "zh": "取消"
   },
+  "enterYourWalletPassphrase": {
+    "en": "Enter your wallet passphrase:",
+    "zh": "Enter your wallet passphrase:"
+  },
   "error": {
     "en": "Error",
     "zh": "错误"
@@ -42,5 +46,13 @@
   "testnet": {
     "en": "Testnet",
     "zh": "测试链"
+  },
+  "unlockWallet": {
+    "en": "Unlock Wallet",
+    "zh": "Unlock Wallet"
+  },
+  "walletUnlockFailed": {
+    "en": "Wallet unlock failed",
+    "zh": "Wallet unlock failed"
   }
 }

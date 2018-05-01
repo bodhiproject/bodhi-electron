@@ -146,8 +146,8 @@ function showWalletErrorDialog(message) {
   dialog.showMessageBox({
     type: 'error',
     buttons: [i18n.get('quit')],
-    title: i18n.get('selectQtumEnvironment'),
-    message: i18n.get('selectQtumEnvironment'),
+    title: i18n.get('error'),
+    message,
   }, (response) => {
     app.quit();
   });
@@ -155,8 +155,8 @@ function showWalletErrorDialog(message) {
 
 function showWalletUnlockPrompt() {
   prompt({
-    title: 'Unlock Wallet',
-    label: 'Enter your wallet passphrase:',
+    title: i18n.get('unlockWallet'),
+    label: i18n.get('enterYourWalletPassphrase'),
     value: '',
     type: 'input',
   }).then(async (res) => {
@@ -172,7 +172,7 @@ function showWalletUnlockPrompt() {
         server.startServices();
       } else {
         logger.error('Wallet unlock failed');
-        showWalletErrorDialog('Wallet unlock failed');
+        showWalletErrorDialog(i18n.get('walletUnlockFailed'));
       }
     }
   }).catch((err) => {
