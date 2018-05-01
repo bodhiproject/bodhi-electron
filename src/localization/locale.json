@@ -39,6 +39,10 @@
     "en": "Quit",
     "zh": "退出"
   },
+  "retry": {
+    "en": "Retry",
+    "zh": "Retry"
+  },
   "selectQtumEnvironment": {
     "en": "Select QTUM Environment",
     "zh": "选择量子链网路"
