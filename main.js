@@ -142,6 +142,17 @@ function showSelectEnvDialog() {
   });
 }
 
+function showWalletErrorDialog(message) {
+  dialog.showMessageBox({
+    type: 'error',
+    buttons: [i18n.get('quit')],
+    title: i18n.get('selectQtumEnvironment'),
+    message: i18n.get('selectQtumEnvironment'),
+  }, (response) => {
+    app.quit();
+  });
+}
+
 function showWalletUnlockPrompt() {
   prompt({
     title: 'Unlock Wallet',
@@ -151,23 +162,22 @@ function showWalletUnlockPrompt() {
   }).then(async (res) => {
     // null if window was closed, or user clicked Cancel
     if (res === null) {
-      showSelectEnvDialog();
+      app.quit();
     } else {
       // Unlock wallet
       await Wallet.walletPassphrase({ passphrase: res, timeout: Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
-      console.log(info);
       if (info.unlocked_until > 0) {
         logger.info('Wallet unlocked');
         server.startServices();
       } else {
         logger.error('Wallet unlock failed');
-        // show error dialog
+        showWalletErrorDialog('Wallet unlock failed');
       }
     }
   }).catch((err) => {
     logger.error(err.message);
-    // show error dialog
+    showWalletErrorDialog(err.message);
   });
 }
 
