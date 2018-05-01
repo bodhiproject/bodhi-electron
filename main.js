@@ -268,7 +268,6 @@ app.on('activate', () => {
 // Emitted when all windows have been closed.
 app.on('window-all-closed', () => {
   logger.debug('window-all-closed');
-  exit();
 });
 
 // Emitted before the application starts closing its windows.
