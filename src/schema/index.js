@@ -17,6 +17,7 @@ type Topic {
   qtumAmount: [String!]!
   botAmount: [String!]!
   oracles: [Oracle]
+  transactions: [Transaction]
   creatorAddress: String!
 }
 
@@ -40,6 +41,7 @@ type Oracle {
   resultSetStartTime: String
   resultSetEndTime: String
   consensusThreshold: String
+  transactions: [Transaction]
 }
 
 type Vote {

@@ -768,6 +768,11 @@ module.exports = {
 
   Topic: {
     oracles: async ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
+    transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ topicAddress: address }),
+  },
+
+  Oracle: {
+    transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ oracleAddress: address }),
   },
 
   Transaction: {
