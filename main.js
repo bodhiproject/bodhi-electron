@@ -47,6 +47,9 @@ function createWindow() {
     }
     shell.openExternal(formattedUrl);
   });
+
+  // Load intermediary loading page
+  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 }
 
 function setupMenu() {
@@ -85,7 +88,7 @@ function setupMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-function initApp() {
+function initUiWin() {
   // If --noelec flag is supplied, don't open any Electron windows
   if (_.includes(process.argv, '--noelec')) {
     return;
@@ -94,39 +97,6 @@ function initApp() {
   // Init BrowserWindow
   createWindow();
   setupMenu();
-
-  // Load intermediary loading page
-  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
-
-  // Load app main page when qtumd is fully initialized
-  server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
-    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-  });
-
-  // Show error dialog if any startup errors
-  server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
-    dialog.showMessageBox({
-      type: 'error',
-      buttons: [i18n.get('quit')],
-      title: i18n.get('error'),
-      message: err,
-    }, (response) => {
-      killServer();
-      app.quit();
-    });
-  });
-
-  // Show wallet unlock prompt if wallet is encrypted
-  server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
-    showWalletUnlockPrompt();
-  });
-
-  // Delay, then start qtum-qt
-  server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-    setTimeout(() => {
-      require('./src/start_wallet');
-    }, 4000);
-  });
 }
 
 // Show environment selection dialog
@@ -146,7 +116,7 @@ function showSelectEnvDialog() {
 
         setQtumEnv(blockchainEnv.MAINNET);
         startServer();
-        initApp();
+        initUiWin();
 
         Tracking.mainnetStart();
         break;
@@ -156,7 +126,7 @@ function showSelectEnvDialog() {
         
         setQtumEnv(blockchainEnv.TESTNET);
         startServer();
-        initApp();
+        initUiWin();
 
         Tracking.testnetStart();
         break;
@@ -246,8 +216,7 @@ function exit(signal) {
   app.quit();
 }
 
-/* App Events */
-// This method will be call·ed when Electron has finished initialization and is ready to create browser windows.
+// This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
@@ -274,6 +243,38 @@ app.on('activate', () => {
 app.on('before-quit', () => {
   logger.debug('before-quit');
   killServer();
+});
+
+// Load app main page when qtumd is fully initialized
+server.emitter.once(ipcEvent.QTUMD_STARTED, () => {
+  if (uiWin) {
+    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+  }
+});
+
+// Show error dialog if any startup errors
+server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+  dialog.showMessageBox({
+    type: 'error',
+    buttons: [i18n.get('quit')],
+    title: i18n.get('error'),
+    message: err,
+  }, (response) => {
+    killServer();
+    app.quit();
+  });
+});
+
+// Show wallet unlock prompt if wallet is encrypted
+server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+  showWalletUnlockPrompt();
+});
+
+// Delay, then start qtum-qt
+server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+  setTimeout(() => {
+    require('./src/start_wallet');
+  }, 4000);
 });
 
 process.on('SIGINT', exit);
