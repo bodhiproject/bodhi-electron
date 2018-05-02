@@ -122,13 +122,13 @@ function showSelectEnvDialog() {
     message: i18n.get('selectQtumEnvironment'),
     defaultId: 2,
     cancelId: 2,
-  }, (response) => {
+  }, async (response) => {
     switch (response) {
       case 0: {
         logger.info('Choose Mainnet');
 
         setQtumEnv(blockchainEnv.MAINNET);
-        initDB();
+        await initDB();
         startServer();
         initUI();
 
@@ -139,7 +139,7 @@ function showSelectEnvDialog() {
         logger.info('Choose Testnet');
         
         setQtumEnv(blockchainEnv.TESTNET);
-        initDB();
+        await initDB();
         startServer();
         initUI();
 

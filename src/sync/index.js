@@ -8,7 +8,7 @@ const moment = require('moment');
 const BigNumber = require('bignumber.js');
 const { getContractMetadata, isMainnet } = require('../config/config');
 const { BLOCK_0_TIMESTAMP, SATOSHI_CONVERSION } = require('../constants');
-const { connectDB, DBHelper } = require('../db/nedb');
+const { db, DBHelper } = require('../db/nedb');
 const updateTxDB = require('./update_tx');
 
 const Topic = require('./models/topic');
@@ -34,8 +34,6 @@ let senderAddress;
 const startSync = async () => {
   contractMetadata = getContractMetadata();
   senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
-
-  const db = await connectDB();
   sync(db);
 };
 

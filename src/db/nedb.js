@@ -3,49 +3,37 @@ const datastore = require('nedb-promise');
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
 
-let topics;
-let oracles;
-let votes;
-let blocks;
-let transactions;
-let dbPromises;
+const db = {
+  Topics: undefined,
+  Oracles: undefined,
+  Votes: undefined,
+  Blocks: undefined,
+  Transactions: undefined,
+};
 
 // Init datastores
-function initDB() {
+async function initDB() {
   const basePath = `${Utils.getDataDir()}/nedb`;
   logger.info(`DB path: ${basePath}`);
 
-  topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
-  oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
-  votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
-  blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
-  transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
-  dbPromises = [topics, oracles, votes, blocks, transactions];
-}
-
-async function connectDB() {
-  if (!topics || !oracles || !votes || !blocks || !transactions || !dbPromises) {
-    logger.error('DB not initialized');
-    return;
-  }
+  db.Topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
+  db.Oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
+  db.Votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
+  db.Blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
+  db.Transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
 
   try {
-    await Promise.all(dbPromises);
-    await topics.ensureIndex({ fieldName: 'txid', unique: true });
-    await oracles.ensureIndex({ fieldName: 'txid', unique: true });
-    await votes.ensureIndex({ fieldName: 'txid', unique: true });
-  } catch (err) {
-    console.error(`DB load Error: ${err.message}`);
-    return;
-  }
+    await Promise.all([db.Topics, db.Oracles, db.Votes, db.Blocks, db.Transactions]);
 
-  return {
-    Topics: topics,
-    Oracles: oracles,
-    Votes: votes,
-    Blocks: blocks,
-    Transactions: transactions,
-  };
+    // If creating new DB files, it needs a slight delay or it will throw an error trying to read the files.
+    setTimeout(async () => {
+      await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
+      await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
+      await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
+    }, 500);
+  } catch (err) {
+    throw new Error(`DB load Error: ${err.message}`);
+  }
 }
 
 class DBHelper {
@@ -184,7 +172,7 @@ class DBHelper {
 }
 
 module.exports = {
+  db,
   initDB,
-  connectDB,
   DBHelper,
 };
