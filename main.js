@@ -100,7 +100,7 @@ function setupMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-function initUiWin() {
+function initUI() {
   // If --noelec flag is supplied, don't open any Electron windows
   if (_.includes(process.argv, '--noelec')) {
     return;
@@ -129,7 +129,7 @@ function showSelectEnvDialog() {
         setQtumEnv(blockchainEnv.MAINNET);
         initDB();
         startServer();
-        initUiWin();
+        initUI();
 
         Tracking.mainnetStart();
         break;
@@ -140,7 +140,7 @@ function showSelectEnvDialog() {
         setQtumEnv(blockchainEnv.TESTNET);
         initDB();
         startServer();
-        initUiWin();
+        initUI();
 
         Tracking.testnetStart();
         break;
