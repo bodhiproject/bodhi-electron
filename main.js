@@ -206,7 +206,7 @@ function showWalletUnlockPrompt() {
         server.startServices();
       } else {
         logger.error('Wallet unlock failed');
-        showWalletErrorDialog(i18n.get('walletUnlockFailed'));
+        throw new Error(i18n.get('walletUnlockFailed'));
       }
     }
   }).catch((err) => {
