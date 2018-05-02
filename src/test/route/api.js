@@ -28,7 +28,6 @@ describe('API Routes', () => {
       expect(routes).to.have.property('postgettransaction');
     });
 
-
     it('should have the wallet-passphrase route', () => {
       expect(routes).to.have.property('postwalletpassphrase');
     });
@@ -137,7 +136,7 @@ describe('API Routes', () => {
       expect(routes).to.have.property('posttotalqtumvalue');
     });
 
-    it('should have the totalbotvalue route', () => {
+    it('should have the total-bot-value route', () => {
       expect(routes).to.have.property('posttotalbotvalue');
     });
 

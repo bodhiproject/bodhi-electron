@@ -41,5 +41,6 @@ if (!_.includes(process.argv, '--test')) {
 
   const loglvl = process.env.loglvl || Config.DEFAULT_LOGLVL;
   logger.level = loglvl;
+
 }
 module.exports = logger;
