@@ -11,7 +11,7 @@ let transactions;
 let dbPromises;
 
 // Init datastores
-async function initDB() {
+function initDB() {
   const basePath = `${Utils.getDataDir()}/nedb`;
   logger.info(`DB path: ${basePath}`);
 

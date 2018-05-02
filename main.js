@@ -14,12 +14,13 @@ const Wallet = require('./src/api/wallet');
 /*
 * Order of Operations
 * 1. Show select env dialog
-* 2. Start qtumd
-* 3. Start loading window
-* 4. Check wallet encryption
-* 5. Show wallet unlock dialog if necessary
-* 6. Start sync/API
-* 7. Load UI
+* 2. Set qtum env
+* 3. Init DB
+* 4. Start qtumd & start loading window
+* 5. Check wallet encryption
+* 6. Show wallet unlock dialog if necessary
+* 7. Start sync/API
+* 8. Load UI
 */
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
