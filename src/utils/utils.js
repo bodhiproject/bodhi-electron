@@ -135,9 +135,13 @@ function getProdQtumPath(exec) {
 }
 
 class Utils {
+  static isDevEnv() {
+    return _.includes(process.argv, '--dev');
+  }
+
   static getQtumPath(exec) {
     let qtumPath;
-    if (_.includes(process.argv, '--dev')) {
+    if (this.isDevEnv()) {
       qtumPath = getDevQtumPath(exec);
     } else {
       qtumPath = getProdQtumPath(exec);
@@ -152,7 +156,7 @@ class Utils {
     const osDataDir = app.getPath('userData');
     let dataDir;
     const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
-    if (_.indexOf(process.argv, '--dev') === -1) {
+    if (!this.isDevEnv()) {
       const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
       const regexGroups = regex.exec(version);
       if (regexGroups === null) {
