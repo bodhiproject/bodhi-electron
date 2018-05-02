@@ -194,6 +194,10 @@ function showWalletUnlockPrompt() {
     if (res === null) {
       app.quit();
     } else {
+      if (_.isEmpty(res)) {
+        throw new Error('The wallet passphrase entered was incorrect.');
+      }
+
       // Unlock wallet
       await Wallet.walletPassphrase({ passphrase: res, timeout: Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
