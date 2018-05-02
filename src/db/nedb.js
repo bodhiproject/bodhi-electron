@@ -23,14 +23,17 @@ async function initDB() {
   db.Transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
 
   try {
-    await Promise.all([db.Topics, db.Oracles, db.Votes, db.Blocks, db.Transactions]);
+    await Promise.all([
+      db.Topics.loadDatabase(),
+      db.Oracles.loadDatabase(),
+      db.Votes.loadDatabase(),
+      db.Blocks.loadDatabase(),
+      db.Transactions.loadDatabase()
+    ]);
 
-    // If creating new DB files, it needs a slight delay or it will throw an error trying to read the files.
-    setTimeout(async () => {
-      await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
-      await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
-      await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
-    }, 500);
+    await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
   } catch (err) {
     throw new Error(`DB load Error: ${err.message}`);
   }
