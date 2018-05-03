@@ -24,7 +24,7 @@ const Config = {
 };
 
 let qtumEnv; // Qtumd environment var: testnet/mainnet
-let rpcPassword = getRandomPassword(); // Generate random password for every session
+const rpcPassword = getRandomPassword(); // Generate random password for every session
 
 const setQtumEnv = (env) => {
   qtumEnv = env;
@@ -39,7 +39,7 @@ const isMainnet = () => {
   }
 
   return qtumEnv === blockchainEnv.MAINNET;
-}
+};
 
 const getRPCPassword = () => {
   let password = rpcPassword;
@@ -50,7 +50,7 @@ const getRPCPassword = () => {
   });
 
   return password;
-}
+};
 
 const getQtumRPCAddress = () => {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
