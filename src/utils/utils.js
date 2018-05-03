@@ -6,7 +6,6 @@ const Web3Utils = require('web3-utils');
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
 const { execFile } = require('../constants');
-const bodhiToken = require('../api/bodhi_token');
 
 const DIR_DEV = 'dev';
 
@@ -233,7 +232,7 @@ module.exports = {
     return _.map(array, item => hexToDecimalString(item));
   },
 
-  isAllowanceEnough: async (owner, spender, amount) => {
+  isAllowanceEnough: async (bodhiToken, owner, spender, amount) => {
     try {
       const res = await bodhiToken.allowance({
         owner,

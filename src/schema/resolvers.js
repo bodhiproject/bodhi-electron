@@ -296,7 +296,7 @@ module.exports = {
       // Check the allowance first
       let type;
       let sentTx;
-      if (await Utils.isAllowanceEnough(senderAddress, addressManagerAddr, amount)) {
+      if (await Utils.isAllowanceEnough(bodhiToken, senderAddress, addressManagerAddr, amount)) {
         // Send createTopic tx
         type = 'CREATEEVENT';
         try {
@@ -448,7 +448,7 @@ module.exports = {
       // Check the allowance first
       let type;
       let sentTx;
-      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+      if (await Utils.isAllowanceEnough(bodhiToken, senderAddress, topicAddress, amount)) {
         // Send setResult since the allowance is enough
         type = 'SETRESULT';
         try {
@@ -510,7 +510,7 @@ module.exports = {
       // Check allowance
       let type;
       let sentTx;
-      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+      if (await Utils.isAllowanceEnough(bodhiToken, senderAddress, topicAddress, amount)) {
         // Send vote since allowance is enough
         type = 'VOTE';
         try {
