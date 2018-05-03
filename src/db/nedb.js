@@ -3,33 +3,40 @@ const datastore = require('nedb-promise');
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
 
-const basePath = `${Utils.getDataDir()}/nedb`;
-const topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
-const oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
-const votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
-const blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
-const transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
+const db = {
+  Topics: undefined,
+  Oracles: undefined,
+  Votes: undefined,
+  Blocks: undefined,
+  Transactions: undefined,
+};
 
-const dbPromises = [topics, oracles, votes, blocks, transactions];
+// Init datastores
+async function initDB() {
+  const basePath = `${Utils.getDataDir()}/nedb`;
+  logger.info(`DB path: ${basePath}`);
 
-async function connectDB() {
+  db.Topics = datastore({ filename: `${basePath}/topics.db` });
+  db.Oracles = datastore({ filename: `${basePath}/oracles.db` });
+  db.Votes = datastore({ filename: `${basePath}/votes.db` });
+  db.Blocks = datastore({ filename: `${basePath}/blocks.db` });
+  db.Transactions = datastore({ filename: `${basePath}/transactions.db` });
+
   try {
-    await Promise.all(dbPromises);
-    await topics.ensureIndex({ fieldName: 'txid', unique: true });
-    await oracles.ensureIndex({ fieldName: 'txid', unique: true });
-    await votes.ensureIndex({ fieldName: 'txid', unique: true });
-  } catch (err) {
-    console.error(`DB load Error: ${err.message}`);
-    return;
-  }
+    await Promise.all([
+      db.Topics.loadDatabase(),
+      db.Oracles.loadDatabase(),
+      db.Votes.loadDatabase(),
+      db.Blocks.loadDatabase(),
+      db.Transactions.loadDatabase()
+    ]);
 
-  return {
-    Topics: topics,
-    Oracles: oracles,
-    Votes: votes,
-    Blocks: blocks,
-    Transactions: transactions,
-  };
+    await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Oracles.ensureIndex({ fieldName: 'txid', unique: true });
+    await db.Votes.ensureIndex({ fieldName: 'txid', unique: true });
+  } catch (err) {
+    throw new Error(`DB load Error: ${err.message}`);
+  }
 }
 
 class DBHelper {
@@ -168,6 +175,7 @@ class DBHelper {
 }
 
 module.exports = {
-  connectDB,
+  db,
+  initDB,
   DBHelper,
 };

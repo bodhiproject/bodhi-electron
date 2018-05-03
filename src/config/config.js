@@ -20,10 +20,11 @@ const Config = {
   DEFAULT_GAS_LIMIT: 250000,
   DEFAULT_GAS_PRICE: 0.0000004,
   CREATE_DORACLE_GAS_LIMIT: 1500000,
+  UNLOCK_SECONDS: 86400,
 };
 
 let qtumEnv; // Qtumd environment var: testnet/mainnet
-let rpcPassword = getRandomPassword(); // Generate random password for every session
+const rpcPassword = getRandomPassword(); // Generate random password for every session
 
 const setQtumEnv = (env) => {
   qtumEnv = env;
@@ -31,7 +32,14 @@ const setQtumEnv = (env) => {
 
 const getQtumEnv = () => qtumEnv;
 
-const isMainnet = () => qtumEnv === blockchainEnv.MAINNET;
+const isMainnet = () => {
+  // Throw an error to ensure no code is using this check before it is initialized
+  if (!qtumEnv) {
+    throw new Error('qtumEnv not initialized yet before checking env');
+  }
+
+  return qtumEnv === blockchainEnv.MAINNET;
+};
 
 const getRPCPassword = () => {
   let password = rpcPassword;
@@ -42,7 +50,7 @@ const getRPCPassword = () => {
   });
 
   return password;
-}
+};
 
 const getQtumRPCAddress = () => {
   const port = isMainnet() ? Config.RPC_PORT_MAINNET : Config.RPC_PORT_TESTNET;
@@ -62,10 +70,10 @@ function getContractMetadata(versionNum = Config.CONTRACT_VERSION_NUM) {
     throw new Error('Must supply a version number');
   }
 
-  if (qtumEnv === blockchainEnv.TESTNET) {
-    return testnetMetadata[versionNum];
+  if (isMainnet()) {
+    return mainnetMetadata[versionNum];
   }
-  return mainnetMetadata[versionNum];
+  return testnetMetadata[versionNum];
 }
 
 /*

@@ -20,8 +20,6 @@ const Utils = require('../utils/utils');
 const DEFAULT_LIMIT_NUM = 50;
 const DEFAULT_SKIP_NUM = 0;
 
-const contractMetadata = getContractMetadata();
-
 function buildCursorOptions(cursor, orderBy, limit, skip) {
   if (!_.isEmpty(orderBy)) {
     const sortDict = {};
@@ -304,7 +302,7 @@ module.exports = {
         amount,
         senderAddress,
       } = data;
-      const addressManagerAddr = contractMetadata.AddressManager.address;
+      const addressManagerAddr = getContractMetadata().AddressManager.address;
 
       // Check for existing CreateEvent transactions
       if (await DBHelper.isPreviousCreateEventPending(Transactions, senderAddress)) {

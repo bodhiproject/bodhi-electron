@@ -18,33 +18,47 @@ const syncRouter = require('./route/sync');
 const apiRouter = require('./route/api');
 const { startSync } = require('./sync');
 const { ipcEvent, execFile } = require('./constants');
-const qClient = require('./qclient').getInstance();
+const { getInstance } = require('./qclient');
+const Wallet = require('./api/wallet');
 
 const emitter = new EventEmitter();
 
 let qtumProcess;
+let isEncrypted = false;
 let checkInterval;
 let checkApiInterval;
 let shutdownInterval;
 
 // Restify setup
-const server = restify.createServer({
-  title: 'Bodhi Server',
-});
-const cors = corsMiddleware({
-  origins: ['*'],
-});
-server.pre(cors.preflight);
-server.use(cors.actual);
-server.use(restify.plugins.bodyParser({ mapParams: true }));
-server.use(restify.plugins.queryParser());
-server.on('after', (req, res, route, err) => {
-  if (route) {
-    logger.debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-  } else {
-    logger.error(`${err.message}`);
-  }
-});
+function startRestifyServer() {
+  server = restify.createServer({
+    title: 'Bodhi Server',
+  });
+  const cors = corsMiddleware({
+    origins: ['*'],
+  });
+  server.pre(cors.preflight);
+  server.use(cors.actual);
+  server.use(restify.plugins.bodyParser({ mapParams: true }));
+  server.use(restify.plugins.queryParser());
+  server.on('after', (req, res, route, err) => {
+    if (route) {
+      logger.debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    } else {
+      logger.error(`${err.message}`);
+    }
+  });
+}
+
+startRestifyServer();
+
+function isWalletEncrypted() {
+  return isEncrypted;
+}
+
+function getQtumProcess() {
+  return qtumProcess;
+}
 
 function startQtumProcess(reindex) {
   const flags = ['-logevents', '-rpcworkqueue=32', `-rpcuser=${Config.RPC_USER}`, `-rpcpassword=${getRPCPassword()}`];
@@ -122,6 +136,19 @@ function startServices() {
   checkApiInterval = setInterval(checkApiInit, 500);
 }
 
+// Checks if the wallet is encrypted to prompt the wallet unlock dialog
+async function checkWalletEncryption() {
+  const res = await Wallet.getWalletInfo();
+  isEncrypted = !_.isUndefined(res.unlocked_until);
+
+  if (isEncrypted) {
+    // Show wallet unlock prompt
+    emitter.emit(ipcEvent.SHOW_WALLET_UNLOCK);
+  } else {
+    startServices();
+  }
+}
+
 // Ensure API is running before loading UI
 async function checkApiInit() {
   try {
@@ -133,7 +160,7 @@ async function checkApiInit() {
 
     if (res.status >= 200 && res.status < 300) {
       clearInterval(checkApiInterval);
-      setTimeout(() => emitter.emit(ipcEvent.QTUMD_STARTED), 1000);
+      setTimeout(() => emitter.emit(ipcEvent.SERVICES_RUNNING), 1000);
     }
   } catch (err) {
     logger.debug(err.message);
@@ -144,11 +171,11 @@ async function checkApiInit() {
 async function checkQtumdInit() {
   try {
     // getInfo throws an error if trying to be called before qtumd is running
-    const info = await qClient.getInfo();
+    const info = await getInstance().getInfo();
 
     // no error was caught, qtumd is initialized
     clearInterval(checkInterval);
-    startServices();
+    checkWalletEncryption();
   } catch (err) {
     logger.debug(err.message);
   }
@@ -191,8 +218,12 @@ process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('SIGHUP', exit);
 
-startQtumProcess(false);
-
-exports.process = qtumProcess;
-exports.emitter = emitter;
-exports.terminateDaemon = terminateDaemon;
+module.exports = {
+  startQtumProcess,
+  startServices,
+  terminateDaemon,
+  getQtumProcess,
+  emitter,
+  isWalletEncrypted,
+  server,
+};

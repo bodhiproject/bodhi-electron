@@ -11,7 +11,7 @@ const Oracle = require('../api/oracle');
 const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 
-const qweb3 = require('../qclient').getInstance();
+const { getInstance } = require('../qclient');
 
 const apiRouter = new Router();
 
@@ -27,7 +27,7 @@ function onRequestError(res, err, next) {
 
 /* Misc */
 apiRouter.post('/is-connected', (req, res, next) => {
-  qweb3.isConnected()
+  getInstance().isConnected()
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {
@@ -83,6 +83,15 @@ apiRouter.get('/list-unspent', (req, res, next) => {
 
 apiRouter.post('/wallet-passphrase', (req, res, next) => {
   Wallet.walletPassphrase(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+apiRouter.post('/wallet-lock', (req, res, next) => {
+  Wallet.walletLock(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

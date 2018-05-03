@@ -5,9 +5,10 @@ module.exports = {
   },
 
   ipcEvent: {
-    QTUMD_STARTED: 'qtumd-started',
     QTUMD_KILLED: 'qtumd-killed',
     STARTUP_ERROR: 'startup-error',
+    SHOW_WALLET_UNLOCK: 'show-wallet-unlock',
+    SERVICES_RUNNING: 'services-running',
   },
 
   txState: {

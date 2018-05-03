@@ -3,6 +3,10 @@
     "en": "Cancel",
     "zh": "取消"
   },
+  "enterYourWalletPassphrase": {
+    "en": "Enter your wallet passphrase:",
+    "zh": "输入您的钱包密码:"
+  },
   "error": {
     "en": "Error",
     "zh": "错误"
@@ -35,6 +39,10 @@
     "en": "Quit",
     "zh": "退出"
   },
+  "retry": {
+    "en": "Retry",
+    "zh": "重试"
+  },
   "selectQtumEnvironment": {
     "en": "Select QTUM Environment",
     "zh": "选择量子链网路"
@@ -42,5 +50,13 @@
   "testnet": {
     "en": "Testnet",
     "zh": "测试链"
+  },
+  "unlockWallet": {
+    "en": "Unlock Wallet",
+    "zh": "解锁钱包"
+  },
+  "walletUnlockFailed": {
+    "en": "Wallet unlock failed",
+    "zh": "钱包解锁失败"
   }
 }

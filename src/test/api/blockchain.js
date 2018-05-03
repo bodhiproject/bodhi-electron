@@ -1,6 +1,8 @@
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
+const { setQtumEnv } = require('../../config/config');
+const { blockchainEnv } = require('../../constants');
 const Blockchain = require('../../api/blockchain');
 const Mocks = require('./mock/blockchain');
 
@@ -9,6 +11,10 @@ const assert = Chai.assert;
 const expect = Chai.expect;
 
 describe('Blockchain', () => {
+  before(() => {
+    setQtumEnv(blockchainEnv.TESTNET);
+  });
+
   describe('getBlockCount()', () => {
     it('returns the blockcount', async () => {
       const res = await Blockchain.getBlockCount();

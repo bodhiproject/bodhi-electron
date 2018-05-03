@@ -1,14 +1,14 @@
 const { graphqlRestify, graphiqlRestify } = require('apollo-server-restify');
 const Router = require('restify-router').Router;
 
-const connectDB = require('../db/nedb').connectDB;
+const { db } = require('../db/nedb');
 const schema = require('../schema');
 const { Config } = require('../config/config');
 
 const syncRouter = new Router();
 
 const graphQLOptions = async () => ({
-  context: { db: await connectDB() },
+  context: { db },
   schema,
 });
 

@@ -6,8 +6,10 @@ const Utils = require('../utils/utils');
 
 const GAS_LIMIT_CREATE_TOPIC = 3500000;
 
-const metadata = getContractMetadata();
-const contract = new Contract(getQtumRPCAddress(), metadata.EventFactory.address, metadata.EventFactory.abi);
+function getContract() {
+  const metadata = getContractMetadata();
+  return new Contract(getQtumRPCAddress(), metadata.EventFactory.address, metadata.EventFactory.abi);
+}
 
 const EventFactory = {
   async createTopic(args) {
@@ -47,7 +49,7 @@ const EventFactory = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    return contract.send('createTopic', {
+    return getContract().send('createTopic', {
       methodArgs: [oracleAddress, eventName, resultNames, bettingStartTime, bettingEndTime, resultSettingStartTime,
         resultSettingEndTime],
       gasLimit: GAS_LIMIT_CREATE_TOPIC,
@@ -64,7 +66,7 @@ const EventFactory = {
       throw new TypeError('senderAddress needs to be defined');
     }
 
-    const res = await contract.call('version', {
+    const res = await getContract().call('version', {
       methodArgs: [],
       senderAddress,
     });
