@@ -1729,6 +1729,10 @@ globby@^5.0.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
+glossy@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/glossy/-/glossy-0.1.7.tgz#769b5984a96f6066ab9ea758224825ee6c210f0b"
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"
@@ -3835,6 +3839,12 @@ widest-line@^2.0.0:
   resolved "https://registry.yarnpkg.com/widest-line/-/widest-line-2.0.0.tgz#0142a4e8a243f8882c0233aa0e0281aa76152273"
   dependencies:
     string-width "^2.1.1"
+
+winston-papertrail@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/winston-papertrail/-/winston-papertrail-1.0.5.tgz#54a23b16e5046652bf687b37dc802714bfd462c9"
+  dependencies:
+    glossy "^0.1.7"
 
 winston@^2.4.0:
   version "2.4.1"

@@ -13,10 +13,7 @@ let logger;
 // Don't initialize logger for tests
 if (!_.includes(process.argv, '--test')) {
   const logDir = Utils.getLogDir();
-
-  // Create log dir if needed
-  console.log(`Logs output: ${logDir}`);
-  fs.ensureDirSync(logDir);
+  fs.ensureDirSync(logDir); // Create log dir if needed
 
   const winstonCfg = winston.config;
   const transports = [
@@ -29,7 +26,7 @@ if (!_.includes(process.argv, '--test')) {
       },
     }),
     new (winston.transports.File)({
-      filename: `${LOG_DIR}/bodhiapp_${moment().format('YYYYMMDD_HHmmss')}.log`,
+      filename: `${logDir}/bodhiapp_${moment().format('YYYYMMDD_HHmmss')}.log`,
       timestamp() {
         return moment().format('YYYY-MM-DD HH:mm:ss');
       },
@@ -51,13 +48,9 @@ if (!_.includes(process.argv, '--test')) {
     }));
   }
 
-  const logger = new (winston.Logger)({
-    transports,
-    exitOnError: false,
-  });
-
-  const loglvl = process.env.loglvl || Config.DEFAULT_LOGLVL;
-  logger.level = loglvl;
-
+  logger = new (winston.Logger)({ transports, exitOnError: false });
+  logger.level = process.env.loglvl || Config.DEFAULT_LOGLVL;
+  logger.info(`Logs path: ${logDir}`);
 }
+
 module.exports = logger;
