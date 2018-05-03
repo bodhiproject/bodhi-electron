@@ -25,15 +25,30 @@ const Transactions = {
       senderAddress, // address
     } = args;
 
+    // args validation
     if (!type) {
       throw new TypeError('type needs to be defined');
     }
     if (!senderAddress) {
       throw new TypeError('senderAddress needs to be defined');
     }
+    if ((type === 'APPROVECREATEEVENT'
+      || type === 'BET'
+      || type === 'APPROVESETRESULT'
+      || type === 'APPROVEVOTE'
+      || type === 'TRANSFER')
+      && (!token || !amount)) {
+      throw new TypeError('token and amount need to be defined');
+    }
+    if ((type === 'APPROVESETRESULT' || txType === 'APPROVEVOTE') && !topicAddress) {
+      throw new TypeError('topicAddress needs to be defined');
+    }
+    if (txType === 'APPROVEVOTE' && !oracleAddress) {
+      throw new TypeError('oracleAddress needs to be defined');
+    }
 
-    let txType = type;
     // Skip approve if enough allowance
+    let txType = type;
     if (txType === 'APPROVECREATEEVENT') {
       const addressManager = getContractMetadata().AddressManager.address;
       if (await Utils.isAllowanceEnough(senderAddress, addressManager, amount)) {
