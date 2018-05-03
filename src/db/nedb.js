@@ -16,11 +16,11 @@ async function initDB() {
   const basePath = `${Utils.getDataDir()}/nedb`;
   logger.info(`DB path: ${basePath}`);
 
-  db.Topics = datastore({ filename: `${basePath}/topics.db`, autoload: true });
-  db.Oracles = datastore({ filename: `${basePath}/oracles.db`, autoload: true });
-  db.Votes = datastore({ filename: `${basePath}/votes.db`, autoload: true });
-  db.Blocks = datastore({ filename: `${basePath}/blocks.db`, autoload: true });
-  db.Transactions = datastore({ filename: `${basePath}/transactions.db`, autoload: true });
+  db.Topics = datastore({ filename: `${basePath}/topics.db` });
+  db.Oracles = datastore({ filename: `${basePath}/oracles.db` });
+  db.Votes = datastore({ filename: `${basePath}/votes.db` });
+  db.Blocks = datastore({ filename: `${basePath}/blocks.db` });
+  db.Transactions = datastore({ filename: `${basePath}/transactions.db` });
 
   try {
     await Promise.all([
