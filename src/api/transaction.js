@@ -19,7 +19,7 @@ function formatGasCost(gasCost) {
 }
 
 const Transaction = {
-  
+  // Returns the transaction cost(s) and gas usage for an action
   async transactionCost(args) {
     const {
       type, // string
