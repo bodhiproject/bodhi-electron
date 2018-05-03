@@ -138,8 +138,30 @@ function isDevEnv() {
   return _.includes(process.argv, '--dev');
 }
 
+/*
+* Converts a hex number to decimal string.
+* @param input {String|Hex|BN} The hex number to convert.
+*/
+function hexToDecimalString(input) {
+  if (!input) {
+    return undefined;
+  }
+
+  if (Web3Utils.isBN(input)) {
+    return input.toString(10);
+  }
+
+  if (Web3Utils.isHex(input)) {
+    return Web3Utils.toBN(input).toString(10);
+  }
+
+  return input.toString();
+}
+
 module.exports = {
   isDevEnv,
+  hexToDecimalString,
+  
   getQtumPath: (exec) => {
     let qtumPath;
     if (isDevEnv()) {
@@ -203,26 +225,6 @@ module.exports = {
   getLogDir: () => {
     const osDataDir = app.getPath('userData');
     return `${osDataDir}/logs/${version}`;
-  },
-
-  /*
-  * Converts a hex number to decimal string.
-  * @param input {String|Hex|BN} The hex number to convert.
-  */
-  hexToDecimalString: (input) => {
-    if (!input) {
-      return undefined;
-    }
-
-    if (Web3Utils.isBN(input)) {
-      return input.toString(10);
-    }
-
-    if (Web3Utils.isHex(input)) {
-      return Web3Utils.toBN(input).toString(10);
-    }
-
-    return input.toString();
   },
 
   hexArrayToDecimalArray: (array) => {
