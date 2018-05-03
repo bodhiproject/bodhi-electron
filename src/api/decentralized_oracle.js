@@ -1,10 +1,8 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const { getContractMetadata, getQtumRPCAddress } = require('../config/config');
+const { Config, getContractMetadata, getQtumRPCAddress } = require('../config/config');
 const Utils = require('../utils/utils');
-
-const GAS_LIMIT_VOTE = 1500000;
 
 function getContract(contractAddress) {
   const metadata = getContractMetadata();
@@ -39,7 +37,7 @@ const DecentralizedOracle = {
     const contract = getContract(contractAddress);
     return contract.send('voteResult', {
       methodArgs: [resultIndex, botAmount],
-      gasLimit: gasLimit || GAS_LIMIT_VOTE,
+      gasLimit: gasLimit || Config.CREATE_DORACLE_GAS_LIMIT,
       senderAddress,
     });
   },
