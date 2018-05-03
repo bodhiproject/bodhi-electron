@@ -6,6 +6,7 @@ const Web3Utils = require('web3-utils');
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
 const { execFile } = require('../constants');
+const bodhiToken = require('../api/bodhi_token');
 
 const DIR_DEV = 'dev';
 
@@ -226,6 +227,23 @@ class Utils {
     }
 
     return _.map(array, item => this.hexToDecimalString(item));
+  }
+
+  static async function isAllowanceEnough(owner, spender, amount) {
+    try {
+      const res = await bodhiToken.allowance({
+        owner,
+        spender,
+        senderAddress: owner,
+      });
+
+      const allowance = Web3Utils.toBN(res.remaining);
+      const amountBN = Web3Utils.toBN(amount);
+      return allowance.gte(amountBN);
+    } catch (err) {
+      logger.error(`Error checking allowance: ${err.message}`);
+      throw err;
+    }
   }
 
   // Get correct gas limit determined if voting over consensus threshold or not
