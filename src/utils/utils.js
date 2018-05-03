@@ -135,22 +135,26 @@ function getProdQtumPath(exec) {
   return path.replace('app.asar', 'app.asar.unpacked');
 }
 
-class Utils {
-  static isDevEnv() {
-    return _.includes(process.argv, '--dev');
-  }
+function isDevEnv() {
+  return _.includes(process.argv, '--dev');
+}
 
-  static getQtumPath(exec) {
+module.exports = {
+  isDevEnv,
+  getQtumPath: (exec) => {
     let qtumPath;
-    if (this.isDevEnv()) {
+    if (isDevEnv()) {
       qtumPath = getDevQtumPath(exec);
     } else {
       qtumPath = getProdQtumPath(exec);
     }
     return qtumPath;
-  }
+  },
 
-  static getBaseDataDir() {
+  /*
+  * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
+  */
+  getBaseDataDir: () => {
     const osDataDir = app.getPath('userData');
     const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
     let basePath = `${osDataDir}/${pathPrefix}`;
@@ -159,17 +163,18 @@ class Utils {
     }
     return basePath;
   }
+
   /*
   * Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
   */
-  static getBlockchainDataDir() {
+  getBlockchainDataDir: () => {
     const basePath = this.getBaseDataDir();
-
     const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
     const regexGroups = regex.exec(version);
     if (regexGroups === null) {
       throw new Error(`Invalid version number: ${version}`);
     }
+
     // Example: 0.6.5-c0-d1
     // c0 = contract version 0, d1 = db version 1
     const versionDir = `${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
@@ -187,25 +192,25 @@ class Utils {
   * Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
   * The Local cache should exist regardless of version change, for now
   */
-  static getLocalCacheDataDir() {
+  getLocalCacheDataDir: () => {
     const dataDir = `${this.getBaseDataDir()}/local/nedb`;
 
     // Create data dir if needed
     fs.ensureDirSync(dataDir);
 
     return dataDir;
-  }
+  },
 
-  static getLogDir() {
+  getLogDir: () => {
     const osDataDir = app.getPath('userData');
     return `${osDataDir}/logs/${version}`;
-  }
+  },
 
   /*
   * Converts a hex number to decimal string.
   * @param input {String|Hex|BN} The hex number to convert.
   */
-  static hexToDecimalString(input) {
+  hexToDecimalString: (input) => {
     if (!input) {
       return undefined;
     }
@@ -219,17 +224,16 @@ class Utils {
     }
 
     return input.toString();
-  }
+  },
 
-  static hexArrayToDecimalArray(array) {
+  hexArrayToDecimalArray: (array) => {
     if (!array) {
       return undefined;
     }
+    return _.map(array, item => hexToDecimalString(item));
+  },
 
-    return _.map(array, item => this.hexToDecimalString(item));
-  }
-
-  static async isAllowanceEnough(owner, spender, amount) {
+  isAllowanceEnough: async (owner, spender, amount) => {
     try {
       const res = await bodhiToken.allowance({
         owner,
@@ -244,10 +248,10 @@ class Utils {
       logger.error(`Error checking allowance: ${err.message}`);
       throw err;
     }
-  }
+  },
 
   // Get correct gas limit determined if voting over consensus threshold or not
-  static async getVotingGasLimit(oraclesDb, oracleAddress, voteOptionIdx, voteAmount) {
+  getVotingGasLimit: async (oraclesDb, oracleAddress, voteOptionIdx, voteAmount) => {
     const oracle = await oraclesDb.findOne({ address: oracleAddress }, { consensusThreshold: 1, amounts: 1 });
     if (!oracle) {
       logger.error(`Could not find Oracle ${oracleAddress} in DB.`);
@@ -258,7 +262,5 @@ class Utils {
     const currentTotal = Web3Utils.toBN(oracle.amounts[voteOptionIdx]);
     const maxVote = threshold.sub(currentTotal);
     return Web3Utils.toBN(voteAmount).gte(maxVote) ? Config.CREATE_DORACLE_GAS_LIMIT : Config.DEFAULT_GAS_LIMIT;
-  }
-}
-
-module.exports = Utils;
+  },
+};
