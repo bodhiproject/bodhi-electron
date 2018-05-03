@@ -234,9 +234,9 @@ module.exports = {
     return _.map(array, item => hexToDecimalString(item));
   },
 
-  isAllowanceEnough: async (bodhiToken, owner, spender, amount) => {
+  isAllowanceEnough: async (owner, spender, amount) => {
     try {
-      const res = await bodhiToken.allowance({
+      const res = await require('../api/bodhi_token').allowance({
         owner,
         spender,
         senderAddress: owner,

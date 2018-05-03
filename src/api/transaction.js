@@ -1,7 +1,6 @@
 const { Config, getContractMetadata } = require('../config/config');
 const Utils = require('../utils/utils');
 const { db } = require('../db/nedb'); 
-const BodhiToken = require('./bodhi_token');
 
 const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
 
@@ -58,15 +57,15 @@ const Transaction = {
     let txType = type;
     if (txType === 'APPROVECREATEEVENT') {
       const addressManager = getContractMetadata().AddressManager.address;
-      if (await Utils.isAllowanceEnough(BodhiToken, senderAddress, addressManager, amount)) {
+      if (await Utils.isAllowanceEnough(senderAddress, addressManager, amount)) {
         txType = 'CREATEEVENT';
       }
     } else if (txType === 'APPROVESETRESULT') {
-      if (await Utils.isAllowanceEnough(BodhiToken, senderAddress, topicAddress, amount)) {
+      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
         txType = 'SETRESULT';
       }
     } else if (txType === 'APPROVEVOTE') {
-      if (await Utils.isAllowanceEnough(BodhiToken, senderAddress, topicAddress, amount)) {
+      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
         txType = 'VOTE';
       }      
     }
