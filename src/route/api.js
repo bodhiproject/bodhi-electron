@@ -10,6 +10,7 @@ const TopicEvent = require('../api/topic_event');
 const Oracle = require('../api/oracle');
 const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
+const Transaction = require('../api/transaction');
 
 const { getInstance } = require('../qclient');
 
@@ -515,6 +516,16 @@ apiRouter.post('/arbitration-end-block', (req, res, next) => {
 
 apiRouter.post('/last-result-index', (req, res, next) => {
   DecentralizedOracle.lastResultIndex(req.params)
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+/* Transactions */
+apiRouter.post('/transaction-cost', (req, res, next) => {
+  Transaction.transactionCost(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

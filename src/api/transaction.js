@@ -12,7 +12,7 @@ const getApproveObj = (token, amount) => {
   amount,
 };
 
-const Transactions = {
+const Transaction = {
   
   async transactionCost(args) {
     const {
@@ -156,4 +156,4 @@ const Transactions = {
   },
 };
 
-module.exports = Transactions;
+module.exports = Transaction;
