@@ -1,4 +1,6 @@
-const Config = require('../config/config');
+const { Config, getContractMetadata } = require('../config/config');
+const Utils = require('../utils/utils');
+const { db } = require('../db/nedb'); 
 
 const DEFAULT_GAS_COST = Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE;
 
@@ -12,21 +14,49 @@ const getApproveObj = (token, amount) => {
 
 const Transactions = {
   
-  transactionCost(args) {
+  async transactionCost(args) {
     const {
       type, // string
       token, // string
       amount, // number
+      optionIdx, // number
+      topicAddress, // address
+      oracleAddress, // address
+      senderAddress, // address
     } = args;
 
-    if (!type)) {
+    if (!type) {
       throw new TypeError('type needs to be defined');
+    }
+    if (!senderAddress) {
+      throw new TypeError('senderAddress needs to be defined');
+    }
+
+    let txType = type;
+    // Skip approve if enough allowance
+    if (txType === 'APPROVECREATEEVENT') {
+      const addressManager = getContractMetadata().AddressManager.address;
+      if (await Utils.isAllowanceEnough(senderAddress, addressManager, amount)) {
+        txType = 'CREATEEVENT';
+      }
+    } else if (txType === 'APPROVESETRESULT') {
+      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        txType = 'SETRESULT';
+      }
+    } else if (txType === 'APPROVEVOTE') {
+      if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
+        txType = 'VOTE';
+      }      
+    }
+
+    if (txType.startsWith('APPROVE')) {
+      costsArr.push(getApproveObj(token, amount));
     }
 
     const costsArr = [];
-    switch (type) {
-      case 'APPROVECREATEEVENT': {
-        costsArr.push(getApproveObj(token, amount));
+    switch (txType) {
+      case 'APPROVECREATEEVENT':
+      case 'CREATEEVENT': {
         costsArr.push({
           type: 'createEvent',
           gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
@@ -46,8 +76,8 @@ const Transactions = {
         });
         break;
       }
-      case 'APPROVESETRESULT': {
-        costsArr.push(getApproveObj(token, amount));
+      case 'APPROVESETRESULT':
+      case 'SETRESULT': {
         costsArr.push({
           type: 'setResult',
           gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
@@ -57,13 +87,12 @@ const Transactions = {
         });
         break;
       }
-      case 'APPROVEVOTE': {
-        // TODO: check if voting over threshold
-        costsArr.push(getApproveObj(token, amount));
+      case 'APPROVEVOTE':
+      case 'VOTE': {
         costsArr.push({
           type: 'vote',
-          gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
-          gasCost: Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE,
+          gasLimit: await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount),
+          gasCost: gasLimit * Config.DEFAULT_GAS_PRICE,
           token,
           amount,
         });
