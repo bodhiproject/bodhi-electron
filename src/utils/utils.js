@@ -229,7 +229,7 @@ class Utils {
     return _.map(array, item => this.hexToDecimalString(item));
   }
 
-  static async function isAllowanceEnough(owner, spender, amount) {
+  static async isAllowanceEnough(owner, spender, amount) {
     try {
       const res = await bodhiToken.allowance({
         owner,

@@ -2,15 +2,21 @@ const { Config, getContractMetadata } = require('../config/config');
 const Utils = require('../utils/utils');
 const { db } = require('../db/nedb'); 
 
-const DEFAULT_GAS_COST = Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE;
+const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
 
-const getApproveObj = (token, amount) => {
-  type: 'approve',
-  gasLimit: Config.DEFAULT_GAS_LIMIT,
-  gasCost: DEFAULT_GAS_COST,
-  token,
-  amount,
+function getApproveObj(token, amount) {
+  return {
+    type: 'approve',
+    gasLimit: Config.DEFAULT_GAS_LIMIT,
+    gasCost: DEFAULT_GAS_COST,
+    token,
+    amount,
+  }
 };
+
+function formatGasCost(gasCost) {
+  return gasCost.toFixed(2);
+}
 
 const Transaction = {
   
@@ -40,10 +46,10 @@ const Transaction = {
       && (!token || !amount)) {
       throw new TypeError('token and amount need to be defined');
     }
-    if ((type === 'APPROVESETRESULT' || txType === 'APPROVEVOTE') && !topicAddress) {
+    if ((type === 'APPROVESETRESULT' || type === 'APPROVEVOTE') && !topicAddress) {
       throw new TypeError('topicAddress needs to be defined');
     }
-    if (txType === 'APPROVEVOTE' && !oracleAddress) {
+    if (type === 'APPROVEVOTE' && !oracleAddress) {
       throw new TypeError('oracleAddress needs to be defined');
     }
 
@@ -75,7 +81,7 @@ const Transaction = {
         costsArr.push({
           type: 'createEvent',
           gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
-          gasCost: Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE,
+          gasCost: formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
           token,
           amount,
         });
@@ -96,7 +102,7 @@ const Transaction = {
         costsArr.push({
           type: 'setResult',
           gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
-          gasCost: Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE,
+          gasCost: formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
           token,
           amount,
         });
@@ -107,7 +113,7 @@ const Transaction = {
         costsArr.push({
           type: 'vote',
           gasLimit: await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount),
-          gasCost: gasLimit * Config.DEFAULT_GAS_PRICE,
+          gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
           token,
           amount,
         });
