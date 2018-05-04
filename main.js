@@ -127,7 +127,7 @@ function showSelectEnvDialog() {
       case 0: {
         logger.info('Choose Mainnet');
 
-        if (Config.deployment.TESTNET_ONLY)) { // Testnet only
+        if (Config.deployment.TESTNET_ONLY) { // Testnet only
           dialog.showMessageBox({
             type: 'info',
             buttons: [],
