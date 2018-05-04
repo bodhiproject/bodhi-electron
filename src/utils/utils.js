@@ -179,7 +179,7 @@ module.exports = {
     const osDataDir = app.getPath('userData');
     const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
     let basePath = `${osDataDir}/${pathPrefix}`;
-    if (this.isDevEnv()) {
+    if (isDevEnv()) {
       basePath += '/dev';
     }
     return basePath;
