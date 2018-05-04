@@ -22,7 +22,7 @@ const Config = {
   CREATE_DORACLE_GAS_LIMIT: 1500000,
   UNLOCK_SECONDS: 86400,
   deployment: {
-    TESTNET_ONLY: true,
+    TESTNET_ONLY: false,
   },
 };
 
