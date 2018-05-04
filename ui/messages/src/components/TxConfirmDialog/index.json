@@ -1,0 +1,18 @@
+[
+  {
+    "id": "txConfirm.message",
+    "defaultMessage": "You are about to {txDesc} for {txAmount} {txToken}. Please click OK to continue."
+  },
+  {
+    "id": "txConfirm.title",
+    "defaultMessage": "Please Confirm Your Transaction"
+  },
+  {
+    "id": "str.cancel",
+    "defaultMessage": "Cancel"
+  },
+  {
+    "id": "str.confirm",
+    "defaultMessage": "OK"
+  }
+]

@@ -1,5 +1,17 @@
 [
   {
+    "id": "str.bettingRound",
+    "defaultMessage": "Betting Round"
+  },
+  {
+    "id": "str.resultSettingRound",
+    "defaultMessage": "Result Setting Round"
+  },
+  {
+    "id": "str.votingRoundX",
+    "defaultMessage": "Voting Round {idx}"
+  },
+  {
     "id": "str.resultHistory",
     "defaultMessage": "Result History"
   },

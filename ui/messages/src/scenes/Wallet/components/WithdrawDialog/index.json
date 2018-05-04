@@ -12,6 +12,10 @@
     "defaultMessage": "You can withdraw up to:"
   },
   {
+    "id": "txConfirmMsg.send",
+    "defaultMessage": "send to address {address}"
+  },
+  {
     "id": "str.from",
     "defaultMessage": "From"
   },

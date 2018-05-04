@@ -12,14 +12,6 @@
     "defaultMessage": "This action requires you to unlock this wallet. Please enter your wallet passphrase."
   },
   {
-    "id": "walletUnlockDialog.keepWalletUnlocked",
-    "defaultMessage": "Keep wallet unlocked for"
-  },
-  {
-    "id": "str.minutes",
-    "defaultMessage": "Minutes"
-  },
-  {
     "id": "str.cancel",
     "defaultMessage": "Cancel"
   },
