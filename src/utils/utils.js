@@ -174,7 +174,7 @@ class Utils {
     const versionDir = `${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
 
     // production
-    const dataDir = `${basePath}/${versionDir}`;
+    const dataDir = `${basePath}/${versionDir}/nedb`;
 
     // Create data dir if needed
     fs.ensureDirSync(dataDir);
@@ -187,7 +187,7 @@ class Utils {
   * The Local cache should exist regardless of version change, for now
   */
   static getLocalCacheDataDir() {
-    const dataDir = `${this.getBaseDataDir()}/local`;
+    const dataDir = `${this.getBaseDataDir()}/local/nedb`;
 
     // Create data dir if needed
     fs.ensureDirSync(dataDir);

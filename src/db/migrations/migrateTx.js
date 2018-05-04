@@ -25,7 +25,7 @@ async function appendDB(origin, dest) {
 async function migrateTxDB() {
   const d0OriginPath = `${Utils.getBaseDataDir()}/c0_d0/nedb/transactions.db`;
   const d1OriginPath = `${Utils.getBaseDataDir()}/c0_d1/nedb/transactions.db`;
-  const destPath = `${Utils.getLocalCacheDataDir()}/nedb/transactions.db`;
+  const destPath = `${Utils.getLocalCacheDataDir()}/transactions.db`;
 
   await appendDB(d0OriginPath, destPath);
   await appendDB(d1OriginPath, destPath);
