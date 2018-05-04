@@ -19,7 +19,6 @@
     "test": "mocha --recursive src/test/. --rpcpassword=bodhi --test",
     "lint:fix": "eslint --fix -- src/.",
     "build:mac": "npm run install-dep; ./node_modules/.bin/electron-builder build -m",
-    "build:mac-tn": "npm run install-dep; ./node_modules/.bin/electron-builder build -m --tnonly",
     "build:win": "npm run install-dep; ./node_modules/.bin/electron-builder build -w",
     "build:lin": "npm run install-dep; ./node_modules/.bin/electron-builder build -l"
   },
