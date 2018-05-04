@@ -16,7 +16,7 @@ async function appendDB(origin, dest) {
       await fs.rename(origin, `${origin}.old`);
       logger.info(`Rename ${origin} to ${origin}.old`);
     } catch (err) {
-      logger.error(`DB migration error: ${err.msg}`);
+      logger.error(`DB migration error: ${err.message}`);
       throw err;
     }
   }
