@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
 
+const { testnetOnly } = require('./package.json');
 const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
@@ -127,7 +128,7 @@ function showSelectEnvDialog() {
       case 0: {
         logger.info('Choose Mainnet');
 
-        if (Config.deployment.TESTNET_ONLY) { // Testnet only
+        if (testnetOnly) { // Testnet only
           dialog.showMessageBox({
             type: 'info',
             buttons: [],
