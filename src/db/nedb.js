@@ -22,8 +22,8 @@ async function initDB() {
 
   const blockchainDataPath = Utils.getBlockchainDataDir();
   const localCacheDataPath = Utils.getLocalCacheDataDir();
-  logger.info(`blockchain data path: ${blockchainDataPath}, localCache data path: ${localCacheDataPath}`);
-
+  logger.info(`Blockchain data path: ${blockchainDataPath}`);
+  logger.info(`Local cache data path: ${localCacheDataPath}`);
 
   db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
   db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });

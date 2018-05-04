@@ -139,6 +139,19 @@ function isDevEnv() {
 }
 
 /*
+* Returns the path where the data directory is, and also creates the directory if it doesn't exist.
+*/
+function getBaseDataDir() {
+  const osDataDir = app.getPath('userData');
+  const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
+  let basePath = `${osDataDir}/${pathPrefix}`;
+  if (isDevEnv()) {
+    basePath += '/dev';
+  }
+  return basePath;
+}
+
+/*
 * Converts a hex number to decimal string.
 * @param input {String|Hex|BN} The hex number to convert.
 */
@@ -160,6 +173,7 @@ function hexToDecimalString(input) {
 
 module.exports = {
   isDevEnv,
+  getBaseDataDir,
   hexToDecimalString,
   
   getQtumPath: (exec) => {
@@ -173,23 +187,10 @@ module.exports = {
   },
 
   /*
-  * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
-  */
-  getBaseDataDir: () => {
-    const osDataDir = app.getPath('userData');
-    const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
-    let basePath = `${osDataDir}/${pathPrefix}`;
-    if (isDevEnv()) {
-      basePath += '/dev';
-    }
-    return basePath;
-  }
-
-  /*
   * Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
   */
   getBlockchainDataDir: () => {
-    const basePath = this.getBaseDataDir();
+    const basePath = getBaseDataDir();
     const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
     const regexGroups = regex.exec(version);
     if (regexGroups === null) {
@@ -207,14 +208,14 @@ module.exports = {
     fs.ensureDirSync(dataDir);
 
     return dataDir;
-  }
+  },
 
   /*
   * Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
   * The Local cache should exist regardless of version change, for now
   */
   getLocalCacheDataDir: () => {
-    const dataDir = `${this.getBaseDataDir()}/local/nedb`;
+    const dataDir = `${getBaseDataDir()}/local/nedb`;
 
     // Create data dir if needed
     fs.ensureDirSync(dataDir);
