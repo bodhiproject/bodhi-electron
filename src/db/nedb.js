@@ -20,15 +20,15 @@ async function initDB() {
     throw new Error(`DB Migration Error: ${err.message}`);
   }
 
-  const blockChainDataPath = `${Utils.getBlockChainDataDir()}/nedb`;
+  const blockchainDataPath = `${Utils.getBlockchainDataDir()}/nedb`;
   const localCacheDataPath = `${Utils.getLocalCacheDataDir()}/nedb`;
-  logger.info(`blockChain data path: ${blockChainDataPath}, localCache data path: ${localCacheDataPath}`);
+  logger.info(`blockchain data path: ${blockchainDataPath}, localCache data path: ${localCacheDataPath}`);
 
 
-  db.Topics = datastore({ filename: `${blockChainDataPath}/topics.db` });
-  db.Oracles = datastore({ filename: `${blockChainDataPath}/oracles.db` });
-  db.Votes = datastore({ filename: `${blockChainDataPath}/votes.db` });
-  db.Blocks = datastore({ filename: `${blockChainDataPath}/blocks.db` });
+  db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
+  db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
+  db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
+  db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
   db.Transactions = datastore({ filename: `${localCacheDataPath}/transactions.db` });
 
   try {
@@ -49,9 +49,9 @@ async function initDB() {
 }
 
 // Migrate DB
-function migrateDB() {
+async function migrateDB() {
   // check migration script in migration folder
-  migrateTxDB();
+  await migrateTxDB();
 }
 
 class DBHelper {

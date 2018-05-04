@@ -161,7 +161,7 @@ class Utils {
   /*
   * Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
   */
-  static getBlockChainDataDir() {
+  static getBlockchainDataDir() {
     const basePath = this.getBaseDataDir();
 
     const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
