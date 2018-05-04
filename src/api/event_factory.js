@@ -1,10 +1,8 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const { getContractMetadata, getQtumRPCAddress } = require('../config/config');
+const { Config, getContractMetadata, getQtumRPCAddress } = require('../config/config');
 const Utils = require('../utils/utils');
-
-const GAS_LIMIT_CREATE_TOPIC = 3500000;
 
 function getContract() {
   const metadata = getContractMetadata();
@@ -52,7 +50,7 @@ const EventFactory = {
     return getContract().send('createTopic', {
       methodArgs: [oracleAddress, eventName, resultNames, bettingStartTime, bettingEndTime, resultSettingStartTime,
         resultSettingEndTime],
-      gasLimit: GAS_LIMIT_CREATE_TOPIC,
+      gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
       senderAddress,
     });
   },

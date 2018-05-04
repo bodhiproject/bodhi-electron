@@ -1,9 +1,7 @@
 const _ = require('lodash');
 const { Contract } = require('qweb3');
 
-const { getContractMetadata, getQtumRPCAddress } = require('../config/config');
-
-const GAS_LIMIT_SET_RESULT = 1500000;
+const { Config, getContractMetadata, getQtumRPCAddress } = require('../config/config');
 
 function getContract(contractAddress) {
   const metadata = getContractMetadata();
@@ -60,7 +58,7 @@ const CentralizedOracle = {
     const contract = getContract(contractAddress);
     return contract.send('setResult', {
       methodArgs: [resultIndex],
-      gasLimit: GAS_LIMIT_SET_RESULT,
+      gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
       senderAddress,
     });
   },
