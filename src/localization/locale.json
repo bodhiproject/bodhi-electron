@@ -7,6 +7,14 @@
     "en": "Enter your wallet passphrase:",
     "zh": "输入您的钱包密码:"
   },
+  "earlyAccessDialogTitle": {
+    "en": "Contact Us",
+    "zh": "联系菩提"
+  },
+  "earlyAccessDialogMessage": {
+    "en": "Please email contact@bodhi.network for early access.",
+    "zh": "请联系 contact@bodhi.network 获取主链体验版"
+  },
   "error": {
     "en": "Error",
     "zh": "错误"

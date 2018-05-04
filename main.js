@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
 
+const { testnetOnly } = require('./package.json');
 const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
@@ -127,10 +128,20 @@ function showSelectEnvDialog() {
       case 0: {
         logger.info('Choose Mainnet');
 
-        setQtumEnv(blockchainEnv.MAINNET);
-        await initDB();
-        startServer();
-        initUI();
+        if (testnetOnly) { // Testnet only
+          dialog.showMessageBox({
+            type: 'info',
+            buttons: [],
+            title: i18n.get('earlyAccessDialogTitle'),
+            message: i18n.get('earlyAccessDialogMessage'),
+          });
+          showSelectEnvDialog();
+        } else { // Mainnet/Testnet allowed
+          setQtumEnv(blockchainEnv.MAINNET);
+          await initDB();
+          startServer();
+          initUI();
+        }
 
         Tracking.mainnetStart();
         break;
