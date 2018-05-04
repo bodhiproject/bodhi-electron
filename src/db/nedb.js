@@ -2,6 +2,7 @@ const datastore = require('nedb-promise');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
+const migrateTxDB = require('./migrations/migrateTx')
 
 const db = {
   Topics: undefined,
@@ -13,14 +14,22 @@ const db = {
 
 // Init datastores
 async function initDB() {
-  const basePath = `${Utils.getDataDir()}/nedb`;
-  logger.info(`DB path: ${basePath}`);
+  try {
+    await migrateDB();
+  } catch (err) {
+    throw new Error(`DB Migration Error: ${err.message}`);
+  }
 
-  db.Topics = datastore({ filename: `${basePath}/topics.db` });
-  db.Oracles = datastore({ filename: `${basePath}/oracles.db` });
-  db.Votes = datastore({ filename: `${basePath}/votes.db` });
-  db.Blocks = datastore({ filename: `${basePath}/blocks.db` });
-  db.Transactions = datastore({ filename: `${basePath}/transactions.db` });
+  const blockchainDataPath = `${Utils.getBlockchainDataDir()}/nedb`;
+  const localCacheDataPath = `${Utils.getLocalCacheDataDir()}/nedb`;
+  logger.info(`blockchain data path: ${blockchainDataPath}, localCache data path: ${localCacheDataPath}`);
+
+
+  db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
+  db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
+  db.Votes = datastore({ filename: `${blockchainDataPath}/votes.db` });
+  db.Blocks = datastore({ filename: `${blockchainDataPath}/blocks.db` });
+  db.Transactions = datastore({ filename: `${localCacheDataPath}/transactions.db` });
 
   try {
     await Promise.all([
@@ -37,6 +46,12 @@ async function initDB() {
   } catch (err) {
     throw new Error(`DB load Error: ${err.message}`);
   }
+}
+
+// Migrate DB
+async function migrateDB() {
+  // check migration script in migration folder
+  await migrateTxDB();
 }
 
 class DBHelper {

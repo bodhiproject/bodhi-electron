@@ -149,29 +149,45 @@ class Utils {
     return qtumPath;
   }
 
-  /*
-  * Returns the path where the data directory is, and also creates the directory if it doesn't exist.
-  */
-  static getDataDir() {
+  static getBaseDataDir() {
     const osDataDir = app.getPath('userData');
-    let dataDir;
     const pathPrefix = isMainnet() ? 'mainnet' : 'testnet';
-    if (!this.isDevEnv()) {
-      const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
-      const regexGroups = regex.exec(version);
-      if (regexGroups === null) {
-        throw new Error(`Invalid version number: ${version}`);
-      }
-      // Example: 0.6.5-c0-d1
-      // c0 = contract version 0, d1 = db version 1
-      const versionDir = `${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
-
-      // production
-      dataDir = `${osDataDir}/${pathPrefix}/${versionDir}`;
-    } else {
-      // development
-      dataDir = `${osDataDir}/${pathPrefix}/${DIR_DEV}`;
+    let basePath = `${osDataDir}/${pathPrefix}`;
+    if (this.isDevEnv()) {
+      basePath += '/dev';
     }
+    return basePath;
+  }
+  /*
+  * Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
+  */
+  static getBlockchainDataDir() {
+    const basePath = this.getBaseDataDir();
+
+    const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
+    const regexGroups = regex.exec(version);
+    if (regexGroups === null) {
+      throw new Error(`Invalid version number: ${version}`);
+    }
+    // Example: 0.6.5-c0-d1
+    // c0 = contract version 0, d1 = db version 1
+    const versionDir = `${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
+
+    // production
+    const dataDir = `${basePath}/${versionDir}`;
+
+    // Create data dir if needed
+    fs.ensureDirSync(dataDir);
+
+    return dataDir;
+  }
+
+  /*
+  * Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
+  * The Local cache should exist regardless of version change, for now
+  */
+  static getLocalCacheDataDir() {
+    const dataDir = `${this.getBaseDataDir()}/local`;
 
     // Create data dir if needed
     fs.ensureDirSync(dataDir);
