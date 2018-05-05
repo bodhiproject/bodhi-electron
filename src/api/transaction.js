@@ -6,7 +6,7 @@ const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT
 
 function getApproveObj(token, amount) {
   return {
-    type: 'approve',
+    type: 'APPROVE',
     gasLimit: Config.DEFAULT_GAS_LIMIT,
     gasCost: DEFAULT_GAS_COST,
     token,
@@ -79,7 +79,7 @@ const Transaction = {
       case 'APPROVECREATEEVENT':
       case 'CREATEEVENT': {
         costsArr.push({
-          type: 'createEvent',
+          type: 'CREATEEVENT',
           gasLimit: Config.CREATE_CORACLE_GAS_LIMIT,
           gasCost: formatGasCost(Config.CREATE_CORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
           token,
@@ -89,7 +89,7 @@ const Transaction = {
       }
       case 'BET': {
         costsArr.push({
-          type: 'bet',
+          type: 'BET',
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
           token,
@@ -100,7 +100,7 @@ const Transaction = {
       case 'APPROVESETRESULT':
       case 'SETRESULT': {
         costsArr.push({
-          type: 'setResult',
+          type: 'SETRESULT',
           gasLimit: Config.CREATE_DORACLE_GAS_LIMIT,
           gasCost: formatGasCost(Config.CREATE_DORACLE_GAS_LIMIT * Config.DEFAULT_GAS_PRICE),
           token,
@@ -111,7 +111,7 @@ const Transaction = {
       case 'APPROVEVOTE':
       case 'VOTE': {
         costsArr.push({
-          type: 'vote',
+          type: 'VOTE',
           gasLimit: await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount),
           gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
           token,
@@ -121,7 +121,7 @@ const Transaction = {
       }
       case 'FINALIZERESULT': {
         costsArr.push({
-          type: 'finalizeResult',
+          type: 'FINALIZERESULT',
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
         });
@@ -129,7 +129,7 @@ const Transaction = {
       }
       case 'WITHDRAW': {
         costsArr.push({
-          type: 'withdraw',
+          type: 'WITHDRAW',
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
         });
@@ -137,7 +137,7 @@ const Transaction = {
       }
       case 'WITHDRAWESCROW': {
         costsArr.push({
-          type: 'withdrawEscrow',
+          type: 'WITHDRAWESCROW',
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
         });
@@ -145,7 +145,7 @@ const Transaction = {
       }
       case 'TRANSFER': {
         costsArr.push({
-          type: 'transfer',
+          type: 'TRANSFER',
           gasLimit: Config.DEFAULT_GAS_LIMIT,
           gasCost: DEFAULT_GAS_COST,
           token,
