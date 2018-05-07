@@ -1,6 +1,6 @@
 const { Config, getContractMetadata } = require('../config/config');
 const Utils = require('../utils/utils');
-const { db } = require('../db/nedb'); 
+const { db } = require('../db/nedb');
 
 const DEFAULT_GAS_COST = formatGasCost(Config.DEFAULT_GAS_LIMIT * Config.DEFAULT_GAS_PRICE);
 
@@ -11,8 +11,8 @@ function getApproveObj(token, amount) {
     gasCost: DEFAULT_GAS_COST,
     token,
     amount,
-  }
-};
+  };
+}
 
 function formatGasCost(gasCost) {
   return gasCost.toFixed(2);
@@ -67,7 +67,7 @@ const Transaction = {
     } else if (txType === 'APPROVEVOTE') {
       if (await Utils.isAllowanceEnough(senderAddress, topicAddress, amount)) {
         txType = 'VOTE';
-      }      
+      }
     }
 
     if (txType.startsWith('APPROVE')) {

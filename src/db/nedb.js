@@ -2,7 +2,7 @@ const datastore = require('nedb-promise');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
-const migrateTxDB = require('./migrations/migrateTx')
+const migrateTxDB = require('./migrations/migrateTx');
 
 const db = {
   Topics: undefined,
@@ -37,7 +37,7 @@ async function initDB() {
       db.Oracles.loadDatabase(),
       db.Votes.loadDatabase(),
       db.Blocks.loadDatabase(),
-      db.Transactions.loadDatabase()
+      db.Transactions.loadDatabase(),
     ]);
 
     await db.Topics.ensureIndex({ fieldName: 'txid', unique: true });

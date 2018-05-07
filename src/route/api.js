@@ -11,6 +11,7 @@ const Oracle = require('../api/oracle');
 const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 const Transaction = require('../api/transaction');
+const QtumUtils = require('../api/qtum_utils');
 
 const { getInstance } = require('../qclient');
 
@@ -29,6 +30,16 @@ function onRequestError(res, err, next) {
 /* Misc */
 apiRouter.post('/is-connected', (req, res, next) => {
   getInstance().isConnected()
+    .then((result) => {
+      onRequestSuccess(res, result, next);
+    }, (err) => {
+      onRequestError(res, err, next);
+    });
+});
+
+/* QtumUtils */
+apiRouter.post('/validate-address', (req, res, next) => {
+  QtumUtils.validateAddress(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

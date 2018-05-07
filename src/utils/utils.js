@@ -175,7 +175,7 @@ module.exports = {
   isDevEnv,
   getBaseDataDir,
   hexToDecimalString,
-  
+
   getQtumPath: (exec) => {
     let qtumPath;
     if (isDevEnv()) {
