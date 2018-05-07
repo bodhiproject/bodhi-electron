@@ -8,8 +8,8 @@ const assert = Chai.assert;
 const expect = Chai.expect;
 
 describe('QtumUtils', () => {
-  const realAddress = 'd78f96ea55ad0c8a283b6d759f39cda34a7c5b10';
-  const fakeAddress = 'd78f96ea55ad0c8a283b6d759f39cda312345678';
+  const realAddress = 'qSzPLfPsHP6ChX2jxEyy8637JiBXtn5piS';
+  const fakeAddress = 'qSzPLfPsHP6ChX2jxEyy86371234567890';
 
   describe('isValidQtumAddress()', () => {
     it('asserts address to be valid qtum address', () => {
