@@ -148,7 +148,7 @@ function showSelectEnvDialog() {
       }
       case 1: {
         logger.info('Choose Testnet');
-        
+
         setQtumEnv(blockchainEnv.TESTNET);
         await initDB();
         startServer();
@@ -186,7 +186,7 @@ function showWalletErrorDialog(message) {
     if (response === 0) {
       app.quit();
     } else {
-      showWalletUnlockPrompt(); 
+      showWalletUnlockPrompt();
     }
   });
 }
@@ -291,6 +291,9 @@ app.on('activate', () => {
 // Emitted when all windows have been closed.
 app.on('window-all-closed', () => {
   logger.debug('window-all-closed');
+  if (process.platform === 'win32') {
+    app.quit();
+  }
 });
 
 // Emitted before the application starts closing its windows.
