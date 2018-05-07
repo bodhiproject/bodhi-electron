@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const Chai = require('chai');
 const ChaiAsPromised = require('chai-as-promised');
 
@@ -13,12 +12,14 @@ describe('QtumUtils', () => {
   const fakeAddress = 'qSzPLfPsHP6ChX2jxEyy86371234567890';
 
   describe('validateAddress()', () => {
-    it('asserts address to be valid qtum address', () => {
-      assert.isTrue(QtumUtils.validateAddress(realAddress));
+    it('asserts address to be valid qtum address', async () => {
+      const res = await QtumUtils.validateAddress({address: realAddress});
+      assert.isTrue(res.isvalid);
     });
 
-    it('asserts address to be invalid qtum address', () => {
-      assert.isFalse(QtumUtils.validateAddress(fakeAddress));
+    it('asserts address to be invalid qtum address', async () => {
+      const res = await QtumUtils.validateAddress({address: fakeAddress});
+      assert.isFalse(res.isvalid);
     });
 
     it('throws if address is undefined', () => {
