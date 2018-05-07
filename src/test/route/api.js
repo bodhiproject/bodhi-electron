@@ -20,6 +20,10 @@ describe('API Routes', () => {
       expect(routes).to.have.property('postisconnected');
     });
 
+    it('should have the validate-address route', () => {
+      expect(routes).to.have.property('postvalidateaddress');
+    });
+
     it('should have the get-account-address route', () => {
       expect(routes).to.have.property('postgetaccountaddress');
     });
