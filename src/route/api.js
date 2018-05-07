@@ -38,8 +38,8 @@ apiRouter.post('/is-connected', (req, res, next) => {
 });
 
 /* QtumUtils */
-apiRouter.post('/is-valid-qtum-address', (req, res, next) => {
-  QtumUtils.isValidQtumAddress(req.params)
+apiRouter.post('/validate-address', (req, res, next) => {
+  QtumUtils.validateAddress(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

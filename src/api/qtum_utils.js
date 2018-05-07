@@ -1,7 +1,7 @@
 const { getInstance } = require('../qclient');
 
 const QtumUtils = {
-  async isValidQtumAddress(args) {
+  async validateAddress(args) {
     const {
       address,
     } = args;
