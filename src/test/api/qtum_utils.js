@@ -20,11 +20,6 @@ describe('QtumUtils', () => {
       assert.isFalse(QtumUtils.isValidQtumAddress(fakeAddress));
     });
 
-    it('returns a tx receipt', () => {
-      const res = Mocks.approve.result;
-      assert.isTrue(ContractUtils.isTxReceipt(res));
-    });
-
     it('throws if address is undefined', () => {
       expect(QtumUtils.isValidQtumAddress()).to.be.rejectedWith(Error);
     });
