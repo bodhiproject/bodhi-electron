@@ -11,7 +11,7 @@ const Oracle = require('../api/oracle');
 const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 const Transaction = require('../api/transaction');
-const RawTransactions = require('../api/raw_transactions');
+const BodhiUtils = require('../api/bodhi_utils');
 
 const { getInstance } = require('../qclient');
 
@@ -37,9 +37,9 @@ apiRouter.post('/is-connected', (req, res, next) => {
     });
 });
 
-/* RawTransactions */
+/* BodhiUtils */
 apiRouter.post('/is-valid-qtum-address', (req, res, next) => {
-  RawTransactions.isValidQTUMAddress(req.params)
+  BodhiUtils.isValidQtumAddress(req.params)
     .then((result) => {
       onRequestSuccess(res, result, next);
     }, (err) => {

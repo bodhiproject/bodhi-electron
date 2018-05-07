@@ -1,7 +1,7 @@
 const { getInstance } = require('../qclient');
 
-const RawTransactions = {
-  async isValidQTUMAddress(args) {
+const BodhiUtils = {
+  async isValidQtumAddress(args) {
     const {
       address,
     } = args;
@@ -10,4 +10,4 @@ const RawTransactions = {
   },
 };
 
-module.exports = RawTransactions;
+module.exports = BodhiUtils;
