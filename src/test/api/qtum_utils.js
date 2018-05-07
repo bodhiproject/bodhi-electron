@@ -13,12 +13,12 @@ describe('QtumUtils', () => {
 
   describe('validateAddress()', () => {
     it('asserts address to be valid qtum address', async () => {
-      const res = await QtumUtils.validateAddress({address: realAddress});
+      const res = await QtumUtils.validateAddress({ address: realAddress });
       assert.isTrue(res.isvalid);
     });
 
     it('asserts address to be invalid qtum address', async () => {
-      const res = await QtumUtils.validateAddress({address: fakeAddress});
+      const res = await QtumUtils.validateAddress({ address: fakeAddress });
       assert.isFalse(res.isvalid);
     });
 

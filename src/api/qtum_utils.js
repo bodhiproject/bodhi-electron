@@ -7,7 +7,7 @@ const QtumUtils = {
       address,
     } = args;
 
-	if (_.isUndefined(address)) {
+    if (_.isUndefined(address)) {
       throw new TypeError('address needs to be defined');
     }
 
