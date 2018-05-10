@@ -46,10 +46,12 @@ function createWindow() {
   });
 
   uiWin.on('closed', () => {
+    logger.debug('uiWin closed');
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     uiWin = null
+    app.quit();
   });
 
   uiWin.webContents.on('new-window', (event, url) => {
