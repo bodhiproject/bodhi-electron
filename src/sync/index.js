@@ -106,12 +106,12 @@ async function sync(db) {
 
       await Promise.all([
         syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
-        syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime),
-        syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
+        syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime)
       ]);
       logger.debug('Synced Oracles');
 
       await Promise.all([
+        syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
         syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
         syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate),
       ]);
@@ -189,8 +189,7 @@ async function fetchNameOptionsFromTopic(db, address) {
 async function fetchTopicAddressFromOracle(db, address) {
   const oracle = await db.Oracles.findOne({ address }, { topicAddress: 1 });
   if (!oracle) {
-    logger.error(`could not find Oracle ${address} in db`);
-    return undefined;
+    throw Error(`could not find Oracle ${address} in db`);
   }
   return oracle;
 }
