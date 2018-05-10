@@ -5,6 +5,7 @@ const prompt = require('electron-prompt');
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
+const { emitter: Emitter } = require('./src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
@@ -148,7 +149,7 @@ function showSelectEnvDialog() {
       }
       case 1: {
         logger.info('Choose Testnet');
-        
+
         setQtumEnv(blockchainEnv.TESTNET);
         await initDB();
         startServer();
@@ -186,7 +187,7 @@ function showWalletErrorDialog(message) {
     if (response === 0) {
       app.quit();
     } else {
-      showWalletUnlockPrompt(); 
+      showWalletUnlockPrompt();
     }
   });
 }
@@ -318,6 +319,29 @@ server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     exit();
   });
 });
+
+
+Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
+  const options = {
+    title: 'Backup Wallet',
+    filters: [
+      { name: 'backup', extensions: ['dat'] }
+    ]
+  }
+  dialog.showSaveDialog(options, (filename) => {
+    Emitter.emit('saved-file', filename);
+  })
+})
+
+Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
+  dialog.showOpenDialog({
+    properties: ['openFile', 'openDirectory']
+  }, (files) => {
+    if (files) {
+      Emitter.emit('selected-file', files)
+    }
+  })
+})
 
 // Show wallet unlock prompt if wallet is encrypted
 server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
