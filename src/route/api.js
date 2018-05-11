@@ -131,10 +131,13 @@ apiRouter.post('/wallet-passphrase-change', (req, res, next) => {
 });
 
 apiRouter.post('/backup-wallet', (req, res, next) => {
+console.log('​backup-wallet');
+
   Emitter.showSaveDialog();
 });
 
 apiRouter.post('/import-wallet', (req, res, next) => {
+  console.log('​import-wallet');
   Emitter.showImportDialog();
 });
 

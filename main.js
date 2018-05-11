@@ -335,7 +335,7 @@ Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
 
 Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   dialog.showOpenDialog({
-    properties: ['openFile', 'openDirectory']
+    properties: ['openFile']
   }, (files) => {
     if (files) {
       Emitter.emit('selected-file', files)
