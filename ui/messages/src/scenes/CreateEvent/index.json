@@ -80,6 +80,10 @@
     "defaultMessage": "create an event"
   },
   {
+    "id": "str.invalidQtumAddress",
+    "defaultMessage": "Invalid QTUM Address"
+  },
+  {
     "id": "str.cancel",
     "defaultMessage": "Cancel"
   },

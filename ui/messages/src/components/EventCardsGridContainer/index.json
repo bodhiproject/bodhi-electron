@@ -8,8 +8,8 @@
     "defaultMessage": "Set Result"
   },
   {
-    "id": "bottomButtonText.vote",
-    "defaultMessage": "Place Vote"
+    "id": "bottomButtonText.arbitrate",
+    "defaultMessage": "Arbitrate"
   },
   {
     "id": "str.finalizeResult",
