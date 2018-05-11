@@ -25,7 +25,7 @@
   },
   {
     "id": "oracle.finalizingExplanation",
-    "defaultMessage": "Finalizing the result can be done by anyone. It will finish this voting round and set the final result as the last round's result. Winners can withdraw their winnings once an Event is finalized."
+    "defaultMessage": "Finalizing the result can be done by anyone. It will finish this arbitration round and set the final result as the last round's result. Winners can withdraw their winnings once an Event is finalized."
   },
   {
     "id": "txConfirmMsg.bet",
@@ -60,8 +60,8 @@
     "defaultMessage": "Voting"
   },
   {
-    "id": "str.vote",
-    "defaultMessage": "Vote"
+    "id": "str.arbitrate",
+    "defaultMessage": "Arbitrate"
   },
   {
     "id": "str.finalize",

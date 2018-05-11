@@ -24,8 +24,8 @@
     "defaultMessage": "Oracle Result Setting"
   },
   {
-    "id": "cardInfo.vote",
-    "defaultMessage": "Voting"
+    "id": "cardInfo.arbitration",
+    "defaultMessage": "Arbitration"
   },
   {
     "id": "cardInfo.withdraw",

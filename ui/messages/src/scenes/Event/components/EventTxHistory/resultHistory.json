@@ -8,8 +8,8 @@
     "defaultMessage": "Result Setting Round"
   },
   {
-    "id": "str.votingRoundX",
-    "defaultMessage": "Voting Round {idx}"
+    "id": "str.arbitrationRoundX",
+    "defaultMessage": "Arbitration Round {idx}"
   },
   {
     "id": "str.resultHistory",
