@@ -3,6 +3,7 @@ const _ = require('lodash');
 const { dialog } = require('electron');
 const chalk = require('chalk');
 const { ipcEvent } = require('../constants');
+const i18n = require('../../src/localization/i18n');
 
 const emitter = new EventEmitter();
 
@@ -14,8 +15,8 @@ emitter.on('saved-file', async (path) => {
       const options = {
         type: 'info',
         title: 'Information',
-        message: "Backup success.",
-        buttons: ['OK']
+        message: i18n.get('backupSuccess'),
+        buttons: [i18n.get('ok')]
       }
       dialog.showMessageBox(options);
     }
@@ -24,8 +25,8 @@ emitter.on('saved-file', async (path) => {
     const options = {
       type: 'info',
       title: 'Information',
-      message: "Something wrong happened.",
-      buttons: ['OK']
+      message: i18n.get('somethingWrongHappened'),
+      buttons: [i18n.get('ok')]
     }
     dialog.showMessageBox(options);
   }
@@ -37,8 +38,8 @@ emitter.on('selected-file', async (path) => {
     const options = {
       type: 'info',
       title: 'Information',
-      message: "Import success.",
-      buttons: ['OK']
+      message: i18n.get('importSuccess'),
+      buttons: [i18n.get('ok')]
     }
     if(path !== ''){
       dialog.showMessageBox(options);
@@ -48,8 +49,8 @@ emitter.on('selected-file', async (path) => {
     const options = {
       type: 'info',
       title: 'Information',
-      message: "Something wrong happened.",
-      buttons: ['OK']
+      message: i18n.get('somethingWrongHappened'),
+      buttons: [i18n.get('ok')]
     }
     dialog.showMessageBox(options);
   }
@@ -57,13 +58,10 @@ emitter.on('selected-file', async (path) => {
 
 
 function showSaveDialog(){
-  console.log(chalk.green('showSaveDialog'));
   emitter.emit(ipcEvent.WALLET_BACKUP);
 }
 
 function showImportDialog(){
-  console.log(chalk.red('showImportDialog'));
-
   emitter.emit(ipcEvent.WALLET_IMPORT);
 }
 
