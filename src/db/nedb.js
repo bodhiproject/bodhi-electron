@@ -78,7 +78,7 @@ class DBHelper {
 
     const found = await db.findOne(query, fieldsObj);
     if (!found) {
-      throw Error(`Could not find ${db} item ${query} in DB.`);
+      throw Error(`Could not find ${db.nedb.filename} item ${query} in DB.`);
     }
     return found;
   }
