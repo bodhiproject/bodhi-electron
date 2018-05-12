@@ -177,15 +177,6 @@ async function sync(db) {
   );
 }
 
-async function fetchNameOptionsFromTopic(db, address) {
-  const topic = await db.Topics.findOne({ address }, { name: 1, options: 1 });
-  if (!topic) {
-    throw Error(`could not find Topic ${address} in db`);
-  } else {
-    return topic;
-  }
-}
-
 async function fetchTopicAddressFromOracle(db, address) {
   const oracle = await db.Oracles.findOne({ address }, { topicAddress: 1 });
   if (!oracle) {
@@ -239,6 +230,15 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   });
 
   await Promise.all(createTopicPromises);
+}
+
+async function fetchNameOptionsFromTopic(db, address) {
+  const topic = await db.Topics.findOne({ address }, { name: 1, options: 1 });
+  if (!topic) {
+    throw Error(`could not find Topic ${address} in db`);
+  } else {
+    return topic;
+  }
 }
 
 async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {

@@ -1,4 +1,5 @@
 const datastore = require('nedb-promise');
+const _ = require('lodash');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
@@ -61,6 +62,25 @@ class DBHelper {
     } catch (err) {
       logger.error(`Error getting DB count. db:${db} err:${err.message}`);
     }
+  }
+
+  /*
+  * Returns the fields of the object in one of the tables searched by the query.
+  * @param db The DB table.
+  * @param query {Object} The query by items.
+  * @param fields {Array} The fields to return for the found item in an array.
+  */
+  static async getFieldsFromEntry(db, query, fields) {
+    const fieldsObj = {};
+    _.each(fields, (field) => {
+      fieldsObj[field] = 1;
+    });
+
+    const found = await db.findOne(query, fieldsObj);
+    if (!found) {
+      throw Error(`Could not find ${db} item ${query} in DB.`);
+    }
+    return found;
   }
 
   static async insertTopic(db, topic) {
