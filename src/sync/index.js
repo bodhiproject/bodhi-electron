@@ -125,11 +125,11 @@ async function sync(db) {
       loop.next();
     },
     async () => {
+      logger.debug('Updating Topic and Oracle balances');
       const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
         const oracleIteration = loop.iteration();
-        logger.debug(`oracle batch: ${oracleIteration}`);
         await Promise.all(oracleAddressBatches[oracleIteration].map(async (oracleAddress) => {
           await updateOracleBalance(oracleAddress, topicsNeedBalanceUpdate, db);
         }));
@@ -140,21 +140,20 @@ async function sync(db) {
           const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
           sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
             const topicIteration = topicLoop.iteration();
-            logger.debug(`topic batch: ${topicIteration}`);
             await Promise.all(topicAddressBatches[topicIteration].map(async (topicAddress) => {
               await updateTopicBalance(topicAddress, db);
             }));
-            logger.debug('next topic batch');
             topicLoop.next();
           }, () => {
-            logger.debug('Updated topics balance');
+            logger.debug('Updated Topic and Oracle balances');
             loop.next();
           });
         } else {
-          logger.debug('next oracle batch');
+          // Process next Oracle batch
           loop.next();
         }
       }, async () => {
+        logger.debug('Updating Oracles Passed End Times');
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCOraclesPassedResultSetEndTime(currentBlockTime, db);
@@ -546,13 +545,13 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   // Find Oracle
   let oracle;
   try {
-    oracle = await db.Oracles.findOne({ address: oracleAddress });
+    oracle = await DBHelper.findOne(db.Oracles, { address: oracleAddress });
     if (!oracle) {
       logger.error(`find 0 oracle ${oracleAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`update oracle ${oracleAddress} in db, ${err.message}`);
+    logger.error(`updateOracleBalance: ${err.message}`);
     return;
   }
 
@@ -588,7 +587,6 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   // Update DB
   try {
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts } });
-    logger.debug(`Update Oracle balances ${oracleAddress}, amounts ${amounts}`);
   } catch (err) {
     logger.error(`Update Oracle balances ${oracleAddress}: ${err.message}`);
   }
@@ -598,13 +596,13 @@ async function updateTopicBalance(topicAddress, db) {
   // Find Topic
   let topic;
   try {
-    topic = await db.Topics.findOne({ address: topicAddress });
+    topic = await DBHelper.findOne(db.Topics, { address: topicAddress });
     if (!topic) {
       logger.error(`find 0 topic ${topicAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`find topic ${topicAddress} in db, ${err.message}`);
+    logger.error(`updateTopicBalance: ${err.message}`);
     return;
   }
 
@@ -637,7 +635,6 @@ async function updateTopicBalance(topicAddress, db) {
       { address: topicAddress },
       { $set: { qtumAmount: totalBets, botAmount: totalVotes } },
     );
-    logger.debug(`Update Topic balances ${topicAddress}, qtum: ${totalBets} bot: ${totalVotes}`);
   } catch (err) {
     logger.error(`Update Topic balances ${topicAddress}: ${err.message}`);
   }
