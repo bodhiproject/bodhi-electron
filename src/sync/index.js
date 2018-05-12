@@ -177,14 +177,6 @@ async function sync(db) {
   );
 }
 
-async function fetchTopicAddressFromOracle(db, address) {
-  const oracle = await db.Oracles.findOne({ address }, { topicAddress: 1 });
-  if (!oracle) {
-    throw Error(`could not find Oracle ${address} in db`);
-  }
-  return oracle;
-}
-
 async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
@@ -233,7 +225,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
 }
 
 async function fetchNameOptionsFromTopic(db, address) {
-  const topic = await db.Topics.findOne({ address }, { name: 1, options: 1 });
+  const topic = await db.Topics.findOne({ address }, );
   if (!topic) {
     throw Error(`could not find Topic ${address} in db`);
   } else {
@@ -363,7 +355,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
             const vote = new Vote(blockNum, txid, rawLog).translate();
 
             // Add topicAddress to vote obj
-            const oracle = await fetchTopicAddressFromOracle(db, vote.oracleAddress);
+            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress }, ['name', 'options']);
             if (oracle) {
               vote.topicAddress = oracle.topicAddress;
             }

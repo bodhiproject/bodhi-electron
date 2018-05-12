@@ -70,7 +70,7 @@ class DBHelper {
   * @param query {Object} The query by items.
   * @param fields {Array} The fields to return for the found item in an array.
   */
-  static async getFieldsFromEntry(db, query, fields) {
+  static async findOne(db, query, fields) {
     const fieldsObj = {};
     _.each(fields, (field) => {
       fieldsObj[field] = 1;
