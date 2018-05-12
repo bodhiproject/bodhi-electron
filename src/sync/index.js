@@ -31,12 +31,6 @@ const SYNC_THRESHOLD_SECS = 1200;
 let contractMetadata;
 let senderAddress;
 
-const startSync = async () => {
-  contractMetadata = getContractMetadata();
-  senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
-  sync(db);
-};
-
 function sequentialLoop(iterations, process, exit) {
   let index = 0;
   let done = false;
@@ -74,6 +68,12 @@ function sequentialLoop(iterations, process, exit) {
   loop.next();
   return loop;
 }
+
+const startSync = async () => {
+  contractMetadata = getContractMetadata();
+  senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
+  sync(db);
+};
 
 async function sync(db) {
   const removeHexPrefix = true;
