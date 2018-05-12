@@ -157,7 +157,7 @@ async function sync(db) {
       }, async () => {
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
-        await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
+        await updateCOraclesPassedResultSetEndTime(currentBlockTime, db);
 
         if (numOfIterations > 0) {
           sendSyncInfo(
@@ -542,33 +542,6 @@ function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, addressBalances)
   });
 }
 
-// all central & decentral oracles with VOTING status and endTime less than currentBlockTime
-async function updateOraclesPassedEndTime(currentBlockTime, db) {
-  try {
-    await db.Oracles.update(
-      { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
-      { $set: { status: 'WAITRESULT' } },
-      { multi: true },
-    );
-    logger.debug('Updated Oracles Passed EndBlock');
-  } catch (err) {
-    logger.error(`updateOraclesPassedEndBlock ${err.message}`);
-  }
-}
-
-// central oracles with WAITRESULT status and resultSetEndTime less than currentBlockTime
-async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db) {
-  try {
-    await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
-      { $set: { status: 'OPENRESULTSET' } }, { multi: true },
-    );
-    logger.debug('Updated COracles Passed ResultSetEndBlock');
-  } catch (err) {
-    logger.error(`updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
-  }
-}
-
 async function updateOracleBalance(oracleAddress, topicSet, db) {
   // Find Oracle
   let oracle;
@@ -667,6 +640,33 @@ async function updateTopicBalance(topicAddress, db) {
     logger.debug(`Update Topic balances ${topicAddress}, qtum: ${totalBets} bot: ${totalVotes}`);
   } catch (err) {
     logger.error(`Update Topic balances ${topicAddress}: ${err.message}`);
+  }
+}
+
+// all central & decentral oracles with VOTING status and endTime less than currentBlockTime
+async function updateOraclesPassedEndTime(currentBlockTime, db) {
+  try {
+    await db.Oracles.update(
+      { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
+      { $set: { status: 'WAITRESULT' } },
+      { multi: true },
+    );
+    logger.debug('Updated Oracles Passed End Time');
+  } catch (err) {
+    logger.error(`updateOraclesPassedEndTime ${err.message}`);
+  }
+}
+
+// central oracles with WAITRESULT status and resultSetEndTime less than currentBlockTime
+async function updateCOraclesPassedResultSetEndTime(currentBlockTime, db) {
+  try {
+    await db.Oracles.update(
+      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
+      { $set: { status: 'OPENRESULTSET' } }, { multi: true },
+    );
+    logger.debug('Updated COracles Passed Result Set End Time');
+  } catch (err) {
+    logger.error(`updateCOraclesPassedResultSetEndTime ${err.message}`);
   }
 }
 
