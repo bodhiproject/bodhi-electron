@@ -71,10 +71,13 @@ class DBHelper {
   * @param fields {Array} The fields to return for the found item in an array.
   */
   static async findOne(db, query, fields) {
-    const fieldsObj = {};
-    _.each(fields, (field) => {
-      fieldsObj[field] = 1;
-    });
+    let fieldsObj;
+    if (!_.isEmpty(fields)) {
+      fieldsObj = {};
+      _.each(fields, (field) => {
+        fieldsObj[field] = 1;
+      });
+    }
 
     const found = await db.findOne(query, fieldsObj);
     if (!found) {

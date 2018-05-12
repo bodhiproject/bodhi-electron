@@ -224,15 +224,6 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
   await Promise.all(createTopicPromises);
 }
 
-async function fetchNameOptionsFromTopic(db, address) {
-  const topic = await db.Topics.findOne({ address }, );
-  if (!topic) {
-    throw Error(`could not find Topic ${address} in db`);
-  } else {
-    return topic;
-  }
-}
-
 async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix) {
   let result;
   try {
@@ -257,7 +248,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
         const insertOracleDB = new Promise(async (resolve) => {
           try {
             const centralOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
-            const topic = await fetchNameOptionsFromTopic(db, centralOracle.topicAddress);
+            const topic = await DBHelper.findOne(db.Topics, { address: centralOracle.topicAddress }, ['name', 'options']);
 
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
@@ -308,7 +299,8 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
         const insertOracleDB = new Promise(async (resolve) => {
           try {
             const decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
-            const topic = await fetchNameOptionsFromTopic(db, decentralOracle.topicAddress);
+            const topic = await DBHelper.findOne(db.Topics, { address: decentralOracle.topicAddress },
+              ['name', 'options']);
 
             decentralOracle.name = topic.name;
             decentralOracle.options = topic.options;
@@ -355,7 +347,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
             const vote = new Vote(blockNum, txid, rawLog).translate();
 
             // Add topicAddress to vote obj
-            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress }, ['name', 'options']);
+            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress }, ['topicAddress']);
             if (oracle) {
               vote.topicAddress = oracle.topicAddress;
             }
