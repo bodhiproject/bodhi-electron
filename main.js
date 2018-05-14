@@ -5,7 +5,7 @@ const prompt = require('electron-prompt');
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
-const { emitter: Emitter } = require('./src/utils/emitterHelper');
+const { Emitter } = require('./src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const logger = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
@@ -329,7 +329,7 @@ Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
     ]
   }
   dialog.showSaveDialog(options, (filename) => {
-    Emitter.emit('saved-file', filename);
+    Emitter.emit(ipcEvent.BACKUP_FILE, filename);
   })
 })
 
@@ -338,7 +338,7 @@ Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
     properties: ['openFile']
   }, (files) => {
     if (files) {
-      Emitter.emit('selected-file', files)
+      Emitter.emit(ipcEvent.RESTORE_FILE, files)
     }
   })
 })

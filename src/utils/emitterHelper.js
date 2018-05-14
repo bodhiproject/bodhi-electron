@@ -1,14 +1,13 @@
 const EventEmitter = require('events');
 const _ = require('lodash');
 const { dialog } = require('electron');
-const chalk = require('chalk');
 const { ipcEvent } = require('../constants');
 const i18n = require('../../src/localization/i18n');
 
 const emitter = new EventEmitter();
 
 
-emitter.on('saved-file', async (path) => {
+emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
   try{
     if(!_.isUndefined(path)){
       await require('../api/wallet').backupWallet({destination: path});
@@ -25,23 +24,23 @@ emitter.on('saved-file', async (path) => {
     const options = {
       type: 'info',
       title: 'Information',
-      message: i18n.get('somethingWrongHappened'),
+      message: err.message,
       buttons: [i18n.get('ok')]
     }
     dialog.showMessageBox(options);
   }
 })
 
-emitter.on('selected-file', async (path) => {
+emitter.on(ipcEvent.RESTORE_FILE, async (path) => {
   try{
-    await require('../api/wallet').importWallet({filename: path[0]})
-    const options = {
-      type: 'info',
-      title: 'Information',
-      message: i18n.get('importSuccess'),
-      buttons: [i18n.get('ok')]
-    }
-    if(path !== ''){
+    if(!_.isEmpty(path)){
+      await require('../api/wallet').importWallet({filename: path[0]})
+      const options = {
+        type: 'info',
+        title: 'Information',
+        message: i18n.get('importSuccess'),
+        buttons: [i18n.get('ok')]
+      }
       dialog.showMessageBox(options);
     }
   }
@@ -49,13 +48,12 @@ emitter.on('selected-file', async (path) => {
     const options = {
       type: 'info',
       title: 'Information',
-      message: i18n.get('somethingWrongHappened'),
+      message: err.message,
       buttons: [i18n.get('ok')]
     }
     dialog.showMessageBox(options);
   }
 })
-
 
 function showSaveDialog(){
   emitter.emit(ipcEvent.WALLET_BACKUP);
@@ -65,9 +63,8 @@ function showImportDialog(){
   emitter.emit(ipcEvent.WALLET_IMPORT);
 }
 
-
 module.exports = {
-  emitter,
+  Emitter: emitter,
   showSaveDialog,
   showImportDialog,
 };

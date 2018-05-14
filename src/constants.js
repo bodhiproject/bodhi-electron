@@ -11,6 +11,8 @@ module.exports = {
     SERVICES_RUNNING: 'services-running',
     WALLET_BACKUP: 'wallet-backup',
     WALLET_IMPORT: 'wallet-import',
+    BACKUP_FILE: 'backup-file',
+    RESTORE_FILE: 'restore-file',
   },
 
   txState: {
