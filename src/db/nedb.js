@@ -20,7 +20,7 @@ async function initDB() {
     throw new Error(`DB Migration Error: ${err.message}`);
   }
 
-  const blockchainDataPath = Utils.getBlockchainDataDir();
+  const blockchainDataPath = Utils.getDataDir();
   const localCacheDataPath = Utils.getLocalCacheDataDir();
   logger.info(`Blockchain data path: ${blockchainDataPath}`);
   logger.info(`Local cache data path: ${localCacheDataPath}`);

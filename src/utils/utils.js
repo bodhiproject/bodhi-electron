@@ -189,7 +189,7 @@ module.exports = {
   /*
   * Returns the path where the blockchain version directory is.
   */
-  getBlockchainVersionDir: () => {
+  getVersionDir: () => {
     const basePath = getBaseDataDir();
     const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
     const regexGroups = regex.exec(version);
@@ -210,8 +210,8 @@ module.exports = {
   /*
   * Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
   */
-  getBlockchainDataDir: () => {
-    const versionDir = getBlockchainVersionDir();
+  getDataDir: () => {
+    const versionDir = getVersionDir();
 
     // production
     const dataDir = `${versionDir}/nedb`;
@@ -222,13 +222,11 @@ module.exports = {
     return dataDir;
   },
 
-/*
+  /*
   * Returns the path where the blockchain log directory is, and also creates the directory if it doesn't exist.
   */
   getLogDir: () => {
-    const versionDir = getBlockchainVersionDir();
-
-    // production
+    const versionDir = getVersionDir();
     const logDir = `${versionDir}/logs`;
 
     // Create data dir if needed
