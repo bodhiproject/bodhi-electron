@@ -9,6 +9,10 @@ module.exports = {
     STARTUP_ERROR: 'startup-error',
     SHOW_WALLET_UNLOCK: 'show-wallet-unlock',
     SERVICES_RUNNING: 'services-running',
+    WALLET_BACKUP: 'wallet-backup',
+    WALLET_IMPORT: 'wallet-import',
+    BACKUP_FILE: 'backup-file',
+    RESTORE_FILE: 'restore-file',
   },
 
   txState: {

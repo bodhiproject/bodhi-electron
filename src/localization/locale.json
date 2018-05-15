@@ -66,5 +66,13 @@
   "walletUnlockFailed": {
     "en": "Wallet unlock failed",
     "zh": "钱包解锁失败"
+  },
+  "backupSuccess": {
+    "en": "Backup success.",
+    "zh": "备份成功"
+  },
+  "importSuccess": {
+    "en": "Import success.",
+    "zh": "导入成功"
   }
 }
