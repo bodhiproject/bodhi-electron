@@ -74,14 +74,12 @@ class DBHelper {
     let fieldsObj;
     if (!_.isEmpty(fields)) {
       fieldsObj = {};
-      _.each(fields, (field) => {
-        fieldsObj[field] = 1;
-      });
+      _.each(fields, (field) => fieldsObj[field] = 1);
     }
 
     const found = await db.findOne(query, fieldsObj);
     if (!found) {
-      const filename = db.nedb.filename;
+      const { filename } = db.nedb;
       throw Error(`Could not findOne ${filename.substr(filename.lastIndexOf('/') + 1)} by query ${JSON.stringify(query)}`);
     }
     return found;

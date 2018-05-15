@@ -69,7 +69,7 @@ function sequentialLoop(iterations, process, exit) {
   return loop;
 }
 
-const startSync = async () => {
+const startSync = () => {
   contractMetadata = getContractMetadata();
   senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
   sync(db);
