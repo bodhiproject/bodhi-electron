@@ -1,3 +1,6 @@
+// import { red, yellow, magenta, green } from 'chalk'; // eslint-disable-line import/no-extraneous-dependencies
+const chalk = require('chalk'); // eslint-disable-line
+const red = (...a) => console.log(chalk.red(...a))
 const _ = require('lodash');
 const Web3Utils = require('web3-utils');
 const moment = require('moment');
@@ -750,10 +753,33 @@ module.exports = {
   Topic: {
     oracles: async ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
     transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ topicAddress: address }),
+    // {
+    //   const statuses = [{ status: 'WITHDRAWESCROW' }, { status: 'WITHDRAW' }];
+    //   return Transactions.find({ topicAddress: address, $or: statuses });
+    // },
   },
 
   Oracle: {
-    transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ oracleAddress: address }),
+    transactions: async ({ address, status, token }, data, { db: { Transactions } }) => {
+      const isResultSetting = (status === 'OPENRESULTSET' || status === 'WAITRESULT') && token === 'QTUM';
+      const isFinalizing = (status === 'WAITRESULT') && token === 'BOT';
+      const isVoting = (status === 'VOTING') && token === 'BOT';
+      const isBetting = status === 'BET' && token === 'QTUM';
+      let statuses = null;
+      if (isResultSetting) {
+        statuses = [{ status: 'OPENRESULTSET' }, { status: 'WAITRESULT' }];
+      } else if (isFinalizing) {
+        statuses = [{ status: 'WAITRESULT' }];
+      } else if (isVoting) {
+        statuses = [{ status: 'VOTING' }];
+      } else if (isBetting) {
+        statuses = [{ status: 'BET' }];
+      }
+      // if (!statuses) {
+      return Transactions.find({ oracleAddress: address });
+      // }
+      // return Transactions.find({ oracleAddress: address, $or: statuses });
+    },
   },
 
   Transaction: {
