@@ -31,12 +31,6 @@ const SYNC_THRESHOLD_SECS = 1200;
 let contractMetadata;
 let senderAddress;
 
-const startSync = async () => {
-  contractMetadata = getContractMetadata();
-  senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
-  sync(db);
-};
-
 function sequentialLoop(iterations, process, exit) {
   let index = 0;
   let done = false;
@@ -74,6 +68,12 @@ function sequentialLoop(iterations, process, exit) {
   loop.next();
   return loop;
 }
+
+const startSync = () => {
+  contractMetadata = getContractMetadata();
+  senderAddress = isMainnet() ? 'QaaaoExpFPj86rhzGabGQE1yDVfaQtLRm5' : 'qKjn4fStBaAtwGiwueJf9qFxgpbAvf1xAy';
+  sync(db);
+};
 
 async function sync(db) {
   const removeHexPrefix = true;
@@ -125,11 +125,11 @@ async function sync(db) {
       loop.next();
     },
     async () => {
+      logger.debug('Updating Topic and Oracle balances');
       const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
         const oracleIteration = loop.iteration();
-        logger.debug(`oracle batch: ${oracleIteration}`);
         await Promise.all(oracleAddressBatches[oracleIteration].map(async (oracleAddress) => {
           await updateOracleBalance(oracleAddress, topicsNeedBalanceUpdate, db);
         }));
@@ -140,24 +140,23 @@ async function sync(db) {
           const topicAddressBatches = _.chunk(Array.from(topicsNeedBalanceUpdate), Math.floor(RPC_BATCH_SIZE / 2));
           sequentialLoop(topicAddressBatches.length, async (topicLoop) => {
             const topicIteration = topicLoop.iteration();
-            logger.debug(`topic batch: ${topicIteration}`);
             await Promise.all(topicAddressBatches[topicIteration].map(async (topicAddress) => {
               await updateTopicBalance(topicAddress, db);
             }));
-            logger.debug('next topic batch');
             topicLoop.next();
           }, () => {
-            logger.debug('Updated topics balance');
+            logger.debug('Updated Topic and Oracle balances');
             loop.next();
           });
         } else {
-          logger.debug('next oracle batch');
+          // Process next Oracle batch
           loop.next();
         }
       }, async () => {
+        logger.debug('Updating Oracles Passed End Times');
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
-        await updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db);
+        await updateCOraclesPassedResultSetEndTime(currentBlockTime, db);
 
         if (numOfIterations > 0) {
           sendSyncInfo(
@@ -175,23 +174,6 @@ async function sync(db) {
       });
     },
   );
-}
-
-async function fetchNameOptionsFromTopic(db, address) {
-  const topic = await db.Topics.findOne({ address }, { name: 1, options: 1 });
-  if (!topic) {
-    throw Error(`could not find Topic ${address} in db`);
-  } else {
-    return topic;
-  }
-}
-
-async function fetchTopicAddressFromOracle(db, address) {
-  const oracle = await db.Oracles.findOne({ address }, { topicAddress: 1 });
-  if (!oracle) {
-    throw Error(`could not find Oracle ${address} in db`);
-  }
-  return oracle;
 }
 
 async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
@@ -265,7 +247,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
         const insertOracleDB = new Promise(async (resolve) => {
           try {
             const centralOracle = new CentralizedOracle(blockNum, txid, rawLog).translate();
-            const topic = await fetchNameOptionsFromTopic(db, centralOracle.topicAddress);
+            const topic = await DBHelper.findOne(db.Topics, { address: centralOracle.topicAddress }, ['name', 'options']);
 
             centralOracle.name = topic.name;
             centralOracle.options = topic.options;
@@ -316,7 +298,8 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
         const insertOracleDB = new Promise(async (resolve) => {
           try {
             const decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
-            const topic = await fetchNameOptionsFromTopic(db, decentralOracle.topicAddress);
+            const topic = await DBHelper.findOne(db.Topics, { address: decentralOracle.topicAddress },
+              ['name', 'options']);
 
             decentralOracle.name = topic.name;
             decentralOracle.options = topic.options;
@@ -363,7 +346,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
             const vote = new Vote(blockNum, txid, rawLog).translate();
 
             // Add topicAddress to vote obj
-            const oracle = await fetchTopicAddressFromOracle(db, vote.oracleAddress);
+            const oracle = await DBHelper.findOne(db.Oracles, { address: vote.oracleAddress }, ['topicAddress']);
             if (oracle) {
               vote.topicAddress = oracle.topicAddress;
             }
@@ -558,44 +541,17 @@ function sendSyncInfo(syncBlockNum, syncBlockTime, syncPercent, addressBalances)
   });
 }
 
-// all central & decentral oracles with VOTING status and endTime less than currentBlockTime
-async function updateOraclesPassedEndTime(currentBlockTime, db) {
-  try {
-    await db.Oracles.update(
-      { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
-      { $set: { status: 'WAITRESULT' } },
-      { multi: true },
-    );
-    logger.debug('Updated Oracles Passed EndBlock');
-  } catch (err) {
-    logger.error(`updateOraclesPassedEndBlock ${err.message}`);
-  }
-}
-
-// central oracles with WAITRESULT status and resultSetEndTime less than currentBlockTime
-async function updateCentralizedOraclesPassedResultSetEndTime(currentBlockTime, db) {
-  try {
-    await db.Oracles.update(
-      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
-      { $set: { status: 'OPENRESULTSET' } }, { multi: true },
-    );
-    logger.debug('Updated COracles Passed ResultSetEndBlock');
-  } catch (err) {
-    logger.error(`updateCentralizedOraclesPassedResultSetEndBlock ${err.message}`);
-  }
-}
-
 async function updateOracleBalance(oracleAddress, topicSet, db) {
   // Find Oracle
   let oracle;
   try {
-    oracle = await db.Oracles.findOne({ address: oracleAddress });
+    oracle = await DBHelper.findOne(db.Oracles, { address: oracleAddress });
     if (!oracle) {
       logger.error(`find 0 oracle ${oracleAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`update oracle ${oracleAddress} in db, ${err.message}`);
+    logger.error(`updateOracleBalance: ${err.message}`);
     return;
   }
 
@@ -631,7 +587,6 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   // Update DB
   try {
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts } });
-    logger.debug(`Update Oracle balances ${oracleAddress}, amounts ${amounts}`);
   } catch (err) {
     logger.error(`Update Oracle balances ${oracleAddress}: ${err.message}`);
   }
@@ -641,13 +596,13 @@ async function updateTopicBalance(topicAddress, db) {
   // Find Topic
   let topic;
   try {
-    topic = await db.Topics.findOne({ address: topicAddress });
+    topic = await DBHelper.findOne(db.Topics, { address: topicAddress });
     if (!topic) {
       logger.error(`find 0 topic ${topicAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`find topic ${topicAddress} in db, ${err.message}`);
+    logger.error(`updateTopicBalance: ${err.message}`);
     return;
   }
 
@@ -680,9 +635,35 @@ async function updateTopicBalance(topicAddress, db) {
       { address: topicAddress },
       { $set: { qtumAmount: totalBets, botAmount: totalVotes } },
     );
-    logger.debug(`Update Topic balances ${topicAddress}, qtum: ${totalBets} bot: ${totalVotes}`);
   } catch (err) {
     logger.error(`Update Topic balances ${topicAddress}: ${err.message}`);
+  }
+}
+
+// all central & decentral oracles with VOTING status and endTime less than currentBlockTime
+async function updateOraclesPassedEndTime(currentBlockTime, db) {
+  try {
+    await db.Oracles.update(
+      { endTime: { $lt: currentBlockTime }, status: 'VOTING' },
+      { $set: { status: 'WAITRESULT' } },
+      { multi: true },
+    );
+    logger.debug('Updated Oracles Passed End Time');
+  } catch (err) {
+    logger.error(`updateOraclesPassedEndTime ${err.message}`);
+  }
+}
+
+// central oracles with WAITRESULT status and resultSetEndTime less than currentBlockTime
+async function updateCOraclesPassedResultSetEndTime(currentBlockTime, db) {
+  try {
+    await db.Oracles.update(
+      { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
+      { $set: { status: 'OPENRESULTSET' } }, { multi: true },
+    );
+    logger.debug('Updated COracles Passed Result Set End Time');
+  } catch (err) {
+    logger.error(`updateCOraclesPassedResultSetEndTime ${err.message}`);
   }
 }
 

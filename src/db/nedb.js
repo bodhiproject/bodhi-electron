@@ -1,4 +1,5 @@
 const datastore = require('nedb-promise');
+const _ = require('lodash');
 
 const Utils = require('../utils/utils');
 const logger = require('../utils/logger');
@@ -61,6 +62,27 @@ class DBHelper {
     } catch (err) {
       logger.error(`Error getting DB count. db:${db} err:${err.message}`);
     }
+  }
+
+  /*
+  * Returns the fields of the object in one of the tables searched by the query.
+  * @param db The DB table.
+  * @param query {Object} The query by items.
+  * @param fields {Array} The fields to return for the found item in an array.
+  */
+  static async findOne(db, query, fields) {
+    let fieldsObj;
+    if (!_.isEmpty(fields)) {
+      fieldsObj = {};
+      _.each(fields, (field) => fieldsObj[field] = 1);
+    }
+
+    const found = await db.findOne(query, fieldsObj);
+    if (!found) {
+      const { filename } = db.nedb;
+      throw Error(`Could not findOne ${filename.substr(filename.lastIndexOf('/') + 1)} by query ${JSON.stringify(query)}`);
+    }
+    return found;
   }
 
   static async insertTopic(db, topic) {
