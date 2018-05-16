@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const { app } = require('electron');
 
-const Utils = require('../utils/utils');
 const { getLogger } = require('../utils/logger');
 const locale = require('./locale.json');
 

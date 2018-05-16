@@ -153,6 +153,27 @@ function getBaseDataDir() {
 }
 
 /*
+* Returns the path where the blockchain version directory is.
+*/
+function getVersionDir() {
+  const basePath = getBaseDataDir();
+  const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
+  const regexGroups = regex.exec(version);
+  if (regexGroups === null) {
+    throw new Error(`Invalid version number: ${version}`);
+  }
+
+  // Example: 0.6.5-c0-d1
+  // c0 = contract version 0, d1 = db version 1
+  const versionDir = `${basePath}/${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
+
+  // Create data dir if needed
+  fs.ensureDirSync(versionDir);
+
+  return versionDir;
+}
+
+/*
 * Converts a hex number to decimal string.
 * @param input {String|Hex|BN} The hex number to convert.
 */
@@ -188,27 +209,6 @@ module.exports = {
   },
 
   /*
-  * Returns the path where the blockchain version directory is.
-  */
-  getVersionDir: () => {
-    const basePath = getBaseDataDir();
-    const regex = RegExp(/(\d+)\.(\d+)\.(\d+)-(c\d+)-(d\d+)/g);
-    const regexGroups = regex.exec(version);
-    if (regexGroups === null) {
-      throw new Error(`Invalid version number: ${version}`);
-    }
-
-    // Example: 0.6.5-c0-d1
-    // c0 = contract version 0, d1 = db version 1
-    const versionDir = `${basePath}/${regexGroups[4]}_${regexGroups[5]}`; // c0_d1
-
-    // Create data dir if needed
-    fs.ensureDirSync(versionDir);
-
-    return versionDir;
-  },
-
-  /*
   * Returns the path where the blockchain data directory is, and also creates the directory if it doesn't exist.
   */
   getDataDir: () => {
@@ -235,7 +235,6 @@ module.exports = {
 
     return logDir;
   },
-
 
   /*
   * Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
