@@ -129,8 +129,6 @@ function showSelectEnvDialog() {
   }, async (response) => {
     switch (response) {
       case 0: {
-        getLogger().info('Choose Mainnet');
-
         if (testnetOnly) { // Testnet only
           dialog.showMessageBox({
             type: 'info',
@@ -141,6 +139,7 @@ function showSelectEnvDialog() {
           showSelectEnvDialog();
         } else { // Mainnet/Testnet allowed
           setQtumEnv(blockchainEnv.MAINNET);
+          getLogger().info('Env: Mainnet');
           await initDB();
           startServer();
           initUI();
@@ -150,9 +149,8 @@ function showSelectEnvDialog() {
         break;
       }
       case 1: {
-        getLogger().info('Choose Testnet');
-
         setQtumEnv(blockchainEnv.TESTNET);
+        getLogger().info('Env: Testnet');
         await initDB();
         startServer();
         initUI();

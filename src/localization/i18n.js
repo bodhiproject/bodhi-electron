@@ -17,7 +17,6 @@ class i18n {
       }
     }
 
-    getLogger().info(`Language: ${lang}`);
     this.lang = lang;
   }
 

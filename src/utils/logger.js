@@ -5,7 +5,6 @@ const winston = require('winston');
 const Papertrail = require('winston-papertrail').Papertrail;
 const _ = require('lodash');
 
-const { isDevEnv } = require('./utils');
 const { Config } = require('../config/config');
 
 let logger;
@@ -39,7 +38,7 @@ function initLogger() {
     ];
 
     // add Papertrail remote logging if prod env
-    if (!isDevEnv()) {
+    if (!require('./utils').isDevEnv()) {
       transports.push(new Papertrail({
         host: 'logs5.papertrailapp.com',
         port: 46145,
