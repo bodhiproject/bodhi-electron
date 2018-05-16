@@ -7,7 +7,7 @@ const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
 const { Emitter } = require('./src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
-const logger = require('./src/utils/logger');
+const { getLogger } = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
 const Tracking = require('./src/analytics/tracking');
 const Utils = require('./src/utils/utils');
@@ -47,7 +47,7 @@ function createWindow() {
   });
 
   uiWin.on('closed', () => {
-    logger.debug('uiWin closed');
+    getLogger().debug('uiWin closed');
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -129,7 +129,7 @@ function showSelectEnvDialog() {
   }, async (response) => {
     switch (response) {
       case 0: {
-        logger.info('Choose Mainnet');
+        getLogger().info('Choose Mainnet');
 
         if (testnetOnly) { // Testnet only
           dialog.showMessageBox({
@@ -150,7 +150,7 @@ function showSelectEnvDialog() {
         break;
       }
       case 1: {
-        logger.info('Choose Testnet');
+        getLogger().info('Choose Testnet');
 
         setQtumEnv(blockchainEnv.TESTNET);
         await initDB();
@@ -216,15 +216,15 @@ function showWalletUnlockPrompt() {
       await Wallet.walletPassphrase({ passphrase: res, timeout: Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
       if (info.unlocked_until > 0) {
-        logger.info('Wallet unlocked');
+        getLogger().info('Wallet unlocked');
         server.startServices();
       } else {
-        logger.error('Wallet unlock failed');
+        getLogger().error('Wallet unlock failed');
         throw new Error(i18n.get('walletUnlockFailed'));
       }
     }
   }).catch((err) => {
-    logger.error(err.message);
+    getLogger().error(err.message);
     showWalletErrorDialog(err.message);
   });
 }
@@ -259,16 +259,16 @@ function killServer() {
   const proc = server.getQtumProcess();
   if (proc) {
     try {
-      logger.debug('Killing process', proc.pid);
+      getLogger().debug('Killing process', proc.pid);
       proc.kill();
     } catch (err) {
-      logger.error(`Error killing process ${proc.pid}:`, err);
+      getLogger().error(`Error killing process ${proc.pid}:`, err);
     }
   }
 }
 
 function exit(signal) {
-  logger.info(`Received ${signal}, exiting`);
+  getLogger().info(`Received ${signal}, exiting`);
   killServer();
   app.quit();
 }
@@ -283,7 +283,7 @@ app.on('ready', () => {
 
 // Emitted when the application is activated.
 app.on('activate', () => {
-  logger.debug('activate');
+  getLogger().debug('activate');
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (uiWin === null) {
@@ -293,12 +293,12 @@ app.on('activate', () => {
 
 // Emitted when all windows have been closed.
 app.on('window-all-closed', () => {
-  logger.debug('window-all-closed');
+  getLogger().debug('window-all-closed');
 });
 
 // Emitted before the application starts closing its windows.
 app.on('before-quit', () => {
-  logger.debug('before-quit');
+  getLogger().debug('before-quit');
   killServer();
 });
 
