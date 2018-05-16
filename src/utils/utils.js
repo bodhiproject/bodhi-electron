@@ -6,7 +6,7 @@ const Web3Utils = require('web3-utils');
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
 const { execFile } = require('../constants');
-const { getLogger } = require('./src/utils/logger');
+const { getLogger } = require('./logger');
 
 const DIR_DEV = 'dev';
 
