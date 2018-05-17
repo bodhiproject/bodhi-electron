@@ -1,6 +1,3 @@
-// import { red, yellow, magenta, green } from 'chalk'; // eslint-disable-line import/no-extraneous-dependencies
-const chalk = require('chalk'); // eslint-disable-line
-const red = (...a) => console.log(chalk.red(...a))
 const _ = require('lodash');
 const Web3Utils = require('web3-utils');
 const moment = require('moment');
