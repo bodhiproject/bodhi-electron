@@ -111,9 +111,10 @@ const Transaction = {
       }
       case 'APPROVEVOTE':
       case 'VOTE': {
+        const gasLimit = await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount);
         costsArr.push({
           type: 'vote',
-          gasLimit: await Utils.getVotingGasLimit(db.Oracles, oracleAddress, optionIdx, amount),
+          gasLimit,
           gasCost: formatGasCost(gasLimit * Config.DEFAULT_GAS_PRICE),
           token,
           amount,
