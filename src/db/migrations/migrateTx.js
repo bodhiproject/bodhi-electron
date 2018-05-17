@@ -4,19 +4,19 @@ const path = require('path');
 const datastore = require('nedb-promise');
 
 const Utils = require('../../utils/utils');
-const logger = require('../../utils/logger');
+const { getLogger } = require('../../utils/logger');
 
 async function appendDB(origin, dest) {
   if (fs.existsSync(origin)) {
-    logger.info(`To append ${origin} to ${dest}`);
+    getLogger().info(`To append ${origin} to ${dest}`);
     try {
       const fileContent = fs.readFileSync(origin);
       fs.appendFileSync(dest, fileContent);
-      logger.info(`Success append ${origin} to ${dest}`);
+      getLogger().info(`Success append ${origin} to ${dest}`);
       await fs.rename(origin, `${origin}.old`);
-      logger.info(`Rename ${origin} to ${origin}.old`);
+      getLogger().info(`Rename ${origin} to ${origin}.old`);
     } catch (err) {
-      logger.error(`DB migration error: ${err.message}`);
+      getLogger().error(`DB migration error: ${err.message}`);
       throw err;
     }
   }

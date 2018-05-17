@@ -11,7 +11,7 @@ const fetch = require('node-fetch');
 const portscanner = require('portscanner');
 
 const { Config, isMainnet, getRPCPassword } = require('./config/config');
-const logger = require('./utils/logger');
+const { getLogger } = require('./utils/logger');
 const Utils = require('./utils/utils');
 const schema = require('./schema');
 const syncRouter = require('./route/sync');
@@ -43,9 +43,9 @@ function startRestifyServer() {
   server.use(restify.plugins.queryParser());
   server.on('after', (req, res, route, err) => {
     if (route) {
-      logger.debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+      getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
     } else {
-      logger.error(`${err.message}`);
+      getLogger().error(`${err.message}`);
     }
   });
 }
@@ -70,17 +70,17 @@ function startQtumProcess(reindex) {
   }
 
   const qtumdPath = Utils.getQtumPath(execFile.QTUMD);
-  logger.debug(`qtumd dir: ${qtumdPath}`);
+  getLogger().debug(`qtumd dir: ${qtumdPath}`);
 
   qtumProcess = spawn(qtumdPath, flags);
-  logger.debug(`qtumd started on PID ${qtumProcess.pid}`);
+  getLogger().debug(`qtumd started on PID ${qtumProcess.pid}`);
 
   qtumProcess.stdout.on('data', (data) => {
-    logger.debug(`qtumd output: ${data}`);
+    getLogger().debug(`qtumd output: ${data}`);
   });
 
   qtumProcess.stderr.on('data', (data) => {
-    logger.error(`qtumd failed with error: ${data}`);
+    getLogger().error(`qtumd failed with error: ${data}`);
 
     if (data.includes('You need to rebuild the database using -reindex-chainstate to enable -logevents.')) {
       // Clean old process first
@@ -103,7 +103,7 @@ function startQtumProcess(reindex) {
   });
 
   qtumProcess.on('close', (code) => {
-    logger.debug(`qtumd exited with code ${code}`);
+    getLogger().debug(`qtumd exited with code ${code}`);
   });
 
   // repeatedly check if qtumd is running
@@ -125,7 +125,7 @@ async function startAPI() {
       { execute, subscribe, schema },
       { server, path: '/subscriptions' },
     );
-    logger.info(`Bodhi App is running on http://${Config.HOSTNAME}:${Config.PORT}.`);
+    getLogger().info(`Bodhi App is running on http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
 }
 
@@ -163,7 +163,7 @@ async function checkApiInit() {
       setTimeout(() => emitter.emit(ipcEvent.SERVICES_RUNNING), 1000);
     }
   } catch (err) {
-    logger.debug(err.message);
+    getLogger().debug(err.message);
   }
 }
 
@@ -177,7 +177,7 @@ async function checkQtumdInit() {
     clearInterval(checkInterval);
     checkWalletEncryption();
   } catch (err) {
-    logger.debug(err.message);
+    getLogger().debug(err.message);
   }
 }
 
@@ -193,7 +193,7 @@ function checkQtumPort() {
         emitter.emit(ipcEvent.QTUMD_KILLED);
       }, 1500);
     } else {
-      logger.debug('waiting for qtumd to shutting down');
+      getLogger().debug('waiting for qtumd to shutting down');
     }
   });
 }
@@ -206,7 +206,7 @@ function terminateDaemon() {
 }
 
 function exit(signal) {
-  logger.info(`Received ${signal}, exiting`);
+  getLogger().info(`Received ${signal}, exiting`);
 
   // add delay to give some time to write to log file
   setTimeout(() => {

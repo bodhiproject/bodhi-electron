@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 
-const logger = require('../utils/logger');
+const { getLogger } = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
@@ -19,7 +19,7 @@ async function updatePendingTxs(db, currentBlockCount) {
     pendingTxs = await db.Transactions.cfind({ status: txState.PENDING })
       .sort({ createdTime: -1 }).exec();
   } catch (err) {
-    logger.error(`Error: get pending Transactions: ${err.message}`);
+    getLogger().error(`Error: get pending Transactions: ${err.message}`);
     throw err;
   }
 
@@ -72,7 +72,7 @@ async function updateTx(tx, currentBlockCount) {
 async function updateDB(tx, db) {
   if (tx.status !== txState.PENDING) {
     try {
-      logger.debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx.txid}`);
+      getLogger().debug(`Update: ${tx.status} Transaction ${tx.type} txid:${tx.txid}`);
       const updateRes = await db.Transactions.update(
         { txid: tx.txid },
         {
@@ -105,7 +105,7 @@ async function updateDB(tx, db) {
         }
       }
     } catch (err) {
-      logger.error(`Error: Update Transaction ${tx.type} txid:${tx.txid}: ${err.message}`);
+      getLogger().error(`Error: Update Transaction ${tx.type} txid:${tx.txid}: ${err.message}`);
       throw err;
     }
   }
@@ -131,7 +131,7 @@ async function onSuccessfulTx(tx, db) {
           senderAddress: tx.senderAddress,
         });
       } catch (err) {
-        logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+        getLogger().error(`Error calling EventFactory.createTopic: ${err.message}`);
         throw err;
       }
 
@@ -172,7 +172,7 @@ async function onSuccessfulTx(tx, db) {
           senderAddress: tx.senderAddress,
         });
       } catch (err) {
-        logger.error(`Error calling CentralizedOracle.setResult: ${err.message}`);
+        getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
         throw err;
       }
 
@@ -208,7 +208,7 @@ async function onSuccessfulTx(tx, db) {
           gasLimit,
         });
       } catch (err) {
-        logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
+        getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
         throw err;
       }
 
@@ -275,7 +275,7 @@ async function resetApproveAmount(db, tx, spender) {
       senderAddress: tx.senderAddress,
     });
   } catch (err) {
-    logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+    getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
     throw err;
   }
 

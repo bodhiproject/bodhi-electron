@@ -2,7 +2,7 @@ const datastore = require('nedb-promise');
 const _ = require('lodash');
 
 const Utils = require('../utils/utils');
-const logger = require('../utils/logger');
+const { getLogger } = require('../utils/logger');
 const migrateTxDB = require('./migrations/migrateTx');
 
 const db = {
@@ -23,8 +23,8 @@ async function initDB() {
 
   const blockchainDataPath = Utils.getDataDir();
   const localCacheDataPath = Utils.getLocalCacheDataDir();
-  logger.info(`Blockchain data path: ${blockchainDataPath}`);
-  logger.info(`Local cache data path: ${localCacheDataPath}`);
+  getLogger().info(`Blockchain data path: ${blockchainDataPath}`);
+  getLogger().info(`Local cache data path: ${localCacheDataPath}`);
 
   db.Topics = datastore({ filename: `${blockchainDataPath}/topics.db` });
   db.Oracles = datastore({ filename: `${blockchainDataPath}/oracles.db` });
@@ -60,7 +60,7 @@ class DBHelper {
     try {
       return await db.count(query);
     } catch (err) {
-      logger.error(`Error getting DB count. db:${db} err:${err.message}`);
+      getLogger().error(`Error getting DB count. db:${db} err:${err.message}`);
     }
   }
 
@@ -89,7 +89,7 @@ class DBHelper {
     try {
       await db.insert(topic);
     } catch (err) {
-      logger.error(`Error insert Topic ${topic}: ${err.message}`);
+      getLogger().error(`Error insert Topic ${topic}: ${err.message}`);
     }
   }
 
@@ -97,7 +97,7 @@ class DBHelper {
     try {
       await db.update(query, { $set: update }, {});
     } catch (err) {
-      logger.error(`Error update ${update} object by query:${query}: ${err.message}`);
+      getLogger().error(`Error update ${update} object by query:${query}: ${err.message}`);
     }
   }
 
@@ -123,16 +123,16 @@ class DBHelper {
         {},
       );
     } catch (err) {
-      logger.error(`Error update Topic by query:${query}: ${err.message}`);
+      getLogger().error(`Error update Topic by query:${query}: ${err.message}`);
     }
   }
 
   static async removeTopicsByQuery(topicDb, query) {
     try {
       const numRemoved = await topicDb.remove(query, { multi: true });
-      logger.debug(`Remove: ${numRemoved} Topic query:${query}`);
+      getLogger().debug(`Remove: ${numRemoved} Topic query:${query}`);
     } catch (err) {
-      logger.error(`Remove Topics by query:${query}: ${err.message}`);
+      getLogger().error(`Remove Topics by query:${query}: ${err.message}`);
     }
   }
 
@@ -140,7 +140,7 @@ class DBHelper {
     try {
       await db.insert(oracle);
     } catch (err) {
-      logger.error(`Error insert COracle:${oracle}: ${err.message}`);
+      getLogger().error(`Error insert COracle:${oracle}: ${err.message}`);
     }
   }
 
@@ -174,25 +174,25 @@ class DBHelper {
         {},
       );
     } catch (err) {
-      logger.error(`Error update Oracle by query:${query}: ${err.message}`);
+      getLogger().error(`Error update Oracle by query:${query}: ${err.message}`);
     }
   }
 
   static async removeOraclesByQuery(oracleDb, query) {
     try {
       const numRemoved = await oracleDb.remove(query, { multi: true });
-      logger.debug(`Remove: ${numRemoved} Oracle by query:${query}`);
+      getLogger().debug(`Remove: ${numRemoved} Oracle by query:${query}`);
     } catch (err) {
-      logger.error(`Remove Oracles by query:${query}: ${err.message}`);
+      getLogger().error(`Remove Oracles by query:${query}: ${err.message}`);
     }
   }
 
   static async insertTransaction(db, tx) {
     try {
-      logger.debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
+      getLogger().debug(`Mutation Insert: Transaction ${tx.type} txid:${tx.txid}`);
       await db.insert(tx);
     } catch (err) {
-      logger.error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
+      getLogger().error(`Error inserting Transaction ${tx.type} ${tx.txid}: ${err.message}`);
       throw err;
     }
   }
@@ -205,7 +205,7 @@ class DBHelper {
         senderAddress,
       });
     } catch (err) {
-      logger.error(`Checking CreateEvent pending: ${err.message}`);
+      getLogger().error(`Checking CreateEvent pending: ${err.message}`);
       throw err;
     }
   }

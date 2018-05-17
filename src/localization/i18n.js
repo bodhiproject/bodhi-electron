@@ -1,8 +1,7 @@
 const _ = require('lodash');
 const { app } = require('electron');
 
-const Utils = require('../utils/utils');
-const logger = require('../utils/logger');
+const { getLogger } = require('../utils/logger');
 const locale = require('./locale.json');
 
 class i18n {
@@ -18,7 +17,6 @@ class i18n {
       }
     }
 
-    logger.info(`Language: ${lang}`);
     this.lang = lang;
   }
 

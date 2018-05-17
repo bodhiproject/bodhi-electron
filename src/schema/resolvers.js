@@ -3,7 +3,7 @@ const Web3Utils = require('web3-utils');
 const moment = require('moment');
 
 const pubsub = require('../pubsub');
-const logger = require('../utils/logger');
+const { getLogger } = require('../utils/logger');
 const blockchain = require('../api/blockchain');
 const wallet = require('../api/wallet');
 const bodhiToken = require('../api/bodhi_token');
@@ -241,7 +241,7 @@ module.exports = {
       try {
         blocks = await Blocks.cfind({}).sort({ blockNum: -1 }).limit(1).exec();
       } catch (err) {
-        logger.error(`Error query latest block from db: ${err.message}`);
+        getLogger().error(`Error query latest block from db: ${err.message}`);
       }
 
       let syncBlockNum;
@@ -289,7 +289,7 @@ module.exports = {
 
       // Check for existing CreateEvent transactions
       if (await DBHelper.isPreviousCreateEventPending(Transactions, senderAddress)) {
-        logger.error('Pending CreateEvent transaction found.');
+        getLogger().error('Pending CreateEvent transaction found.');
         throw new Error('Pending CreateEvent transaction found');
       }
 
@@ -311,7 +311,7 @@ module.exports = {
             senderAddress,
           });
         } catch (err) {
-          logger.error(`Error calling EventFactory.createTopic: ${err.message}`);
+          getLogger().error(`Error calling EventFactory.createTopic: ${err.message}`);
           throw err;
         }
       } else {
@@ -324,7 +324,7 @@ module.exports = {
             senderAddress,
           });
         } catch (err) {
-          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
         }
       }
@@ -365,7 +365,7 @@ module.exports = {
         botAmount: _.fill(Array(options), '0'),
         creatorAddress: senderAddress,
       };
-      logger.debug(`Mutation Insert: Topic txid:${topic.txid}`);
+      getLogger().debug(`Mutation Insert: Topic txid:${topic.txid}`);
       await DBHelper.insertTopic(Topics, topic);
 
       // Insert Oracle
@@ -384,7 +384,7 @@ module.exports = {
         resultSetStartTime: resultSettingStartTime,
         resultSetEndTime: resultSettingEndTime,
       };
-      logger.debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
+      getLogger().debug(`Mutation Insert: Oracle txid:${oracle.txid}`);
       await DBHelper.insertOracle(Oracles, oracle);
 
       return tx;
@@ -410,7 +410,7 @@ module.exports = {
           senderAddress,
         });
       } catch (err) {
-        logger.error(`Error calling CentralizedOracle.bet: ${err.message}`);
+        getLogger().error(`Error calling CentralizedOracle.bet: ${err.message}`);
         throw err;
       }
 
@@ -458,7 +458,7 @@ module.exports = {
             senderAddress,
           });
         } catch (err) {
-          logger.error(`Error calling CentralizedOracle.setResult: ${err.message}`);
+          getLogger().error(`Error calling CentralizedOracle.setResult: ${err.message}`);
           throw err;
         }
       } else {
@@ -471,7 +471,7 @@ module.exports = {
             senderAddress,
           });
         } catch (err) {
-          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
         }
       }
@@ -525,7 +525,7 @@ module.exports = {
             gasLimit,
           });
         } catch (err) {
-          logger.error(`Error calling DecentralizedOracle.vote: ${err.message}`);
+          getLogger().error(`Error calling DecentralizedOracle.vote: ${err.message}`);
           throw err;
         }
       } else {
@@ -538,7 +538,7 @@ module.exports = {
             senderAddress,
           });
         } catch (err) {
-          logger.error(`Error calling BodhiToken.approve: ${err.message}`);
+          getLogger().error(`Error calling BodhiToken.approve: ${err.message}`);
           throw err;
         }
       }
@@ -576,7 +576,7 @@ module.exports = {
       const oracle = await Oracles.findOne({ address: oracleAddress }, { options: 1, optionIdxs: 1 });
       let winningIndex;
       if (!oracle) {
-        logger.error(`Could not find Oracle ${address} in DB.`);
+        getLogger().error(`Could not find Oracle ${address} in DB.`);
         throw new Error(`Could not find Oracle ${address} in DB.`);
       } else {
         // Compare optionIdxs to options since optionIdxs will be missing the index of the last round's result
@@ -596,7 +596,7 @@ module.exports = {
           senderAddress,
         });
       } catch (err) {
-        logger.error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
+        getLogger().error(`Error calling DecentralizedOracle.finalizeResult: ${err.message}`);
         throw err;
       }
 
@@ -637,7 +637,7 @@ module.exports = {
               senderAddress,
             });
           } catch (err) {
-            logger.error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
+            getLogger().error(`Error calling TopicEvent.withdrawWinnings: ${err.message}`);
             throw err;
           }
           break;
@@ -650,7 +650,7 @@ module.exports = {
               senderAddress,
             });
           } catch (err) {
-            logger.error(`Error calling TopicEvent.withdrawEscrow: ${err.message}`);
+            getLogger().error(`Error calling TopicEvent.withdrawEscrow: ${err.message}`);
             throw err;
           }
           break;
@@ -700,7 +700,7 @@ module.exports = {
               changeToAddress: true,
             });
           } catch (err) {
-            logger.error(`Error calling Wallet.sendToAddress: ${err.message}`);
+            getLogger().error(`Error calling Wallet.sendToAddress: ${err.message}`);
             throw err;
           }
           break;
@@ -715,7 +715,7 @@ module.exports = {
             });
             txid = sentTx.txid;
           } catch (err) {
-            logger.error(`Error calling BodhiToken.transfer: ${err.message}`);
+            getLogger().error(`Error calling BodhiToken.transfer: ${err.message}`);
             throw err;
           }
           break;

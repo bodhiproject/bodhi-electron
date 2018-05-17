@@ -6,6 +6,7 @@ const Web3Utils = require('web3-utils');
 const { Config, isMainnet } = require('../config/config');
 const { version } = require('../../package.json');
 const { execFile } = require('../constants');
+const { getLogger } = require('./logger');
 
 const DIR_DEV = 'dev';
 
@@ -236,7 +237,6 @@ module.exports = {
     return logDir;
   },
 
-
   /*
   * Returns the path where the local cache data (Transaction table) directory is, and also creates the directory if it doesn't exist.
   * The Local cache should exist regardless of version change, for now
@@ -269,7 +269,7 @@ module.exports = {
       const amountBN = Web3Utils.toBN(amount);
       return allowance.gte(amountBN);
     } catch (err) {
-      logger.error(`Error checking allowance: ${err.message}`);
+      getLogger().error(`Error checking allowance: ${err.message}`);
       throw err;
     }
   },
@@ -278,7 +278,7 @@ module.exports = {
   getVotingGasLimit: async (oraclesDb, oracleAddress, voteOptionIdx, voteAmount) => {
     const oracle = await oraclesDb.findOne({ address: oracleAddress }, { consensusThreshold: 1, amounts: 1 });
     if (!oracle) {
-      logger.error(`Could not find Oracle ${oracleAddress} in DB.`);
+      getLogger().error(`Could not find Oracle ${oracleAddress} in DB.`);
       throw new Error(`Could not find Oracle ${oracleAddress} in DB.`);
     }
 

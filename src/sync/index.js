@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const { Qweb3 } = require('qweb3');
 const pubsub = require('../pubsub');
-const logger = require('../utils/logger');
+const { getLogger } = require('../utils/logger');
 const moment = require('moment');
 const BigNumber = require('bignumber.js');
 const { getContractMetadata, isMainnet } = require('../config/config');
@@ -97,35 +97,35 @@ async function sync(db) {
     numOfIterations,
     async (loop) => {
       await updateTxDB(db, currentBlockCount);
-      logger.debug('Tx DB Updated');
+      getLogger().debug('Tx DB Updated');
 
       const endBlock = Math.min((startBlock + BLOCK_BATCH_SIZE) - 1, currentBlockCount);
 
       await syncTopicCreated(db, startBlock, endBlock, removeHexPrefix);
-      logger.debug('Synced Topics');
+      getLogger().debug('Synced Topics');
 
       await Promise.all([
         syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
         syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime)
       ]);
-      logger.debug('Synced Oracles');
+      getLogger().debug('Synced Oracles');
 
       await Promise.all([
         syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
         syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, oraclesNeedBalanceUpdate),
         syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, topicsNeedBalanceUpdate),
       ]);
-      logger.debug('Synced Result Set');
+      getLogger().debug('Synced Result Set');
 
       const { insertBlockPromises, endBlockTime } = await getInsertBlockPromises(db, startBlock, endBlock);
       await Promise.all(insertBlockPromises);
-      logger.debug('Inserted Blocks');
+      getLogger().debug('Inserted Blocks');
 
       startBlock = endBlock + 1;
       loop.next();
     },
     async () => {
-      logger.debug('Updating Topic and Oracle balances');
+      getLogger().debug('Updating Topic and Oracle balances');
       const oracleAddressBatches = _.chunk(Array.from(oraclesNeedBalanceUpdate), RPC_BATCH_SIZE);
       // execute rpc batch by batch
       sequentialLoop(oracleAddressBatches.length, async (loop) => {
@@ -145,7 +145,7 @@ async function sync(db) {
             }));
             topicLoop.next();
           }, () => {
-            logger.debug('Updated Topic and Oracle balances');
+            getLogger().debug('Updated Topic and Oracle balances');
             loop.next();
           });
         } else {
@@ -153,7 +153,7 @@ async function sync(db) {
           loop.next();
         }
       }, async () => {
-        logger.debug('Updating Oracles Passed End Times');
+        getLogger().debug('Updating Oracles Passed End Times');
         await updateOraclesPassedEndTime(currentBlockTime, db);
         // must ensure updateCentralizedOraclesPassedResultSetEndBlock after updateOraclesPassedEndBlock
         await updateCOraclesPassedResultSetEndTime(currentBlockTime, db);
@@ -169,7 +169,7 @@ async function sync(db) {
 
         // nedb doesnt require close db, leave the comment as a reminder
         // await db.Connection.close();
-        logger.debug('sleep');
+        getLogger().debug('sleep');
         setTimeout(startSync, 5000);
       });
     },
@@ -183,13 +183,13 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
       startBlock, endBlock, contractMetadata.EventFactory.address,
       [contractMetadata.EventFactory.TopicCreated], contractMetadata, removeHexPrefix,
     );
-    logger.debug('searchlog TopicCreated');
+    getLogger().debug('searchlog TopicCreated');
   } catch (err) {
-    logger.error(`ERROR: ${err.message}`);
+    getLogger().error(`ERROR: ${err.message}`);
     return;
   }
 
-  logger.debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
+  getLogger().debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from TopicCreated`);
   const createTopicPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -210,7 +210,7 @@ async function syncTopicCreated(db, startBlock, endBlock, removeHexPrefix) {
 
             resolve();
           } catch (err) {
-            logger.error(`ERROR: ${err.message}`);
+            getLogger().error(`ERROR: ${err.message}`);
             resolve();
           }
         });
@@ -230,13 +230,13 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
       startBlock, endBlock, contractMetadata.EventFactory.address,
       [contractMetadata.OracleFactory.CentralizedOracleCreated], contractMetadata, removeHexPrefix,
     );
-    logger.debug('searchlog CentralizedOracleCreated');
+    getLogger().debug('searchlog CentralizedOracleCreated');
   } catch (err) {
-    logger.error(`${err.message}`);
+    getLogger().error(`${err.message}`);
     return;
   }
 
-  logger.debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreated`);
+  getLogger().debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from CentralizedOracleCreated`);
   const createCentralizedOraclePromises = [];
 
   _.forEach(result, (event, index) => {
@@ -261,7 +261,7 @@ async function syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexP
 
             resolve();
           } catch (err) {
-            logger.error(`${err.message}`);
+            getLogger().error(`${err.message}`);
             resolve();
           }
         });
@@ -281,13 +281,13 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
       startBlock, endBlock, [], contractMetadata.OracleFactory.DecentralizedOracleCreated,
       contractMetadata, removeHexPrefix,
     );
-    logger.debug('searchlog DecentralizedOracleCreated');
+    getLogger().debug('searchlog DecentralizedOracleCreated');
   } catch (err) {
-    logger.error(`${err.message}`);
+    getLogger().error(`${err.message}`);
     return;
   }
 
-  logger.debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreated`);
+  getLogger().debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from DecentralizedOracleCreated`);
   const createDecentralizedOraclePromises = [];
 
   _.forEach(result, (event, index) => {
@@ -308,7 +308,7 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
             await db.Oracles.insert(decentralOracle);
             resolve();
           } catch (err) {
-            logger.error(`${err.message}`);
+            getLogger().error(`${err.message}`);
             resolve();
           }
         });
@@ -327,13 +327,13 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
       startBlock, endBlock, [], contractMetadata.CentralizedOracle.OracleResultVoted,
       contractMetadata, removeHexPrefix,
     );
-    logger.debug('searchlog OracleResultVoted');
+    getLogger().debug('searchlog OracleResultVoted');
   } catch (err) {
-    logger.error(`${err.message}`);
+    getLogger().error(`${err.message}`);
     return;
   }
 
-  logger.debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
+  getLogger().debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultVoted`);
   const createOracleResultVotedPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -356,7 +356,7 @@ async function syncOracleResultVoted(db, startBlock, endBlock, removeHexPrefix, 
             oraclesNeedBalanceUpdate.add(vote.oracleAddress);
             resolve();
           } catch (err) {
-            logger.error(`${err.message}`);
+            getLogger().error(`${err.message}`);
             resolve();
           }
         });
@@ -376,13 +376,13 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
       startBlock, endBlock, [], contractMetadata.CentralizedOracle.OracleResultSet, contractMetadata,
       removeHexPrefix,
     );
-    logger.debug('searchlog OracleResultSet');
+    getLogger().debug('searchlog OracleResultSet');
   } catch (err) {
-    logger.error(`${err.message}`);
+    getLogger().error(`${err.message}`);
     return;
   }
 
-  logger.debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
+  getLogger().debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from OracleResultSet`);
   const updateOracleResultSetPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -401,7 +401,7 @@ async function syncOracleResultSet(db, startBlock, endBlock, removeHexPrefix, or
             oraclesNeedBalanceUpdate.add(oracleResult.oracleAddress);
             resolve();
           } catch (err) {
-            logger.error(`${err.message}`);
+            getLogger().error(`${err.message}`);
             resolve();
           }
         });
@@ -421,13 +421,13 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
       startBlock, endBlock, [], contractMetadata.TopicEvent.FinalResultSet, contractMetadata,
       removeHexPrefix,
     );
-    logger.debug('searchlog FinalResultSet');
+    getLogger().debug('searchlog FinalResultSet');
   } catch (err) {
-    logger.error(`${err.message}`);
+    getLogger().error(`${err.message}`);
     return;
   }
 
-  logger.debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
+  getLogger().debug(`${startBlock} - ${endBlock}: Retrieved ${result.length} entries from FinalResultSet`);
   const updateFinalResultSetPromises = [];
 
   _.forEach(result, (event, index) => {
@@ -452,7 +452,7 @@ async function syncFinalResultSet(db, startBlock, endBlock, removeHexPrefix, top
 
             resolve();
           } catch (err) {
-            logger.error(`${err.message}`);
+            getLogger().error(`${err.message}`);
             resolve();
           }
         });
@@ -476,7 +476,7 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
       blockHash = await getInstance().getBlockHash(i);
       blockTime = (await getInstance().getBlock(blockHash)).time;
     } catch (err) {
-      logger.error(err);
+      getLogger().error(err);
     }
 
     insertBlockPromises.push(new Promise(async (resolve) => {
@@ -487,7 +487,7 @@ async function getInsertBlockPromises(db, startBlock, endBlock) {
           blockTime,
         });
       } catch (err) {
-        logger.error(err);
+        getLogger().error(err);
       }
       resolve();
     }));
@@ -506,7 +506,7 @@ async function peerHighestSyncedHeader() {
       }
     });
   } catch (err) {
-    logger.error(`Error calling getPeerInfo: ${err.message}`);
+    getLogger().error(`Error calling getPeerInfo: ${err.message}`);
     return null;
   }
 
@@ -547,11 +547,11 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   try {
     oracle = await DBHelper.findOne(db.Oracles, { address: oracleAddress });
     if (!oracle) {
-      logger.error(`find 0 oracle ${oracleAddress} in db to update`);
+      getLogger().error(`find 0 oracle ${oracleAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`updateOracleBalance: ${err.message}`);
+    getLogger().error(`updateOracleBalance: ${err.message}`);
     return;
   }
 
@@ -569,7 +569,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
       });
       amounts = res[0];
     } catch (err) {
-      logger.error(`Oracle.getTotalBets: ${err.message}`);
+      getLogger().error(`Oracle.getTotalBets: ${err.message}`);
     }
   } else {
     // DecentralizedOracle
@@ -580,7 +580,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
       });
       amounts = res[0];
     } catch (err) {
-      logger.error(`Oracle.getTotalVotes: ${err.message}`);
+      getLogger().error(`Oracle.getTotalVotes: ${err.message}`);
     }
   }
 
@@ -588,7 +588,7 @@ async function updateOracleBalance(oracleAddress, topicSet, db) {
   try {
     await db.Oracles.update({ address: oracleAddress }, { $set: { amounts } });
   } catch (err) {
-    logger.error(`Update Oracle balances ${oracleAddress}: ${err.message}`);
+    getLogger().error(`Update Oracle balances ${oracleAddress}: ${err.message}`);
   }
 }
 
@@ -598,11 +598,11 @@ async function updateTopicBalance(topicAddress, db) {
   try {
     topic = await DBHelper.findOne(db.Topics, { address: topicAddress });
     if (!topic) {
-      logger.error(`find 0 topic ${topicAddress} in db to update`);
+      getLogger().error(`find 0 topic ${topicAddress} in db to update`);
       return;
     }
   } catch (err) {
-    logger.error(`updateTopicBalance: ${err.message}`);
+    getLogger().error(`updateTopicBalance: ${err.message}`);
     return;
   }
 
@@ -615,7 +615,7 @@ async function updateTopicBalance(topicAddress, db) {
     });
     totalBets = res[0];
   } catch (err) {
-    logger.error(`Topic.getTotalBets: ${err.message}`);
+    getLogger().error(`Topic.getTotalBets: ${err.message}`);
   }
 
   let totalVotes;
@@ -626,7 +626,7 @@ async function updateTopicBalance(topicAddress, db) {
     });
     totalVotes = res[0];
   } catch (err) {
-    logger.error(`Topic.getTotalVotes: ${err.message}`);
+    getLogger().error(`Topic.getTotalVotes: ${err.message}`);
   }
 
   // Update DB
@@ -636,7 +636,7 @@ async function updateTopicBalance(topicAddress, db) {
       { $set: { qtumAmount: totalBets, botAmount: totalVotes } },
     );
   } catch (err) {
-    logger.error(`Update Topic balances ${topicAddress}: ${err.message}`);
+    getLogger().error(`Update Topic balances ${topicAddress}: ${err.message}`);
   }
 }
 
@@ -648,9 +648,9 @@ async function updateOraclesPassedEndTime(currentBlockTime, db) {
       { $set: { status: 'WAITRESULT' } },
       { multi: true },
     );
-    logger.debug('Updated Oracles Passed End Time');
+    getLogger().debug('Updated Oracles Passed End Time');
   } catch (err) {
-    logger.error(`updateOraclesPassedEndTime ${err.message}`);
+    getLogger().error(`updateOraclesPassedEndTime ${err.message}`);
   }
 }
 
@@ -661,9 +661,9 @@ async function updateCOraclesPassedResultSetEndTime(currentBlockTime, db) {
       { resultSetEndTime: { $lt: currentBlockTime }, token: 'QTUM', status: 'WAITRESULT' },
       { $set: { status: 'OPENRESULTSET' } }, { multi: true },
     );
-    logger.debug('Updated COracles Passed Result Set End Time');
+    getLogger().debug('Updated COracles Passed Result Set End Time');
   } catch (err) {
-    logger.error(`updateCOraclesPassedResultSetEndTime ${err.message}`);
+    getLogger().error(`updateCOraclesPassedResultSetEndTime ${err.message}`);
   }
 }
 
@@ -684,7 +684,7 @@ async function getAddressBalances() {
       });
     });
   } catch (err) {
-    logger.error(`listAddressGroupings: ${err.message}`);
+    getLogger().error(`listAddressGroupings: ${err.message}`);
   }
 
   const addressBatches = _.chunk(addressList, RPC_BATCH_SIZE);
@@ -705,7 +705,7 @@ async function getAddressBalances() {
 
             botBalance = resp.balance;
           } catch (err) {
-            logger.error(`BalanceOf ${address}: ${err.message}`);
+            getLogger().error(`BalanceOf ${address}: ${err.message}`);
             botBalance = '0';
           }
 
