@@ -1,6 +1,3 @@
-// import { red, yellow, magenta, green } from 'chalk'; // eslint-disable-line import/no-extraneous-dependencies
-const chalk = require('chalk'); // eslint-disable-line
-const red = (...a) => console.log(chalk.red(...a))
 const _ = require('lodash');
 const Web3Utils = require('web3-utils');
 const moment = require('moment');
@@ -190,6 +187,19 @@ function buildTransactionFilters({
   }
   return filters;
 }
+
+/**
+ * Takes an oracle object and returns which phase it is in.
+ * @param {oracle} oracle
+ */
+const getPhase = ({ token, status }) => ({
+  isBetting: token === 'QTUM' && status === 'VOTING',
+  isVoting: token === 'BOT' && status === 'VOTING',
+  isResultSetting: token === 'QTUM' && ['WAITRESULT', 'OPENRESULTSET'].includes(status),
+  isOpenResultSetting: token === 'QTUM' && status === 'OPENRESULTSET',
+  isOracleResultSetting: token === 'QTUM' && status === 'WAITRESULT',
+  isFinalizing: token === 'BOT' && status === 'WAITRESULT',
+});
 
 module.exports = {
   Query: {
@@ -752,33 +762,27 @@ module.exports = {
 
   Topic: {
     oracles: async ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
-    transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ topicAddress: address }),
-    // {
-    //   const statuses = [{ status: 'WITHDRAWESCROW' }, { status: 'WITHDRAW' }];
-    //   return Transactions.find({ topicAddress: address, $or: statuses });
-    // },
+    transactions: async ({ address }, data, { db: { Transactions } }) => {
+      const types = [{ type: 'WITHDRAWESCROW' }, { type: 'WITHDRAW' }];
+      return Transactions.find({ topicAddress: address, $or: types });
+    },
   },
 
   Oracle: {
-    transactions: async ({ address, status, token }, data, { db: { Transactions } }) => {
-      const isResultSetting = (status === 'OPENRESULTSET' || status === 'WAITRESULT') && token === 'QTUM';
-      const isFinalizing = (status === 'WAITRESULT') && token === 'BOT';
-      const isVoting = (status === 'VOTING') && token === 'BOT';
-      const isBetting = status === 'BET' && token === 'QTUM';
-      let statuses = null;
-      if (isResultSetting) {
-        statuses = [{ status: 'OPENRESULTSET' }, { status: 'WAITRESULT' }];
-      } else if (isFinalizing) {
-        statuses = [{ status: 'WAITRESULT' }];
+    transactions: async (oracle, data, { db: { Transactions } }) => {
+      const { isBetting, isVoting, isResultSetting, isFinalizing } = getPhase(oracle);
+
+      let types = [];
+      if (isBetting) {
+        types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
       } else if (isVoting) {
-        statuses = [{ status: 'VOTING' }];
-      } else if (isBetting) {
-        statuses = [{ status: 'BET' }];
+        types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
+      } else if (isResultSetting) {
+        types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }]
+      } else if (isFinalizing) {
+        types = [{ type: 'FINALIZERESULT' }];
       }
-      // if (!statuses) {
-      return Transactions.find({ oracleAddress: address });
-      // }
-      // return Transactions.find({ oracleAddress: address, $or: statuses });
+      return Transactions.find({ oracleAddress: oracle.address, $or: types });
     },
   },
 
