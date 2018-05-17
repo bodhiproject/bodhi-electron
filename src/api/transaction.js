@@ -70,11 +70,12 @@ const Transaction = {
       }
     }
 
+    const costsArr = [];
+
     if (txType.startsWith('APPROVE')) {
       costsArr.push(getApproveObj(token, amount));
     }
-
-    const costsArr = [];
+    
     switch (txType) {
       case 'APPROVECREATEEVENT':
       case 'CREATEEVENT': {
