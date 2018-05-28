@@ -1,4 +1,8 @@
 {
+  "aboutDialogTitle": {
+    "en": "About",
+    "zh": "About",
+  },
   "cancel": {
     "en": "Cancel",
     "zh": "取消"
@@ -62,6 +66,10 @@
   "unlockWallet": {
     "en": "Unlock Wallet",
     "zh": "解锁钱包"
+  },
+  "version": {
+    "en": "Version",
+    "zh": "Version"
   },
   "walletUnlockFailed": {
     "en": "Wallet unlock failed",

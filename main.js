@@ -12,6 +12,7 @@ const { blockchainEnv, ipcEvent } = require('./src/constants');
 const Tracking = require('./src/analytics/tracking');
 const Utils = require('./src/utils/utils');
 const Wallet = require('./src/api/wallet');
+const { version } = require('./package.json');
 
 /*
 * Order of Operations
@@ -259,10 +260,8 @@ function showAboutDialog() {
   dialog.showMessageBox({
     type: 'question',
     buttons: [i18n.get('ok')],
-    title: i18n.get('qtumWalletDialogTitle'),
-    message: i18n.get('qtumWalletDialogMessage'),
-    defaultId: 0,
-    cancelId: 0,
+    title: i18n.get('aboutDialogTitle'),
+    message: `${i18n.get('version')}: ${version}`,
   });
 }
 
