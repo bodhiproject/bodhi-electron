@@ -75,6 +75,7 @@ function setupMenu() {
       label: "Application",
       submenu: [
         { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
+        { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
         { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
       ]
