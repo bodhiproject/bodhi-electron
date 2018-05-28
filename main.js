@@ -254,6 +254,18 @@ function showLaunchQtumWalletDialog() {
   });
 }
 
+function showAboutDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('ok')],
+    title: i18n.get('qtumWalletDialogTitle'),
+    message: i18n.get('qtumWalletDialogMessage'),
+    defaultId: 0,
+    cancelId: 0,
+  });
+}
+
 function killServer() {
   const proc = server.getQtumProcess();
   if (proc) {
