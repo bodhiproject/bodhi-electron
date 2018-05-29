@@ -6,7 +6,6 @@ const i18n = require('../../src/localization/i18n');
 
 const emitter = new EventEmitter();
 
-
 emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
   try {
     if (!_.isUndefined(path)) {

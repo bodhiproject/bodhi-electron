@@ -5,7 +5,6 @@ const prompt = require('electron-prompt');
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./src/db/nedb');
 const server = require('./src/index');
-const { Emitter } = require('./src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
 const { getLogger } = require('./src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./src/constants');
@@ -32,6 +31,33 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
+
+function initEmitter() {
+  const { Emitter } = require('./src/utils/emitterHelper');
+
+  Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
+    const options = {
+      title: 'Backup Wallet',
+      filters: [
+        { name: 'backup', extensions: ['dat'] }
+      ]
+    }
+
+    dialog.showSaveDialog(options, (filename) => {
+      Emitter.emit(ipcEvent.BACKUP_FILE, filename);
+    })
+  });
+
+  Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
+    dialog.showOpenDialog({
+      properties: ['openFile']
+    }, (files) => {
+      if (files) {
+        Emitter.emit(ipcEvent.RESTORE_FILE, files)
+      }
+    })
+  });
+}
 
 function startServer() {
   server.startQtumProcess(false);
@@ -288,6 +314,7 @@ function exit(signal) {
 app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
+  initEmitter();
   showSelectEnvDialog();
 });
 
@@ -331,29 +358,6 @@ server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
     exit();
   });
 });
-
-
-Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
-  const options = {
-    title: 'Backup Wallet',
-    filters: [
-      { name: 'backup', extensions: ['dat'] }
-    ]
-  }
-  dialog.showSaveDialog(options, (filename) => {
-    Emitter.emit(ipcEvent.BACKUP_FILE, filename);
-  })
-})
-
-Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
-  dialog.showOpenDialog({
-    properties: ['openFile']
-  }, (files) => {
-    if (files) {
-      Emitter.emit(ipcEvent.RESTORE_FILE, files)
-    }
-  })
-})
 
 // Show wallet unlock prompt if wallet is encrypted
 server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
