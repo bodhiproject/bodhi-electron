@@ -192,14 +192,13 @@ function buildTransactionFilters({
  * Takes an oracle object and returns which phase it is in.
  * @param {oracle} oracle
  */
-const getPhase = ({ token, status }) => ({
-  isBetting: token === 'QTUM' && status === 'VOTING',
-  isVoting: token === 'BOT' && status === 'VOTING',
-  isResultSetting: token === 'QTUM' && ['WAITRESULT', 'OPENRESULTSET'].includes(status),
-  isOpenResultSetting: token === 'QTUM' && status === 'OPENRESULTSET',
-  isOracleResultSetting: token === 'QTUM' && status === 'WAITRESULT',
-  isFinalizing: token === 'BOT' && status === 'WAITRESULT',
-});
+const getPhase = ({ token, status }) => {
+  if (token === 'QTUM' && status === 'VOTING') return 'betting';
+  if (token === 'BOT' && status === 'VOTING') return 'voting';
+  if (token === 'QTUM' && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return 'resultSetting';
+  if (token === 'BOT' && status === 'WAITRESULT') return 'finalizing';
+  throw Error('invalid phase');
+};
 
 module.exports = {
   Query: {
@@ -761,7 +760,7 @@ module.exports = {
   },
 
   Topic: {
-    oracles: async ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
+    oracles: ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
     transactions: async ({ address }, data, { db: { Transactions } }) => {
       const types = [{ type: 'WITHDRAWESCROW' }, { type: 'WITHDRAW' }];
       return Transactions.find({ topicAddress: address, $or: types });
@@ -769,18 +768,24 @@ module.exports = {
   },
 
   Oracle: {
-    transactions: async (oracle, data, { db: { Transactions } }) => {
-      const { isBetting, isVoting, isResultSetting, isFinalizing } = getPhase(oracle);
-
+    transactions: (oracle, data, { db: { Transactions } }) => {
+      const phase = getPhase(oracle);
       let types = [];
-      if (isBetting) {
-        types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
-      } else if (isVoting) {
-        types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
-      } else if (isResultSetting) {
-        types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }]
-      } else if (isFinalizing) {
-        types = [{ type: 'FINALIZERESULT' }];
+      switch (phase) {
+        case 'betting':
+          types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
+          break;
+        case 'voting':
+          types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
+          break;
+        case 'resultSetting':
+          types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }]
+          break;
+        case 'finalizing':
+          types = [{ type: 'FINALIZERESULT' }];
+          break;
+        default:
+          throw Error('invalid phase');
       }
       return Transactions.find({ oracleAddress: oracle.address, $or: types });
     },
