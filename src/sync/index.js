@@ -106,7 +106,7 @@ async function sync(db) {
 
       await Promise.all([
         syncCentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix),
-        syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime)
+        syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHexPrefix, currentBlockTime),
       ]);
       getLogger().debug('Synced Oracles');
 
@@ -298,8 +298,10 @@ async function syncDecentralizedOracleCreated(db, startBlock, endBlock, removeHe
         const insertOracleDB = new Promise(async (resolve) => {
           try {
             const decentralOracle = new DecentralizedOracle(blockNum, txid, rawLog).translate();
-            const topic = await DBHelper.findOne(db.Topics, { address: decentralOracle.topicAddress },
-              ['name', 'options']);
+            const topic = await DBHelper.findOne(
+              db.Topics, { address: decentralOracle.topicAddress },
+              ['name', 'options'],
+            );
 
             decentralOracle.name = topic.name;
             decentralOracle.options = topic.options;

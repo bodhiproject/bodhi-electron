@@ -74,7 +74,7 @@ class DBHelper {
     let fieldsObj;
     if (!_.isEmpty(fields)) {
       fieldsObj = {};
-      _.each(fields, (field) => fieldsObj[field] = 1);
+      _.each(fields, field => fieldsObj[field] = 1);
     }
 
     const found = await db.findOne(query, fieldsObj);
