@@ -12,6 +12,7 @@ const { blockchainEnv, ipcEvent } = require('./src/constants');
 const Tracking = require('./src/analytics/tracking');
 const Utils = require('./src/utils/utils');
 const Wallet = require('./src/api/wallet');
+const { version } = require('./package.json');
 
 /*
 * Order of Operations
@@ -75,6 +76,7 @@ function setupMenu() {
       label: "Application",
       submenu: [
         { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
+        { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
         { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
       ]
@@ -250,6 +252,16 @@ function showLaunchQtumWalletDialog() {
         });
       }
     }
+  });
+}
+
+function showAboutDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('ok')],
+    title: i18n.get('aboutDialogTitle'),
+    message: `${i18n.get('version')}: ${version}`,
   });
 }
 
