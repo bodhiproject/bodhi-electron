@@ -68,7 +68,7 @@ function buildTopicFilters({
 }
 
 function buildOracleFilters({
-  OR = [], txid, address, topicAddress, resultSetterQAddress, status, token,
+  OR = [], txid, address, topicAddress, resultSetterQAddress, status, token, excludeSelfAddress
 }) {
   const filter = (txid || address || topicAddress || resultSetterQAddress || status || token) ? {} : null;
   if (txid) {
@@ -93,6 +93,10 @@ function buildOracleFilters({
 
   if (token) {
     filter.token = token;
+  }
+
+  if(excludeSelfAddress) {
+    filter.resultSetterQAddress = {$nin : excludeSelfAddress};
   }
 
   let filters = filter ? [filter] : [];
