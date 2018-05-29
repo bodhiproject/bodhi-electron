@@ -33,9 +33,9 @@ let uiWin;
 let i18n;
 
 function initEmitter() {
-  const { Emitter } = require('./src/utils/emitterHelper');
+  const emitter = require('./src/utils/emitterHelper').initEmitter();
 
-  Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
+  emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
     const options = {
       title: 'Backup Wallet',
       filters: [
@@ -44,16 +44,16 @@ function initEmitter() {
     }
 
     dialog.showSaveDialog(options, (filename) => {
-      Emitter.emit(ipcEvent.BACKUP_FILE, filename);
+      emitter.emit(ipcEvent.BACKUP_FILE, filename);
     })
   });
 
-  Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
+  emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
     dialog.showOpenDialog({
       properties: ['openFile']
     }, (files) => {
       if (files) {
-        Emitter.emit(ipcEvent.RESTORE_FILE, files)
+        emitter.emit(ipcEvent.RESTORE_FILE, files)
       }
     })
   });
