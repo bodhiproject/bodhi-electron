@@ -4,7 +4,7 @@ const prompt = require('electron-prompt');
 
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./server/src/db/nedb');
-const { startServer, emitter } = require('./server/src/server');
+const { startServer, killQtumProcess, emitter } = require('./server/src/server');
 const { getEmitter } = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
@@ -259,21 +259,9 @@ function showAboutDialog() {
   });
 }
 
-function killServer() {
-  const proc = server.getQtumProcess();
-  if (proc) {
-    try {
-      getLogger().debug('Killing process', proc.pid);
-      proc.kill();
-    } catch (err) {
-      getLogger().error(`Error killing process ${proc.pid}:`, err);
-    }
-  }
-}
-
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting`);
-  killServer();
+  killQtumProcess();
   app.quit();
 }
 
@@ -305,7 +293,7 @@ app.on('window-all-closed', () => {
 // Emitted before the application starts closing its windows.
 app.on('before-quit', () => {
   getLogger().debug('before-quit');
-  killServer();
+  killQtumProcess();
 });
 
 /* Emitter Events */
