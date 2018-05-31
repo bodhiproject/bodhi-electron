@@ -4,8 +4,8 @@ const prompt = require('electron-prompt');
 
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./server/src/db/nedb');
-const server = require('./server/src/index');
-const { Emitter } = require('./server/src/utils/emitterHelper');
+const { startServer, emitter } = require('./server/src/server');
+const { getEmitter } = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./server/src/constants');
@@ -33,9 +33,9 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 let uiWin;
 let i18n;
 
-function startServer() {
-  server.startQtumProcess(false);
-}
+// function startServer() {
+//   server.startQtumProcess(false);
+// }
 
 function createWindow() {
   // Create the browser window.
@@ -140,10 +140,7 @@ function showSelectEnvDialog() {
           });
           showSelectEnvDialog();
         } else { // Mainnet/Testnet allowed
-          setQtumEnv(blockchainEnv.MAINNET);
-          getLogger().info('Env: Mainnet');
-          await initDB();
-          startServer();
+          startServer(blockchainEnv.MAINNET);
           initUI();
         }
 
@@ -151,10 +148,7 @@ function showSelectEnvDialog() {
         break;
       }
       case 1: {
-        setQtumEnv(blockchainEnv.TESTNET);
-        getLogger().info('Env: Testnet');
-        await initDB();
-        startServer();
+        startServer(blockchainEnv.TESTNET);
         initUI();
 
         Tracking.testnetStart();
@@ -317,7 +311,7 @@ app.on('before-quit', () => {
 /* Emitter Events */
 
 // Load UI when services are running
-server.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
+getEmitter().once(ipcEvent.SERVICES_RUNNING, () => {
   if (uiWin) {
     uiWin.maximize();
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
@@ -325,7 +319,7 @@ server.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
 });
 
 // Show error dialog if any startup errors
-server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+getEmitter().on(ipcEvent.STARTUP_ERROR, (err) => {
   dialog.showMessageBox({
     type: 'error',
     buttons: [i18n.get('quit')],
@@ -337,12 +331,12 @@ server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
 });
 
 // Show wallet unlock prompt if wallet is encrypted
-server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+getEmitter().on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
   showWalletUnlockPrompt();
 });
 
 // Delay, then start qtum-qt
-server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+getEmitter().on(ipcEvent.QTUMD_KILLED, () => {
   setTimeout(() => {
     require('./src/start_wallet');
   }, 4000);
