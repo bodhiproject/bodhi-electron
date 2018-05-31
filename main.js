@@ -4,7 +4,7 @@ const prompt = require('electron-prompt');
 
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./server/src/db/nedb');
-const { startServer, startServices, killQtumProcess } = require('./server/src/server');
+const { getQtumProcess, killQtumProcess, startServices, startServer } = require('./server/src/server');
 const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
@@ -230,8 +230,8 @@ function showLaunchQtumWalletDialog() {
     cancelId: 0,
   }, (response) => {
     if (response === 1) {
-      if (server.getQtumProcess()) {
-        server.terminateDaemon();
+      if (getQtumProcess()) {
+        killQtumProcess(true);
       } else {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
@@ -326,7 +326,7 @@ Emitter.emitter.on(ipcEvent.ON_WALLET_ENCRYPTED, () => {
 
 // Delay, then start qtum-qt
 Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  setTimeout(() => require('./src/start_wallet'), 4000);
+  setTimeout(() => require('./server/src/start_wallet'), 4000);
 });
 
 // backup-wallet API called
