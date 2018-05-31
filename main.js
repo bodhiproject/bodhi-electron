@@ -4,7 +4,7 @@ const prompt = require('electron-prompt');
 
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./server/src/db/nedb');
-const { startServer, killQtumProcess } = require('./server/src/server');
+const { startServer, startServices, killQtumProcess } = require('./server/src/server');
 const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
@@ -32,10 +32,6 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
-
-// function startServer() {
-//   server.startQtumProcess(false);
-// }
 
 function createWindow() {
   // Create the browser window.
@@ -211,7 +207,7 @@ function showWalletUnlockPrompt() {
       const info = await Wallet.getWalletInfo();
       if (info.unlocked_until > 0) {
         getLogger().info('Wallet unlocked');
-        server.startServices();
+        startServices();
       } else {
         getLogger().error('Wallet unlock failed');
         throw new Error(i18n.get('walletUnlockFailed'));
@@ -319,7 +315,7 @@ Emitter.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
 });
 
 // Show wallet unlock prompt if wallet is encrypted
-Emitter.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+Emitter.emitter.on(ipcEvent.ON_WALLET_ENCRYPTED, () => {
   showWalletUnlockPrompt();
 });
 
