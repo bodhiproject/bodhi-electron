@@ -3,15 +3,15 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
 
 const { testnetOnly } = require('./package.json');
-const { initDB } = require('./src/db/nedb');
-const server = require('./src/index');
-const { Emitter } = require('./src/utils/emitterHelper');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
-const { getLogger } = require('./src/utils/logger');
-const { blockchainEnv, ipcEvent } = require('./src/constants');
-const Tracking = require('./src/analytics/tracking');
-const Utils = require('./src/utils/utils');
-const Wallet = require('./src/api/wallet');
+const { initDB } = require('./qtum/src/db/nedb');
+const server = require('./qtum/src/index');
+const { Emitter } = require('./qtum/src/utils/emitterHelper');
+const { Config, setQtumEnv, getQtumExplorerUrl } = require('./qtum/src/config/config');
+const { getLogger } = require('./qtum/src/utils/logger');
+const { blockchainEnv, ipcEvent } = require('./qtum/src/constants');
+const Tracking = require('./qtum/src/analytics/tracking');
+const Utils = require('./qtum/src/utils/utils');
+const Wallet = require('./qtum/src/api/wallet');
 const { version } = require('./package.json');
 
 /*
