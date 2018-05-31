@@ -311,7 +311,7 @@ app.on('before-quit', () => {
 /* Emitter Events */
 
 // Load UI when services are running
-getEmitter().once(ipcEvent.SERVICES_RUNNING, () => {
+emitter.once(ipcEvent.SERVICES_RUNNING, () => {
   if (uiWin) {
     uiWin.maximize();
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
@@ -319,7 +319,7 @@ getEmitter().once(ipcEvent.SERVICES_RUNNING, () => {
 });
 
 // Show error dialog if any startup errors
-getEmitter().on(ipcEvent.STARTUP_ERROR, (err) => {
+emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
   dialog.showMessageBox({
     type: 'error',
     buttons: [i18n.get('quit')],
@@ -331,18 +331,18 @@ getEmitter().on(ipcEvent.STARTUP_ERROR, (err) => {
 });
 
 // Show wallet unlock prompt if wallet is encrypted
-getEmitter().on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
   showWalletUnlockPrompt();
 });
 
 // Delay, then start qtum-qt
-getEmitter().on(ipcEvent.QTUMD_KILLED, () => {
+emitter.on(ipcEvent.QTUMD_KILLED, () => {
   setTimeout(() => {
     require('./src/start_wallet');
   }, 4000);
 });
 
-Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
+getEmitter().on(ipcEvent.WALLET_BACKUP, (event) => {
   const options = {
     title: 'Backup Wallet',
     filters: [
@@ -354,7 +354,7 @@ Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   })
 });
 
-Emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
+getEmitter().on(ipcEvent.BACKUP_FILE, async (path) => {
   try {
     if (!_.isUndefined(path)) {
       await require('./server/src/api/wallet').backupWallet({ destination: path });
@@ -377,7 +377,7 @@ Emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
   }
 });
 
-Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
+getEmitter().on(ipcEvent.WALLET_IMPORT, (event) => {
   dialog.showOpenDialog({
     properties: ['openFile']
   }, (files) => {
@@ -387,7 +387,7 @@ Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   })
 })
 
-Emitter.on(ipcEvent.RESTORE_FILE, async (path) => {
+getEmitter().on(ipcEvent.RESTORE_FILE, async (path) => {
   try {
     if (!_.isEmpty(path)) {
       await require('./server/src/api/wallet').importWallet({ filename: path[0] });
