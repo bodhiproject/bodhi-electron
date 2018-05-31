@@ -14,8 +14,7 @@
   ],
   "scripts": {
     "install-dep": "npm install && ./node_modules/.bin/yarn install",
-    "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev --noelec --rpcpassword=bodhi",
-    "start-elec": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev --rpcpassword=bodhi",
+    "start": "./node_modules/.bin/electron . --qtumpath=./server/qtum/mac/bin --dev --rpcpassword=bodhi",
     "test": "mocha --recursive src/test/. --rpcpassword=bodhi --test",
     "lint:fix": "eslint --fix -- src/.",
     "build:mac": "npm run install-dep; ./node_modules/.bin/electron-builder build -m",
@@ -30,17 +29,17 @@
     "productName": "Bodhi",
     "mac": {
       "asar": true,
-      "asarUnpack": "qtum/mac/bin/*",
+      "asarUnpack": "server/qtum/mac/bin/*",
       "category": "public.app-category.utilities",
       "files": [
         {
           "filter": [
             "**/*",
             "build/icon.png",
-            "!qtum/linux32",
-            "!qtum/linux64",
-            "!qtum/win32",
-            "!qtum/win64"
+            "!server/qtum/linux32",
+            "!server/qtum/linux64",
+            "!server/qtum/win32",
+            "!server/qtum/win64"
           ]
         }
       ],
@@ -54,17 +53,17 @@
     "win": {
       "asar": true,
       "asarUnpack": [
-        "qtum/win64/bin/*",
-        "qtum/win32/bin/*"
+        "server/qtum/win64/bin/*",
+        "server/qtum/win32/bin/*"
       ],
       "files": [
         {
           "filter": [
             "**/*",
             "build/icon.ico",
-            "!qtum/linux32",
-            "!qtum/linux64",
-            "!qtum/mac"
+            "!server/qtum/linux32",
+            "!server/qtum/linux64",
+            "!server/qtum/mac"
           ]
         }
       ],
@@ -82,8 +81,8 @@
     "linux": {
       "asar": true,
       "asarUnpack": [
-        "qtum/linux64/bin/*",
-        "qtum/linux32/bin/*"
+        "server/qtum/linux64/bin/*",
+        "server/qtum/linux32/bin/*"
       ],
       "category": "Utility",
       "files": [
@@ -91,9 +90,9 @@
           "filter": [
             "**/*",
             "build/icon.png",
-            "!qtum/mac",
-            "!qtum/win32",
-            "!qtum/win64"
+            "!server/qtum/mac",
+            "!server/qtum/win32",
+            "!server/qtum/win64"
           ]
         }
       ],
@@ -151,22 +150,5 @@
     "eslint-plugin-react": "^7.5.1",
     "mocha": "^4.1.0",
     "yarn": "^1.3.2"
-  },
-  "authors": [
-    {
-      "name": "Frank Hu",
-      "email": "frank@bodhi.network",
-      "url": "https://www.bodhi.network/"
-    },
-    {
-      "name": "Deric Walintukan",
-      "email": "deric@bodhi.network",
-      "url": "https://www.bodhi.network/"
-    },
-    {
-      "name": "Chris Li",
-      "email": "chris@bodhi.network",
-      "url": "https://www.bodhi.network/"
-    }
-  ]
+  }
 }
