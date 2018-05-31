@@ -261,6 +261,11 @@ function exit(signal) {
   app.quit();
 }
 
+// Handle exit signals
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
+
 /* Electron Events */
 
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
@@ -294,14 +299,6 @@ app.on('before-quit', () => {
 
 /* Emitter Events */
 
-// Load UI when services are running
-Emitter.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
-  if (uiWin) {
-    uiWin.maximize();
-    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-  }
-});
-
 // Show error dialog if any startup errors
 Emitter.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
   dialog.showMessageBox({
@@ -314,6 +311,14 @@ Emitter.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
   });
 });
 
+// Load UI when services are running
+Emitter.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
+  if (uiWin) {
+    uiWin.maximize();
+    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+  }
+});
+
 // Show wallet unlock prompt if wallet is encrypted
 Emitter.emitter.on(ipcEvent.ON_WALLET_ENCRYPTED, () => {
   showWalletUnlockPrompt();
@@ -321,11 +326,10 @@ Emitter.emitter.on(ipcEvent.ON_WALLET_ENCRYPTED, () => {
 
 // Delay, then start qtum-qt
 Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  setTimeout(() => {
-    require('./src/start_wallet');
-  }, 4000);
+  setTimeout(() => require('./src/start_wallet'), 4000);
 });
 
+// backup-wallet API called
 Emitter.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   const options = {
     title: 'Backup Wallet',
@@ -333,67 +337,53 @@ Emitter.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
       { name: 'backup', extensions: ['dat'] }
     ]
   }
-  dialog.showSaveDialog(options, (filename) => {
-    Emitter.emit(ipcEvent.BACKUP_FILE, filename);
-  })
-});
-
-Emitter.emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
-  try {
-    if (!_.isUndefined(path)) {
-      await require('./server/src/api/wallet').backupWallet({ destination: path });
+  dialog.showSaveDialog(options, async (path) => {
+    try {
+      if (!_.isUndefined(path)) {
+        await require('./server/src/api/wallet').backupWallet({ destination: path });
+        const options = {
+          type: 'info',
+          title: 'Information',
+          message: i18n.get('backupSuccess'),
+          buttons: [i18n.get('ok')],
+        };
+        dialog.showMessageBox(options);
+      }
+    } catch (err) {
       const options = {
-        type: 'info',
-        title: 'Information',
-        message: i18n.get('backupSuccess'),
+        type: 'error',
+        title: i18n.get('error'),
+        message: err.message,
         buttons: [i18n.get('ok')],
       };
       dialog.showMessageBox(options);
     }
-  } catch (err) {
-    const options = {
-      type: 'error',
-      title: i18n.get('error'),
-      message: err.message,
-      buttons: [i18n.get('ok')],
-    };
-    dialog.showMessageBox(options);
-  }
+  })
 });
 
+// import-wallet API called
 Emitter.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   dialog.showOpenDialog({
     properties: ['openFile']
-  }, (files) => {
-    if (files) {
-      Emitter.emit(ipcEvent.RESTORE_FILE, files)
+  }, async (files) => {
+    try {
+      if (!_.isEmpty(files)) {
+        await require('./server/src/api/wallet').importWallet({ filename: files[0] });
+
+        dialog.showMessageBox({
+          type: 'info',
+          title: 'Information',
+          message: i18n.get('importSuccess'),
+          buttons: [i18n.get('ok')],
+        });
+      }
+    } catch (err) {
+      dialog.showMessageBox({
+        type: 'error',
+        title: i18n.get('error'),
+        message: err.message,
+        buttons: [i18n.get('ok')],
+      });
     }
   })
-})
-
-Emitter.emitter.on(ipcEvent.RESTORE_FILE, async (path) => {
-  try {
-    if (!_.isEmpty(path)) {
-      await require('./server/src/api/wallet').importWallet({ filename: path[0] });
-      const options = {
-        type: 'info',
-        title: 'Information',
-        message: i18n.get('importSuccess'),
-        buttons: [i18n.get('ok')],
-      };
-      dialog.showMessageBox(options);
-    }
-  } catch (err) {
-    const options = {
-      type: 'error',
-      title: i18n.get('error'),
-      message: err.message,
-      buttons: [i18n.get('ok')],
-    };
-    dialog.showMessageBox(options);
-  }
 });
-
-process.on('SIGINT', exit);
-process.on('SIGTERM', exit);
-process.on('SIGHUP', exit);
