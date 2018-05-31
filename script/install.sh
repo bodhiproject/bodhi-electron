@@ -2,7 +2,7 @@
 
 # update submodule with remote
 echo 'Updating submodules...'
-git submodule update --recursive --remote
+git submodule update --init --recursive --remote
 
 # install dependencies
 echo 'Installing dependencies...'
