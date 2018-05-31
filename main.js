@@ -4,8 +4,8 @@ const prompt = require('electron-prompt');
 
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./server/src/db/nedb');
-const { startServer, killQtumProcess, emitter } = require('./server/src/server');
-const { getEmitter } = require('./server/src/utils/emitterHelper');
+const { startServer, killQtumProcess } = require('./server/src/server');
+const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./server/src/constants');
@@ -299,7 +299,7 @@ app.on('before-quit', () => {
 /* Emitter Events */
 
 // Load UI when services are running
-emitter.once(ipcEvent.SERVICES_RUNNING, () => {
+Emitter.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
   if (uiWin) {
     uiWin.maximize();
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
@@ -307,7 +307,7 @@ emitter.once(ipcEvent.SERVICES_RUNNING, () => {
 });
 
 // Show error dialog if any startup errors
-emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+Emitter.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
   dialog.showMessageBox({
     type: 'error',
     buttons: [i18n.get('quit')],
@@ -319,18 +319,18 @@ emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
 });
 
 // Show wallet unlock prompt if wallet is encrypted
-emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+Emitter.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
   showWalletUnlockPrompt();
 });
 
 // Delay, then start qtum-qt
-emitter.on(ipcEvent.QTUMD_KILLED, () => {
+Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
   setTimeout(() => {
     require('./src/start_wallet');
   }, 4000);
 });
 
-getEmitter().on(ipcEvent.WALLET_BACKUP, (event) => {
+Emitter.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   const options = {
     title: 'Backup Wallet',
     filters: [
@@ -342,7 +342,7 @@ getEmitter().on(ipcEvent.WALLET_BACKUP, (event) => {
   })
 });
 
-getEmitter().on(ipcEvent.BACKUP_FILE, async (path) => {
+Emitter.emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
   try {
     if (!_.isUndefined(path)) {
       await require('./server/src/api/wallet').backupWallet({ destination: path });
@@ -365,7 +365,7 @@ getEmitter().on(ipcEvent.BACKUP_FILE, async (path) => {
   }
 });
 
-getEmitter().on(ipcEvent.WALLET_IMPORT, (event) => {
+Emitter.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   dialog.showOpenDialog({
     properties: ['openFile']
   }, (files) => {
@@ -375,7 +375,7 @@ getEmitter().on(ipcEvent.WALLET_IMPORT, (event) => {
   })
 })
 
-getEmitter().on(ipcEvent.RESTORE_FILE, async (path) => {
+Emitter.emitter.on(ipcEvent.RESTORE_FILE, async (path) => {
   try {
     if (!_.isEmpty(path)) {
       await require('./server/src/api/wallet').importWallet({ filename: path[0] });
