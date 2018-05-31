@@ -12,7 +12,7 @@ const CentralizedOracle = require('../api/centralized_oracle');
 const DecentralizedOracle = require('../api/decentralized_oracle');
 const Transaction = require('../api/transaction');
 const QtumUtils = require('../api/qtum_utils');
-const Emitter = require('../utils/emitterHelper');
+const { showSaveDialog, showImportDialog } = require('../utils/emitterHelper');
 
 const { getInstance } = require('../qclient');
 
@@ -131,13 +131,13 @@ apiRouter.post('/wallet-passphrase-change', (req, res, next) => {
 });
 
 apiRouter.post('/backup-wallet', (req, res, next) => {
-  Emitter.showSaveDialog();
+  showSaveDialog();
   res.send(200);
   next();
 });
 
 apiRouter.post('/import-wallet', (req, res, next) => {
-  Emitter.showImportDialog();
+  showImportDialog();
   res.send(200);
   next();
 });
