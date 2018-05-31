@@ -14,6 +14,7 @@
   ],
   "scripts": {
     "install-dep": "npm install && ./node_modules/.bin/yarn install",
+    "update": "git submodule update --recursive --remote",
     "start": "./node_modules/.bin/electron . --qtumpath=./server/qtum/mac/bin --dev --rpcpassword=bodhi",
     "test": "mocha --recursive src/test/. --rpcpassword=bodhi --test",
     "lint:fix": "eslint --fix -- src/.",
