@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "install-dep": "script/install.sh",
-    "start": "./node_modules/.bin/electron . --qtumpath=./server/qtum/mac/bin --dev --rpcpassword=bodhi",
+    "start": "./node_modules/.bin/electron . --qtumpath=./server/qtum/mac/bin --dev --rpcpassword=bodhi --encryptok",
     "lint:fix": "eslint --fix -- src/.",
     "build:mac": "npm run install-dep; ./node_modules/.bin/electron-builder build -m",
     "build:win": "npm run install-dep; ./node_modules/.bin/electron-builder build -w",
