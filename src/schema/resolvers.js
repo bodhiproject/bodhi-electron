@@ -188,6 +188,18 @@ function buildTransactionFilters({
   return filters;
 }
 
+/**
+ * Takes an oracle object and returns which phase it is in.
+ * @param {oracle} oracle
+ */
+const getPhase = ({ token, status }) => {
+  if (token === 'QTUM' && status === 'VOTING') return 'betting';
+  if (token === 'BOT' && status === 'VOTING') return 'voting';
+  if (token === 'QTUM' && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return 'resultSetting';
+  if (token === 'BOT' && status === 'WAITRESULT') return 'finalizing';
+  throw Error('invalid phase');
+};
+
 module.exports = {
   Query: {
     allTopics: async (root, {
@@ -748,12 +760,35 @@ module.exports = {
   },
 
   Topic: {
-    oracles: async ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
-    transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ topicAddress: address }),
+    oracles: ({ address }, data, { db: { Oracles } }) => Oracles.find({ topicAddress: address }),
+    transactions: async ({ address }, data, { db: { Transactions } }) => {
+      const types = [{ type: 'WITHDRAWESCROW' }, { type: 'WITHDRAW' }];
+      return Transactions.find({ topicAddress: address, $or: types });
+    },
   },
 
   Oracle: {
-    transactions: async ({ address }, data, { db: { Transactions } }) => Transactions.find({ oracleAddress: address }),
+    transactions: (oracle, data, { db: { Transactions } }) => {
+      const phase = getPhase(oracle);
+      let types = [];
+      switch (phase) {
+        case 'betting':
+          types = [{ type: 'BET' }, { type: 'CREATEEVENT' }, { type: 'APPROVECREATEEVENT' }];
+          break;
+        case 'voting':
+          types = [{ type: 'VOTE' }, { type: 'APPROVEVOTE' }];
+          break;
+        case 'resultSetting':
+          types = [{ type: 'SETRESULT' }, { type: 'APPROVESETRESULT' }]
+          break;
+        case 'finalizing':
+          types = [{ type: 'FINALIZERESULT' }];
+          break;
+        default:
+          throw Error('invalid phase');
+      }
+      return Transactions.find({ oracleAddress: oracle.address, $or: types });
+    },
   },
 
   Transaction: {
