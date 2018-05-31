@@ -9,7 +9,7 @@ const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent } = require('./server/src/constants');
-const Tracking = require('./server/src/analytics/tracking');
+const Tracking = require('./src/analytics/tracking');
 const Utils = require('./server/src/utils/utils');
 const Wallet = require('./server/src/api/wallet');
 const { version } = require('./package.json');
@@ -300,7 +300,7 @@ app.on('before-quit', () => {
 /* Emitter Events */
 
 // Show error dialog if any startup errors
-Emitter.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
+Emitter.emitter.on(ipcEvent.QTUMD_ERROR, (err) => {
   dialog.showMessageBox({
     type: 'error',
     buttons: [i18n.get('quit')],
@@ -311,8 +311,13 @@ Emitter.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
   });
 });
 
+// Delay, then start qtum-qt
+Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+  setTimeout(() => require('./server/src/start_wallet'), 4000);
+});
+
 // Load UI when services are running
-Emitter.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
+Emitter.emitter.once(ipcEvent.API_INITIALIZED, () => {
   if (uiWin) {
     uiWin.maximize();
     uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
@@ -320,13 +325,8 @@ Emitter.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
 });
 
 // Show wallet unlock prompt if wallet is encrypted
-Emitter.emitter.on(ipcEvent.ON_WALLET_ENCRYPTED, () => {
+Emitter.emitter.on(ipcEvent.WALLET_ENCRYPTED, () => {
   showWalletUnlockPrompt();
-});
-
-// Delay, then start qtum-qt
-Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  setTimeout(() => require('./server/src/start_wallet'), 4000);
 });
 
 // backup-wallet API called
