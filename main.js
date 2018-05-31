@@ -283,6 +283,8 @@ function exit(signal) {
   app.quit();
 }
 
+/* Electron Events */
+
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
@@ -312,6 +314,8 @@ app.on('before-quit', () => {
   killServer();
 });
 
+/* Emitter Events */
+
 // Load UI when services are running
 server.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
   if (uiWin) {
@@ -332,6 +336,17 @@ server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
   });
 });
 
+// Show wallet unlock prompt if wallet is encrypted
+server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
+  showWalletUnlockPrompt();
+});
+
+// Delay, then start qtum-qt
+server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+  setTimeout(() => {
+    require('./src/start_wallet');
+  }, 4000);
+});
 
 Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   const options = {
@@ -343,7 +358,30 @@ Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   dialog.showSaveDialog(options, (filename) => {
     Emitter.emit(ipcEvent.BACKUP_FILE, filename);
   })
-})
+});
+
+Emitter.on(ipcEvent.BACKUP_FILE, async (path) => {
+  try {
+    if (!_.isUndefined(path)) {
+      await require('./server/src/api/wallet').backupWallet({ destination: path });
+      const options = {
+        type: 'info',
+        title: 'Information',
+        message: i18n.get('backupSuccess'),
+        buttons: [i18n.get('ok')],
+      };
+      dialog.showMessageBox(options);
+    }
+  } catch (err) {
+    const options = {
+      type: 'error',
+      title: i18n.get('error'),
+      message: err.message,
+      buttons: [i18n.get('ok')],
+    };
+    dialog.showMessageBox(options);
+  }
+});
 
 Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   dialog.showOpenDialog({
@@ -355,16 +393,27 @@ Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   })
 })
 
-// Show wallet unlock prompt if wallet is encrypted
-server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
-  showWalletUnlockPrompt();
-});
-
-// Delay, then start qtum-qt
-server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  setTimeout(() => {
-    require('./src/start_wallet');
-  }, 4000);
+Emitter.on(ipcEvent.RESTORE_FILE, async (path) => {
+  try {
+    if (!_.isEmpty(path)) {
+      await require('./server/src/api/wallet').importWallet({ filename: path[0] });
+      const options = {
+        type: 'info',
+        title: 'Information',
+        message: i18n.get('importSuccess'),
+        buttons: [i18n.get('ok')],
+      };
+      dialog.showMessageBox(options);
+    }
+  } catch (err) {
+    const options = {
+      type: 'error',
+      title: i18n.get('error'),
+      message: err.message,
+      buttons: [i18n.get('ok')],
+    };
+    dialog.showMessageBox(options);
+  }
 });
 
 process.on('SIGINT', exit);
