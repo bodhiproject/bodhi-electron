@@ -8,10 +8,6 @@
     "defaultMessage": "Ends"
   },
   {
-    "id": "str.pendingConfirmation",
-    "defaultMessage": "Pending Confirmation"
-  },
-  {
     "id": "str.end",
     "defaultMessage": "Ended"
   }

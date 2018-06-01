@@ -4,6 +4,10 @@
     "defaultMessage": "You are about to {txDesc} for {txAmount} {txToken}. Please click OK to continue."
   },
   {
+    "id": "txConfirm.messageWithFee",
+    "defaultMessage": "You are about to {txDesc} for {txAmount} {txToken}, with fee for {txFee} QTUM. Please click OK to continue."
+  },
+  {
     "id": "txConfirm.title",
     "defaultMessage": "Please Confirm Your Transaction"
   },
