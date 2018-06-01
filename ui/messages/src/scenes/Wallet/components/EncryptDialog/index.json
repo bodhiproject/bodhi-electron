@@ -1,0 +1,26 @@
+[
+  {
+    "id": "encrypt.passphrase",
+    "defaultMessage": "Passphrse"
+  },
+  {
+    "id": "wallet.encryptTitle",
+    "defaultMessage": "Encrypt Your Wallet"
+  },
+  {
+    "id": "wallet.encrypted",
+    "defaultMessage": "Your wallet is already encrypted"
+  },
+  {
+    "id": "wallet.encryptLabel",
+    "defaultMessage": "Please enter passphrase to encrypt your wallet"
+  },
+  {
+    "id": "str.close",
+    "defaultMessage": "Close"
+  },
+  {
+    "id": "wallet.encrypt",
+    "defaultMessage": "Encrypt"
+  }
+]
