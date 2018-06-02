@@ -1,0 +1,26 @@
+[
+  {
+    "id": "create.required",
+    "defaultMessage": "Required"
+  },
+  {
+    "id": "create.resultTooLong",
+    "defaultMessage": "Result name is too long."
+  },
+  {
+    "id": "create.duplicateOutcome",
+    "defaultMessage": "Duplicate outcomes are not allowed."
+  },
+  {
+    "id": "create.invalidName",
+    "defaultMessage": "Cannot name the outcome 'Invalid'"
+  },
+  {
+    "id": "create.addOutcome",
+    "defaultMessage": "Add Outcome"
+  },
+  {
+    "id": "create.outcomeName",
+    "defaultMessage": "Outcome Name"
+  }
+]

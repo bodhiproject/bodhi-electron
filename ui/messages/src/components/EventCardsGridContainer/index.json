@@ -1,0 +1,22 @@
+[
+  {
+    "id": "bottomButtonText.placeBet",
+    "defaultMessage": "Place Bet"
+  },
+  {
+    "id": "str.setResult",
+    "defaultMessage": "Set Result"
+  },
+  {
+    "id": "bottomButtonText.arbitrate",
+    "defaultMessage": "Arbitrate"
+  },
+  {
+    "id": "str.finalizeResult",
+    "defaultMessage": "Finalize Result"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  }
+]

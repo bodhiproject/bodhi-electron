@@ -1,10 +1,12 @@
 const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
+const restify = require('restify');
+const path = require('path');
 
 const { testnetOnly } = require('./package.json');
 const { initDB } = require('./server/src/db/nedb');
-const { getQtumProcess, killQtumProcess, startServices, startServer } = require('./server/src/server');
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
@@ -103,15 +105,23 @@ function setupMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-function initUI() {
-  // If --noelec flag is supplied, don't open any Electron windows
-  if (_.includes(process.argv, '--noelec')) {
-    return;
-  }
-
-  // Init BrowserWindow
+// Init BrowserWindow with loading page
+function initBrowserWindow() {
   createWindow();
   setupMenu();
+}
+
+function loadUI() {
+  // Host static files
+  getServer().get(/\/?.*/, restify.plugins.serveStatic({
+    directory: path.join(__dirname, './ui'),
+    default: 'index.html',
+    maxAge: 0,
+  }));
+
+  // Load static website
+  uiWin.maximize();
+  uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
 }
 
 // Show environment selection dialog
@@ -136,16 +146,16 @@ function showSelectEnvDialog() {
           });
           showSelectEnvDialog();
         } else { // Mainnet/Testnet allowed
-          startServer(blockchainEnv.MAINNET);
-          initUI();
+          await startServer(blockchainEnv.MAINNET);
+          initBrowserWindow();
         }
 
         Tracking.mainnetStart();
         break;
       }
       case 1: {
-        startServer(blockchainEnv.TESTNET);
-        initUI();
+        await startServer(blockchainEnv.TESTNET);
+        initBrowserWindow();
 
         Tracking.testnetStart();
         break;
@@ -318,10 +328,7 @@ Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
 
 // Load UI when services are running
 Emitter.emitter.once(ipcEvent.API_INITIALIZED, () => {
-  if (uiWin) {
-    uiWin.maximize();
-    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-  }
+  loadUI();
 });
 
 // Show wallet unlock prompt if wallet is encrypted

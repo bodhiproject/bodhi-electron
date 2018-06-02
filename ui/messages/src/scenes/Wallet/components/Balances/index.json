@@ -1,0 +1,26 @@
+[
+  {
+    "id": "myBalances.myBalance",
+    "defaultMessage": "My Balance"
+  },
+  {
+    "id": "str.sort",
+    "defaultMessage": "Sort"
+  },
+  {
+    "id": "str.copy",
+    "defaultMessage": "Copy"
+  },
+  {
+    "id": "myBalances.deposit",
+    "defaultMessage": "Deposit"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "myBalances.addressCopied",
+    "defaultMessage": "Address copied"
+  }
+]

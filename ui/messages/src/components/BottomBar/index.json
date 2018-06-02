@@ -1,0 +1,18 @@
+[
+  {
+    "id": "bottomBar.blockNum",
+    "defaultMessage": "Current Block Number"
+  },
+  {
+    "id": "bottomBar.blockTime",
+    "defaultMessage": "Current Block Time"
+  },
+  {
+    "id": "bottomBar.online",
+    "defaultMessage": "Online"
+  },
+  {
+    "id": "bottomBar.offline",
+    "defaultMessage": "Offline"
+  }
+]

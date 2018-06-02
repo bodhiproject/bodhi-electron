@@ -1,0 +1,18 @@
+[
+  {
+    "id": "str.blockSync",
+    "defaultMessage": "Blockchain syncing."
+  },
+  {
+    "id": "str.wait",
+    "defaultMessage": "Please wait."
+  },
+  {
+    "id": "loader.blockNum",
+    "defaultMessage": "Latest Block Number"
+  },
+  {
+    "id": "loader.blockTime",
+    "defaultMessage": "Latest Block Time"
+  }
+]

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "withdrawDetail.returnRate",
+    "defaultMessage": "Return rate:"
+  },
+  {
+    "id": "withdrawDetail.youBetYouVote",
+    "defaultMessage": "You bet {qtum} QTUM. You voted {bot} BOT."
+  },
+  {
+    "id": "withdrawDetail.totalBetTotalVote",
+    "defaultMessage": "Total bet amount {qtum} QTUM. Total voted amount {bot} BOT."
+  },
+  {
+    "id": "str.address",
+    "defaultMessage": "Address"
+  },
+  {
+    "id": "str.type",
+    "defaultMessage": "Type"
+  },
+  {
+    "id": "str.amount",
+    "defaultMessage": "Amount"
+  },
+  {
+    "id": "str.actions",
+    "defaultMessage": "Actions"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "str.escrow",
+    "defaultMessage": "Escrow"
+  },
+  {
+    "id": "str.winnings",
+    "defaultMessage": "Winnings"
+  },
+  {
+    "id": "str.winningOutcome",
+    "defaultMessage": "Wining Outcome"
+  },
+  {
+    "id": "topic.didNotBetOrVote",
+    "defaultMessage": "You did not bet or vote on the winning outcome."
+  },
+  {
+    "id": "withdrawDetail.reward",
+    "defaultMessage": "REWARD"
+  },
+  {
+    "id": "withdrawDetail.withdrawTo",
+    "defaultMessage": "WITHDRAW TO"
+  },
+  {
+    "id": "eventInfo.predictionFund",
+    "defaultMessage": "Prediction Fund"
+  },
+  {
+    "id": "eventInfo.voteVolumn",
+    "defaultMessage": "Votting Volume"
+  },
+  {
+    "id": "str.resultSetter",
+    "defaultMessage": "Result Setter"
+  }
+]

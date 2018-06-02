@@ -1,0 +1,42 @@
+[
+  {
+    "id": "str.block",
+    "defaultMessage": "Block"
+  },
+  {
+    "id": "cardInfo.to",
+    "defaultMessage": "To"
+  },
+  {
+    "id": "str.anytime",
+    "defaultMessage": "anytime"
+  },
+  {
+    "id": "cardInfo.topic",
+    "defaultMessage": "Topic Created"
+  },
+  {
+    "id": "str.betting",
+    "defaultMessage": "Betting"
+  },
+  {
+    "id": "cardInfo.orResultSet",
+    "defaultMessage": "Oracle Result Setting"
+  },
+  {
+    "id": "cardInfo.arbitration",
+    "defaultMessage": "Arbitration"
+  },
+  {
+    "id": "cardInfo.withdraw",
+    "defaultMessage": "Withdraw"
+  },
+  {
+    "id": "cardInfo.final",
+    "defaultMessage": "Finalizing"
+  },
+  {
+    "id": "cardInfo.opResultSet",
+    "defaultMessage": "Open Result Setting"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "transactionSentDialog.successMsg",
+    "defaultMessage": "Success"
+  },
+  {
+    "id": "transactionSentDialog.waitingMsg",
+    "defaultMessage": "Transaction sent. Waiting for confirmations."
+  },
+  {
+    "id": "str.transactionId",
+    "defaultMessage": "Transaction ID"
+  },
+  {
+    "id": "str.ok",
+    "defaultMessage": "OK"
+  }
+]
