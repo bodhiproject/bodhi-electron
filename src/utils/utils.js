@@ -4,98 +4,43 @@
 * return {String} The full prod path for qtumd or qtum-qt.
 */
 function getProdQtumExecPath(exec) {
-  let path;
+  if (exec !== execFile.QTUMD && execFile.QTUM_QT) {
+    throw Error(`Invalid execFile type: ${exec}`);
+  }
+
+  const platform = process.platform;
   const arch = process.arch;
+  let osFolder;
 
-  switch (process.platform) {
+  switch (platform) {
     case 'darwin': {
-      switch (exec) {
-        case execFile.QTUMD: {
-          path = `${app.getAppPath()}/qtum/mac/bin/qtumd`;
-          break;
-        }
-        case execFile.QTUM_QT: {
-          path = `${app.getAppPath()}/qtum/mac/bin/qtum-qt`;
-          break;
-        }
-        default: {
-          throw new Error(`Invalid execFile type: ${exec}`);
-        }
-      }
+      osFolder = 'mac';
       break;
     }
-
-    case 'win32': {
-      if (arch === 'x64') {
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/win64/bin/qtumd.exe`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/win64/bin/qtum-qt.exe`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
-      } else { // x86 arch
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/win32/bin/qtumd.exe`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/win32/bin/qtum-qt.exe`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
-      }
-      break;
-    }
-
     case 'linux': {
       if (arch === 'x64') {
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/linux64/bin/qtumd`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/linux64/bin/qtum-qt`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
+        osFolder = 'linux64';
       } else if (arch === 'x32') {
-        switch (exec) {
-          case execFile.QTUMD: {
-            path = `${app.getAppPath()}/qtum/linux32/bin/qtumd`;
-            break;
-          }
-          case execFile.QTUM_QT: {
-            path = `${app.getAppPath()}/qtum/linux32/bin/qtum-qt`;
-            break;
-          }
-          default: {
-            throw new Error(`Invalid execFile type: ${exec}`);
-          }
-        }
+        osFolder = 'linux32';
       } else {
-        throw new Error(`Linux arch ${arch} not supported`);
+        throw Error(`Linux arch ${arch} not supported.`);
       }
       break;
     }
-
-    default: {
-      throw new Error('Operating system not supported');
+    case 'win32': {
+      osFolder = arch === 'x64' ? 'win64' : 'win32';
+      break;
     }
+    default: {
+      throw Error('Operating system not supported.');
+    }
+  }
+
+  let path;
+  if (platform === 'win32') {
+    path = `${app.getAppPath()}/qtum/${osFolder}/bin/${exec}.exe`;
+  } else {
+    path = `${app.getAppPath()}/qtum/${osFolder}/bin/${exec}`;
   }
 
   return path.replace('app.asar', 'app.asar.unpacked');
