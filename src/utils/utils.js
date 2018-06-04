@@ -1,10 +1,12 @@
+const { execFile } = require('../../server/src/constants');
+
 /*
 * Gets the prod env qtum path for either qtumd or qtum-qt.
 * @param execFile {String} The exec file type needed to be returned.
 * return {String} The full prod path for qtumd or qtum-qt.
 */
 function getProdQtumExecPath(exec) {
-  if (exec !== execFile.QTUMD && execFile.QTUM_QT) {
+  if (exec !== execFile.QTUMD && exec !== execFile.QTUM_QT) {
     throw Error(`Invalid execFile type: ${exec}`);
   }
 
@@ -36,6 +38,7 @@ function getProdQtumExecPath(exec) {
     }
   }
 
+  const { app } = require('electron');
   let path;
   if (platform === 'win32') {
     path = `${app.getAppPath()}/server/qtum/${osFolder}/bin/${exec}.exe`;

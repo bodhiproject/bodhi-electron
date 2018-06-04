@@ -144,7 +144,7 @@ async function startBackend(blockchainEnv) {
   } else {
     qtumdPath = getProdQtumExecPath(execFile.QTUMD);
   }
-  if (_.isEmpty(blockchainEnv)) {
+  if (_.isEmpty(qtumdPath)) {
     throw Error(`qtumdPath cannot be empty.`);
   }
 
@@ -195,12 +195,12 @@ function showSelectEnvDialog() {
   });
 }
 
-function showErrorDialog(err) {
+function showErrorDialog(errMessage) {
   dialog.showMessageBox({
     type: 'error',
     buttons: [i18n.get('quit')],
     title: i18n.get('error'),
-    message: err.message,
+    message: errMessage,
   }, (response) => {
     exit();
   });
@@ -235,16 +235,14 @@ function showWalletUnlockPrompt() {
     label: i18n.get('enterYourWalletPassphrase'),
     value: '',
     type: 'input',
-    inputAttrs: {
-      type: 'password'
-    },
+    inputAttrs: { type: 'password' },
   }).then(async (res) => {
     // null if window was closed, or user clicked Cancel
     if (res === null) {
       app.quit();
     } else {
       if (_.isEmpty(res)) {
-        throw new Error('The wallet passphrase entered was incorrect.');
+        throw Error('The wallet passphrase entered was incorrect.');
       }
 
       // Unlock wallet
@@ -255,7 +253,7 @@ function showWalletUnlockPrompt() {
         startServices();
       } else {
         getLogger().error('Wallet unlock failed');
-        throw new Error(i18n.get('walletUnlockFailed'));
+        throw Error(i18n.get('walletUnlockFailed'));
       }
     }
   }).catch((err) => {
@@ -358,13 +356,13 @@ app.on('before-quit', () => {
 
 /* Emitter Events */
 // Show error dialog for any errors from startServer()
-Emitter.emitter.on(ipcEvent.SERVER_START_ERROR, (err) => {
-  showErrorDialog(err);
+Emitter.emitter.on(ipcEvent.SERVER_START_ERROR, (errMessage) => {
+  showErrorDialog(errMessage);
 });
 
 // Show error dialog for any qtumd start errors
-Emitter.emitter.on(ipcEvent.QTUMD_ERROR, (err) => {
-  showErrorDialog(err);
+Emitter.emitter.on(ipcEvent.QTUMD_ERROR, (errMessage) => {
+  showErrorDialog(errMessage);
 });
 
 // Delay, then start qtum-qt
