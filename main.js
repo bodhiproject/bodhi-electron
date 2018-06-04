@@ -290,6 +290,20 @@ function showLaunchQtumWalletDialog() {
   });
 }
 
+function startQtWallet() {
+  let qtumqtPath;
+  if (isDevEnv()) {
+    qtumqtPath = getQtumPath(execFile.QTUM_QT);
+  } else {
+    qtumqtPath = getProdQtumExecPath(execFile.QTUM_QT);
+  }
+  if (_.isEmpty(blockchainEnv)) {
+    throw Error(`qtumqtPath cannot be empty.`);
+  }
+
+  setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
+}
+
 function showAboutDialog() {
   app.focus();
   dialog.showMessageBox({
@@ -355,7 +369,7 @@ Emitter.emitter.on(ipcEvent.QTUMD_ERROR, (err) => {
 
 // Delay, then start qtum-qt
 Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  setTimeout(() => require('./server/src/start_wallet'), 4000);
+  startQtWallet();
 });
 
 // Load UI when services are running
