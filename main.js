@@ -4,17 +4,17 @@ const prompt = require('electron-prompt');
 const restify = require('restify');
 const path = require('path');
 
-const { testnetOnly } = require('./package.json');
+const { version, testnetOnly } = require('./package.json');
+const Tracking = require('./src/analytics/tracking');
+const { getProdQtumExecPath } = require('./src/utils/utils');
 const { initDB } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
-const { blockchainEnv, ipcEvent } = require('./server/src/constants');
-const Tracking = require('./src/analytics/tracking');
-const Utils = require('./server/src/utils/utils');
+const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
+const { isDevEnv, getQtumPath } = require('./server/src/utils/utils');
 const Wallet = require('./server/src/api/wallet');
-const { version } = require('./package.json');
 
 /*
 * Order of Operations
@@ -132,6 +132,26 @@ function loadUI() {
   uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
 }
 
+async function startBackend(blockchainEnv) {
+  if (_.isEmpty(blockchainEnv)) {
+    throw Error(`blockchainEnv cannot be empty.`);
+  }
+
+  // Get qtumd path
+  let qtumdPath;
+  if (isDevEnv()) {
+    qtumdPath = getQtumPath(execFile.QTUMD);
+  } else {
+    qtumdPath = getProdQtumExecPath(execFile.QTUMD);
+  }
+  if (_.isEmpty(blockchainEnv)) {
+    throw Error(`qtumdPath cannot be empty.`);
+  }
+
+  await startServer(blockchainEnv, qtumdPath);
+  initBrowserWindow();
+}
+
 // Show environment selection dialog
 function showSelectEnvDialog() {
   app.focus();
@@ -142,10 +162,10 @@ function showSelectEnvDialog() {
     message: i18n.get('selectQtumEnvironment'),
     defaultId: 2,
     cancelId: 2,
-  }, async (response) => {
+  }, (response) => {
     switch (response) {
-      case 0: {
-        if (testnetOnly) { // Testnet only
+      case 0: { // Mainnet selected
+        if (testnetOnly) { // Testnet-only flag found
           dialog.showMessageBox({
             type: 'info',
             buttons: [],
@@ -154,26 +174,22 @@ function showSelectEnvDialog() {
           });
           showSelectEnvDialog();
         } else { // Mainnet/Testnet allowed
-          await startServer(blockchainEnv.MAINNET);
-          initBrowserWindow();
+          startBackend(blockchainEnv.MAINNET);
+          Tracking.mainnetStart();
         }
-
-        Tracking.mainnetStart();
         break;
       }
-      case 1: {
-        await startServer(blockchainEnv.TESTNET);
-        initBrowserWindow();
-
+      case 1: { // Testnet selected
+        startBackend(blockchainEnv.TESTNET);
         Tracking.testnetStart();
         break;
       }
-      case 2: {
+      case 2: { // Quit selected
         app.quit();
         return;
       }
       default: {
-        throw new Error(`Invalid dialog button selection ${response}`);
+        throw Error(`Invalid dialog button selection ${response}`);
       }
     }
   });
