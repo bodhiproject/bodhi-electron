@@ -5,7 +5,8 @@
 
 # Run Dev Environment
   
-    npm start
+    npm start           // With Electron UI window
+    npm run start:noui  // Without Electron UI window
 
 # Build Release Versions
 We are currently using [Electron](https://github.com/electron/electron) and [Electron-Builder](https://github.com/electron-userland/electron-builder) to package our apps into native format depending on OS.
@@ -27,6 +28,6 @@ We are currently using [Electron](https://github.com/electron/electron) and [Ele
 3. Run the executable
 
 # Updating UI Files
-1. In UI repo, `npm run build` to build the UI files
+1. In the bodhi-ui repo, `npm run build` to build the UI files.
 
-2. Copy all the files in `bodhi-ui/build` folder to `bodhi-graphql/ui`
+2. Copy all the files in `bodhi-ui/build` folder to `bodhi-electron/ui`
