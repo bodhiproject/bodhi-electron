@@ -38,9 +38,9 @@ function getProdQtumExecPath(exec) {
 
   let path;
   if (platform === 'win32') {
-    path = `${app.getAppPath()}/qtum/${osFolder}/bin/${exec}.exe`;
+    path = `${app.getAppPath()}/server/qtum/${osFolder}/bin/${exec}.exe`;
   } else {
-    path = `${app.getAppPath()}/qtum/${osFolder}/bin/${exec}`;
+    path = `${app.getAppPath()}/server/qtum/${osFolder}/bin/${exec}`;
   }
 
   return path.replace('app.asar', 'app.asar.unpacked');
