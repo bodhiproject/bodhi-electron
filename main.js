@@ -119,7 +119,7 @@ function loadUI() {
   if (_.includes(process.argv, '--noui')) {
     return;
   }
-  
+
   // Host static files
   getServer().get(/\/?.*/, restify.plugins.serveStatic({
     directory: path.join(__dirname, './ui'),
@@ -176,6 +176,17 @@ function showSelectEnvDialog() {
         throw new Error(`Invalid dialog button selection ${response}`);
       }
     }
+  });
+}
+
+function showErrorDialog(err) {
+  dialog.showMessageBox({
+    type: 'error',
+    buttons: [i18n.get('quit')],
+    title: i18n.get('error'),
+    message: err.message,
+  }, (response) => {
+    exit();
   });
 }
 
@@ -316,17 +327,14 @@ app.on('before-quit', () => {
 });
 
 /* Emitter Events */
+// Show error dialog for any errors from startServer()
+Emitter.emitter.on(ipcEvent.SERVER_START_ERROR, (err) => {
+  showErrorDialog(err);
+});
 
-// Show error dialog if any startup errors
+// Show error dialog for any qtumd start errors
 Emitter.emitter.on(ipcEvent.QTUMD_ERROR, (err) => {
-  dialog.showMessageBox({
-    type: 'error',
-    buttons: [i18n.get('quit')],
-    title: i18n.get('error'),
-    message: err,
-  }, (response) => {
-    exit();
-  });
+  showErrorDialog(err);
 });
 
 // Delay, then start qtum-qt

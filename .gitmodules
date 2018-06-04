@@ -1,4 +1,5 @@
 [submodule "server"]
 	path = server
 	url = https://github.com/bodhiproject/bodhi-server
+  branch = error-handling
 
