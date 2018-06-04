@@ -13,7 +13,7 @@ const Emitter = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
-const { isDevEnv, getQtumPath } = require('./server/src/utils/utils');
+const { isDevEnv, getDevQtumExecPath } = require('./server/src/utils/utils');
 const Wallet = require('./server/src/api/wallet');
 
 /*
@@ -140,7 +140,7 @@ async function startBackend(blockchainEnv) {
   // Get qtumd path
   let qtumdPath;
   if (isDevEnv()) {
-    qtumdPath = getQtumPath(execFile.QTUMD);
+    qtumdPath = getDevQtumExecPath(execFile.QTUMD);
   } else {
     qtumdPath = getProdQtumExecPath(execFile.QTUMD);
   }
@@ -291,7 +291,7 @@ function showLaunchQtumWalletDialog() {
 function startQtWallet() {
   let qtumqtPath;
   if (isDevEnv()) {
-    qtumqtPath = getQtumPath(execFile.QTUM_QT);
+    qtumqtPath = getDevQtumExecPath(execFile.QTUM_QT);
   } else {
     qtumqtPath = getProdQtumExecPath(execFile.QTUM_QT);
   }
