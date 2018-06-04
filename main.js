@@ -107,11 +107,19 @@ function setupMenu() {
 
 // Init BrowserWindow with loading page
 function initBrowserWindow() {
+  if (_.includes(process.argv, '--noui')) {
+    return;
+  }
+
   createWindow();
   setupMenu();
 }
 
 function loadUI() {
+  if (_.includes(process.argv, '--noui')) {
+    return;
+  }
+  
   // Host static files
   getServer().get(/\/?.*/, restify.plugins.serveStatic({
     directory: path.join(__dirname, './ui'),
