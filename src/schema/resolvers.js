@@ -193,11 +193,12 @@ function buildTransactionFilters({
  * @param {oracle} oracle
  */
 const getPhase = ({ token, status }) => {
-  if (token === 'QTUM' && status === 'VOTING') return 'betting';
+  if (token === 'QTUM' && ['VOTING', 'PENDING', 'CREATED'].includes(status)) return 'betting';
   if (token === 'BOT' && status === 'VOTING') return 'voting';
   if (token === 'QTUM' && ['WAITRESULT', 'OPENRESULTSET'].includes(status)) return 'resultSetting';
   if (token === 'BOT' && status === 'WAITRESULT') return 'finalizing';
-  throw Error('invalid phase');
+  if (['QTUM', 'BOT'].includes(token) && status === 'WITHDRAW') return 'withdrawing';
+  throw Error(`Invalid Phase determined by these -> TOKEN: ${token} STATUS: ${status}`)
 };
 
 module.exports = {
