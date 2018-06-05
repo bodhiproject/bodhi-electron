@@ -4,7 +4,7 @@ const prompt = require('electron-prompt');
 const restify = require('restify');
 const path = require('path');
 
-const { version, testnetOnly } = require('./package.json');
+const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getProdQtumExecPath } = require('./src/utils/utils');
 const { initDB } = require('./server/src/db/nedb');
@@ -147,8 +147,8 @@ async function startBackend(blockchainEnv) {
   if (_.isEmpty(qtumdPath)) {
     throw Error(`qtumdPath cannot be empty.`);
   }
-
-  await startServer(blockchainEnv, qtumdPath);
+  
+  await startServer(blockchainEnv, qtumdPath, encryptOk);
   initBrowserWindow();
 }
 
