@@ -14,8 +14,8 @@
   ],
   "scripts": {
     "install-dep": "script/install.sh",
-    "start": "./node_modules/.bin/electron . --qtumpath=./server/qtum/mac/bin --dev --rpcpassword=bodhi --encryptok",
-    "start:noui": "./node_modules/.bin/electron . --qtumpath=./server/qtum/mac/bin --dev --rpcpassword=bodhi --encryptok --noui",
+    "start": "script/start.sh",
+    "start:noui": "script/start-noui.sh",
     "lint:fix": "eslint --fix -- src/.",
     "build:mac": "script/mac.sh",
     "build:win": "script/win.sh",
