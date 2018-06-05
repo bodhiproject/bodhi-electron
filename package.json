@@ -16,13 +16,13 @@
     "install-dep": "script/install.sh",
     "start": "script/start.sh",
     "start:noui": "script/start-noui.sh",
-    "lint:fix": "eslint --fix -- src/.",
     "build:mac": "script/mac.sh",
     "build:win": "script/win.sh",
     "build:lin": "script/lin.sh",
     "build:mac-tn": "script/mac-testnet.sh",
     "build:win-tn": "script/win-testnet.sh",
-    "build:lin-tn": "script/lin-testnet.sh"
+    "build:lin-tn": "script/lin-testnet.sh",
+    "lint:fix": "eslint --fix -- src/."
   },
   "build": {
     "appId": "network.bodhi.app",
