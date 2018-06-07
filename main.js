@@ -3,6 +3,7 @@ const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
 const restify = require('restify');
 const path = require('path');
+const os = require('os');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
@@ -164,7 +165,8 @@ function showSelectEnvDialog() {
     cancelId: 2,
   }, (response) => {
     switch (response) {
-      case 0: { // Mainnet selected
+      const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
+      case MAINNET: {
         if (testnetOnly) { // Testnet-only flag found
           dialog.showMessageBox({
             type: 'info',
@@ -179,12 +181,12 @@ function showSelectEnvDialog() {
         }
         break;
       }
-      case 1: { // Testnet selected
+      case TESTNET: {
         startBackend(blockchainEnv.TESTNET);
         Tracking.testnetStart();
         break;
       }
-      case 2: { // Quit selected
+      case QUIT: {
         app.quit();
         return;
       }
