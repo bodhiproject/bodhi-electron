@@ -10,7 +10,7 @@ const Tracking = require('./src/analytics/tracking');
 const { getProdQtumExecPath } = require('./src/utils/utils');
 const { initDB } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
-const Emitter = require('./server/src/utils/emitterHelper');
+const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
@@ -358,32 +358,32 @@ app.on('before-quit', () => {
 
 /* Emitter Events */
 // Show error dialog for any errors from startServer()
-Emitter.emitter.on(ipcEvent.SERVER_START_ERROR, (errMessage) => {
+EmitterHelper.emitter.on(ipcEvent.SERVER_START_ERROR, (errMessage) => {
   showErrorDialog(errMessage);
 });
 
 // Show error dialog for any qtumd start errors
-Emitter.emitter.on(ipcEvent.QTUMD_ERROR, (errMessage) => {
+EmitterHelper.emitter.on(ipcEvent.QTUMD_ERROR, (errMessage) => {
   showErrorDialog(errMessage);
 });
 
 // Delay, then start qtum-qt
-Emitter.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+EmitterHelper.emitter.on(ipcEvent.QTUMD_KILLED, () => {
   startQtWallet();
 });
 
 // Load UI when services are running
-Emitter.emitter.once(ipcEvent.API_INITIALIZED, () => {
+EmitterHelper.emitter.once(ipcEvent.API_INITIALIZED, () => {
   loadUI();
 });
 
 // Show wallet unlock prompt if wallet is encrypted
-Emitter.emitter.on(ipcEvent.WALLET_ENCRYPTED, () => {
+EmitterHelper.emitter.on(ipcEvent.WALLET_ENCRYPTED, () => {
   showWalletUnlockPrompt();
 });
 
 // backup-wallet API called
-Emitter.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
+EmitterHelper.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   const options = {
     title: 'Backup Wallet',
     filters: [
@@ -415,7 +415,7 @@ Emitter.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
 });
 
 // import-wallet API called
-Emitter.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
+EmitterHelper.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   dialog.showOpenDialog({
     properties: ['openFile']
   }, async (files) => {
