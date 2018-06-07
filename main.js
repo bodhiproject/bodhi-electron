@@ -164,8 +164,8 @@ function showSelectEnvDialog() {
     defaultId: 2,
     cancelId: 2,
   }, (response) => {
+    const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
     switch (response) {
-      const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
       case MAINNET: {
         if (testnetOnly) { // Testnet-only flag found
           dialog.showMessageBox({
