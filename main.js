@@ -65,6 +65,10 @@ function createWindow() {
     shell.openExternal(formattedUrl);
   });
 
+  if (_.includes(process.argv, '--devtools')) {
+    uiWin.webContents.openDevTools();
+  }
+
   // Load intermediary loading page
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 }

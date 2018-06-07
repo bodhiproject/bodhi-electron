@@ -15,6 +15,7 @@
   "scripts": {
     "install-dep": "script/install.sh",
     "start": "script/start.sh",
+    "start:devtools": "script/start-devtools.sh",
     "start:noui": "script/start-noui.sh",
     "build:mac": "script/mac.sh",
     "build:win": "script/win.sh",
