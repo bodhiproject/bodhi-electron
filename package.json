@@ -52,6 +52,7 @@
       "oneClick": false
     },
     "win": {
+      "artifactName": "Bodhi-Setup-${version}.${ext}",
       "asar": true,
       "asarUnpack": [
         "server/qtum/win64/bin/*",
