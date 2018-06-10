@@ -3,7 +3,7 @@
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
-  "version": "0.7.8-c0-d3",
+  "version": "0.8.0-c0-d3",
   "repository": "git@github.com:bodhiproject/bodhi-graphql.git",
   "main": "main.js",
   "keywords": [
@@ -13,34 +13,34 @@
     "graphql"
   ],
   "scripts": {
-    "install-dep": "npm install && ./node_modules/.bin/yarn install",
-    "start": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev --noelec --rpcpassword=bodhi",
-    "start-elec": "./node_modules/.bin/electron . --qtumpath=./qtum/mac/bin --dev --rpcpassword=bodhi",
-    "test": "mocha --recursive src/test/. --rpcpassword=bodhi --test",
-    "lint:fix": "eslint --fix -- src/.",
-    "build:mac": "npm run install-dep; ./node_modules/.bin/electron-builder build -m",
-    "build:win": "npm run install-dep; ./node_modules/.bin/electron-builder build -w",
-    "build:lin": "npm run install-dep; ./node_modules/.bin/electron-builder build -l",
-    "build:mac-tn": "npm run install-dep; ./node_modules/.bin/electron-builder build -m -c.extraMetadata.testnetOnly=true",
-    "build:win-tn": "npm run install-dep; ./node_modules/.bin/electron-builder build -w -c.extraMetadata.testnetOnly=true",
-    "build:lin-tn": "npm run install-dep; ./node_modules/.bin/electron-builder build -l -c.extraMetadata.testnetOnly=true"
+    "install-dep": "script/install.sh",
+    "start": "script/start.sh",
+    "start:devtools": "script/start-devtools.sh",
+    "start:noui": "script/start-noui.sh",
+    "build:mac": "script/mac.sh",
+    "build:win": "script/win.sh",
+    "build:lin": "script/lin.sh",
+    "build:mac-tn": "script/mac-testnet.sh",
+    "build:win-tn": "script/win-testnet.sh",
+    "build:lin-tn": "script/lin-testnet.sh",
+    "lint:fix": "eslint --fix -- src/."
   },
   "build": {
     "appId": "network.bodhi.app",
     "productName": "Bodhi",
     "mac": {
       "asar": true,
-      "asarUnpack": "qtum/mac/bin/*",
+      "asarUnpack": "server/qtum/mac/bin/*",
       "category": "public.app-category.utilities",
       "files": [
         {
           "filter": [
             "**/*",
             "build/icon.png",
-            "!qtum/linux32",
-            "!qtum/linux64",
-            "!qtum/win32",
-            "!qtum/win64"
+            "!server/qtum/linux32",
+            "!server/qtum/linux64",
+            "!server/qtum/win32",
+            "!server/qtum/win64"
           ]
         }
       ],
@@ -54,17 +54,17 @@
     "win": {
       "asar": true,
       "asarUnpack": [
-        "qtum/win64/bin/*",
-        "qtum/win32/bin/*"
+        "server/qtum/win64/bin/*",
+        "server/qtum/win32/bin/*"
       ],
       "files": [
         {
           "filter": [
             "**/*",
             "build/icon.ico",
-            "!qtum/linux32",
-            "!qtum/linux64",
-            "!qtum/mac"
+            "!server/qtum/linux32",
+            "!server/qtum/linux64",
+            "!server/qtum/mac"
           ]
         }
       ],
@@ -82,8 +82,8 @@
     "linux": {
       "asar": true,
       "asarUnpack": [
-        "qtum/linux64/bin/*",
-        "qtum/linux32/bin/*"
+        "server/qtum/linux64/bin/*",
+        "server/qtum/linux32/bin/*"
       ],
       "category": "Utility",
       "files": [
@@ -91,9 +91,9 @@
           "filter": [
             "**/*",
             "build/icon.png",
-            "!qtum/mac",
-            "!qtum/win32",
-            "!qtum/win64"
+            "!server/qtum/mac",
+            "!server/qtum/win32",
+            "!server/qtum/win64"
           ]
         }
       ],
@@ -110,36 +110,9 @@
     }
   },
   "dependencies": {
-    "apollo-server-restify": "^1.3.2",
-    "babel-polyfill": "^6.26.0",
-    "bignumber.js": "^6.0.0",
-    "bluebird": "^3.5.1",
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
-    "dataloader": "^1.3.0",
-    "dotenv": "^5.0.0",
     "electron-prompt": "^0.5.0",
-    "fs-extra": "^5.0.0",
-    "graphql": "^0.11.7",
-    "graphql-subscriptions": "^0.5.5",
-    "graphql-tools": "^2.10.0",
-    "i": "^0.3.6",
-    "lodash": "^4.17.4",
-    "mixpanel": "^0.9.1",
-    "moment": "^2.20.1",
-    "nedb": "^1.8.0",
-    "nedb-promise": "^2.0.1",
-    "node-fetch": "^1.7.3",
-    "pg": "^7.4.0",
-    "portscanner": "^2.1.1",
-    "qweb3": "^0.7.7",
-    "restify": "^6.3.4",
-    "restify-cors-middleware": "^1.1.0",
-    "restify-router": "^0.5.0",
-    "subscriptions-transport-ws": "^0.9.1",
-    "web3-utils": "^1.0.0-beta.26",
-    "winston": "^2.4.0",
-    "winston-papertrail": "^1.0.5"
+    "mixpanel": "^0.9.2",
+    "restify": "^6.4.0"
   },
   "devDependencies": {
     "electron": "^1.8.4",
@@ -149,24 +122,6 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1",
-    "mocha": "^4.1.0",
-    "yarn": "^1.3.2"
-  },
-  "authors": [
-    {
-      "name": "Frank Hu",
-      "email": "frank@bodhi.network",
-      "url": "https://www.bodhi.network/"
-    },
-    {
-      "name": "Deric Walintukan",
-      "email": "deric@bodhi.network",
-      "url": "https://www.bodhi.network/"
-    },
-    {
-      "name": "Chris Li",
-      "email": "chris@bodhi.network",
-      "url": "https://www.bodhi.network/"
-    }
-  ]
+    "yarn": "^1.7.0"
+  }
 }

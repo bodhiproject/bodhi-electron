@@ -1,18 +1,21 @@
 const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
+const restify = require('restify');
+const path = require('path');
+const os = require('os');
 
-const { testnetOnly } = require('./package.json');
-const { initDB } = require('./src/db/nedb');
-const server = require('./src/index');
-const { Emitter } = require('./src/utils/emitterHelper');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./src/config/config');
-const { getLogger } = require('./src/utils/logger');
-const { blockchainEnv, ipcEvent } = require('./src/constants');
+const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
-const Utils = require('./src/utils/utils');
-const Wallet = require('./src/api/wallet');
-const { version } = require('./package.json');
+const { getProdQtumExecPath } = require('./src/utils/utils');
+const { initDB } = require('./server/src/db/nedb');
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
+const EmitterHelper = require('./server/src/utils/emitterHelper');
+const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
+const { getLogger } = require('./server/src/utils/logger');
+const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
+const { isDevEnv, getDevQtumExecPath } = require('./server/src/utils/utils');
+const Wallet = require('./server/src/api/wallet');
 
 /*
 * Order of Operations
@@ -32,10 +35,6 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
-
-function startServer() {
-  server.startQtumProcess(false);
-}
 
 function createWindow() {
   // Create the browser window.
@@ -65,6 +64,10 @@ function createWindow() {
     }
     shell.openExternal(formattedUrl);
   });
+
+  if (_.includes(process.argv, '--devtools')) {
+    uiWin.webContents.openDevTools();
+  }
 
   // Load intermediary loading page
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
@@ -107,15 +110,51 @@ function setupMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-function initUI() {
-  // If --noelec flag is supplied, don't open any Electron windows
-  if (_.includes(process.argv, '--noelec')) {
+// Init BrowserWindow with loading page
+function initBrowserWindow() {
+  if (_.includes(process.argv, '--noui')) {
     return;
   }
 
-  // Init BrowserWindow
   createWindow();
   setupMenu();
+}
+
+function loadUI() {
+  if (_.includes(process.argv, '--noui')) {
+    return;
+  }
+
+  // Host static files
+  getServer().get(/\/?.*/, restify.plugins.serveStatic({
+    directory: path.join(__dirname, './ui'),
+    default: 'index.html',
+    maxAge: 0,
+  }));
+
+  // Load static website
+  uiWin.maximize();
+  uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+}
+
+async function startBackend(blockchainEnv) {
+  if (_.isEmpty(blockchainEnv)) {
+    throw Error(`blockchainEnv cannot be empty.`);
+  }
+
+  // Get qtumd path
+  let qtumdPath;
+  if (isDevEnv()) {
+    qtumdPath = getDevQtumExecPath(execFile.QTUMD);
+  } else {
+    qtumdPath = getProdQtumExecPath(execFile.QTUMD);
+  }
+  if (_.isEmpty(qtumdPath)) {
+    throw Error(`qtumdPath cannot be empty.`);
+  }
+  
+  await startServer(blockchainEnv, qtumdPath, encryptOk);
+  initBrowserWindow();
 }
 
 // Show environment selection dialog
@@ -128,10 +167,11 @@ function showSelectEnvDialog() {
     message: i18n.get('selectQtumEnvironment'),
     defaultId: 2,
     cancelId: 2,
-  }, async (response) => {
+  }, (response) => {
+    const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
     switch (response) {
-      case 0: {
-        if (testnetOnly) { // Testnet only
+      case MAINNET: {
+        if (testnetOnly) { // Testnet-only flag found
           dialog.showMessageBox({
             type: 'info',
             buttons: [],
@@ -140,34 +180,35 @@ function showSelectEnvDialog() {
           });
           showSelectEnvDialog();
         } else { // Mainnet/Testnet allowed
-          setQtumEnv(blockchainEnv.MAINNET);
-          getLogger().info('Env: Mainnet');
-          await initDB();
-          startServer();
-          initUI();
+          startBackend(blockchainEnv.MAINNET);
+          Tracking.mainnetStart();
         }
-
-        Tracking.mainnetStart();
         break;
       }
-      case 1: {
-        setQtumEnv(blockchainEnv.TESTNET);
-        getLogger().info('Env: Testnet');
-        await initDB();
-        startServer();
-        initUI();
-
+      case TESTNET: {
+        startBackend(blockchainEnv.TESTNET);
         Tracking.testnetStart();
         break;
       }
-      case 2: {
+      case QUIT: {
         app.quit();
         return;
       }
       default: {
-        throw new Error(`Invalid dialog button selection ${response}`);
+        throw Error(`Invalid dialog button selection ${response}`);
       }
     }
+  });
+}
+
+function showErrorDialog(errMessage) {
+  dialog.showMessageBox({
+    type: 'error',
+    buttons: [i18n.get('quit')],
+    title: i18n.get('error'),
+    message: errMessage,
+  }, (response) => {
+    exit();
   });
 }
 
@@ -200,16 +241,14 @@ function showWalletUnlockPrompt() {
     label: i18n.get('enterYourWalletPassphrase'),
     value: '',
     type: 'input',
-    inputAttrs: {
-      type: 'password'
-    },
+    inputAttrs: { type: 'password' },
   }).then(async (res) => {
     // null if window was closed, or user clicked Cancel
     if (res === null) {
       app.quit();
     } else {
       if (_.isEmpty(res)) {
-        throw new Error('The wallet passphrase entered was incorrect.');
+        throw Error('The wallet passphrase entered was incorrect.');
       }
 
       // Unlock wallet
@@ -217,10 +256,10 @@ function showWalletUnlockPrompt() {
       const info = await Wallet.getWalletInfo();
       if (info.unlocked_until > 0) {
         getLogger().info('Wallet unlocked');
-        server.startServices();
+        startServices();
       } else {
         getLogger().error('Wallet unlock failed');
-        throw new Error(i18n.get('walletUnlockFailed'));
+        throw Error(i18n.get('walletUnlockFailed'));
       }
     }
   }).catch((err) => {
@@ -240,8 +279,8 @@ function showLaunchQtumWalletDialog() {
     cancelId: 0,
   }, (response) => {
     if (response === 1) {
-      if (server.getQtumProcess()) {
-        server.terminateDaemon();
+      if (getQtumProcess()) {
+        killQtumProcess(true);
       } else {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
@@ -255,6 +294,20 @@ function showLaunchQtumWalletDialog() {
   });
 }
 
+function startQtWallet() {
+  let qtumqtPath;
+  if (isDevEnv()) {
+    qtumqtPath = getDevQtumExecPath(execFile.QTUM_QT);
+  } else {
+    qtumqtPath = getProdQtumExecPath(execFile.QTUM_QT);
+  }
+  if (_.isEmpty(blockchainEnv)) {
+    throw Error(`qtumqtPath cannot be empty.`);
+  }
+
+  setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
+}
+
 function showAboutDialog() {
   app.focus();
   dialog.showMessageBox({
@@ -265,23 +318,18 @@ function showAboutDialog() {
   });
 }
 
-function killServer() {
-  const proc = server.getQtumProcess();
-  if (proc) {
-    try {
-      getLogger().debug('Killing process', proc.pid);
-      proc.kill();
-    } catch (err) {
-      getLogger().error(`Error killing process ${proc.pid}:`, err);
-    }
-  }
-}
-
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting`);
-  killServer();
+  killQtumProcess();
   app.quit();
 }
+
+// Handle exit signals
+process.on('SIGINT', exit);
+process.on('SIGTERM', exit);
+process.on('SIGHUP', exit);
+
+/* Electron Events */
 
 // This method will be called when Electron has finished initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -309,64 +357,90 @@ app.on('window-all-closed', () => {
 // Emitted before the application starts closing its windows.
 app.on('before-quit', () => {
   getLogger().debug('before-quit');
-  killServer();
+  killQtumProcess();
+});
+
+/* Emitter Events */
+// Show error dialog for any errors from startServer()
+EmitterHelper.emitter.on(ipcEvent.SERVER_START_ERROR, (errMessage) => {
+  showErrorDialog(errMessage);
+});
+
+// Show error dialog for any qtumd start errors
+EmitterHelper.emitter.on(ipcEvent.QTUMD_ERROR, (errMessage) => {
+  showErrorDialog(errMessage);
+});
+
+// Delay, then start qtum-qt
+EmitterHelper.emitter.on(ipcEvent.QTUMD_KILLED, () => {
+  startQtWallet();
 });
 
 // Load UI when services are running
-server.emitter.once(ipcEvent.SERVICES_RUNNING, () => {
-  if (uiWin) {
-    uiWin.maximize();
-    uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-  }
+EmitterHelper.emitter.once(ipcEvent.API_INITIALIZED, () => {
+  loadUI();
 });
 
-// Show error dialog if any startup errors
-server.emitter.on(ipcEvent.STARTUP_ERROR, (err) => {
-  dialog.showMessageBox({
-    type: 'error',
-    buttons: [i18n.get('quit')],
-    title: i18n.get('error'),
-    message: err,
-  }, (response) => {
-    exit();
-  });
+// Show wallet unlock prompt if wallet is encrypted
+EmitterHelper.emitter.on(ipcEvent.WALLET_ENCRYPTED, () => {
+  showWalletUnlockPrompt();
 });
 
-
-Emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
+// backup-wallet API called
+EmitterHelper.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   const options = {
     title: 'Backup Wallet',
     filters: [
       { name: 'backup', extensions: ['dat'] }
     ]
   }
-  dialog.showSaveDialog(options, (filename) => {
-    Emitter.emit(ipcEvent.BACKUP_FILE, filename);
-  })
-})
-
-Emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
-  dialog.showOpenDialog({
-    properties: ['openFile']
-  }, (files) => {
-    if (files) {
-      Emitter.emit(ipcEvent.RESTORE_FILE, files)
+  dialog.showSaveDialog(options, async (path) => {
+    try {
+      if (!_.isUndefined(path)) {
+        await require('./server/src/api/wallet').backupWallet({ destination: path });
+        const options = {
+          type: 'info',
+          title: 'Information',
+          message: i18n.get('backupSuccess'),
+          buttons: [i18n.get('ok')],
+        };
+        dialog.showMessageBox(options);
+      }
+    } catch (err) {
+      const options = {
+        type: 'error',
+        title: i18n.get('error'),
+        message: err.message,
+        buttons: [i18n.get('ok')],
+      };
+      dialog.showMessageBox(options);
     }
   })
-})
-
-// Show wallet unlock prompt if wallet is encrypted
-server.emitter.on(ipcEvent.SHOW_WALLET_UNLOCK, () => {
-  showWalletUnlockPrompt();
 });
 
-// Delay, then start qtum-qt
-server.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  setTimeout(() => {
-    require('./src/start_wallet');
-  }, 4000);
-});
+// import-wallet API called
+EmitterHelper.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
+  dialog.showOpenDialog({
+    properties: ['openFile']
+  }, async (files) => {
+    try {
+      if (!_.isEmpty(files)) {
+        await require('./server/src/api/wallet').importWallet({ filename: files[0] });
 
-process.on('SIGINT', exit);
-process.on('SIGTERM', exit);
-process.on('SIGHUP', exit);
+        dialog.showMessageBox({
+          type: 'info',
+          title: 'Information',
+          message: i18n.get('importSuccess'),
+          buttons: [i18n.get('ok')],
+        });
+      }
+    } catch (err) {
+      dialog.showMessageBox({
+        type: 'error',
+        title: i18n.get('error'),
+        message: err.message,
+        buttons: [i18n.get('ok')],
+      });
+    }
+  })
+});
