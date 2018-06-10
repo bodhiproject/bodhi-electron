@@ -12,10 +12,6 @@
     "defaultMessage": "BOT Court"
   },
   {
-    "id": "language.select",
-    "defaultMessage": "中文"
-  },
-  {
     "id": "navBar.activities",
     "defaultMessage": "My Activities"
   }

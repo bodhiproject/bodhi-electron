@@ -1,0 +1,14 @@
+[
+  {
+    "id": "tutorial.gotItLetsStart",
+    "defaultMessage": "Got It. Let's Start."
+  },
+  {
+    "id": "tutorial.next",
+    "defaultMessage": "Next"
+  },
+  {
+    "id": "tutorial.previous",
+    "defaultMessage": "Previous"
+  }
+]
