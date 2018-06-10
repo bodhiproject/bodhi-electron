@@ -8,7 +8,15 @@
     "defaultMessage": "Ends"
   },
   {
+    "id": "str.upcoming",
+    "defaultMessage": "Upcoming"
+  },
+  {
     "id": "str.end",
     "defaultMessage": "Ended"
+  },
+  {
+    "id": "str.waitForResultSetting",
+    "defaultMessage": "Waiting for result setting"
   }
 ]
