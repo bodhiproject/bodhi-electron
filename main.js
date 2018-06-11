@@ -35,10 +35,6 @@ const startRestify = () => {
   });
 
   server.listen(Config.PORT, () => {
-  //   SubscriptionServer.create(
-  //     { execute, subscribe, schema },
-  //     { server, path: '/subscriptions' },
-  //   );
     console.log(`Bodhi Restify is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
 
