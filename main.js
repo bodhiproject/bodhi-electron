@@ -27,11 +27,11 @@ const startRestify = () => {
   // server.use(cors.actual);
   
   server.on('after', (req, res, route, err) => {
-    // if (route) {
-    //   getLogger().debug(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
-    // } else {
-    //   getLogger().error(`${err.message}`);
-    // }
+    if (route) {
+      console.log(`${route.methods[0]} ${route.spec.path} ${res.statusCode}`);
+    } else {
+      console.error(`${err.message}`);
+    }
   });
 
   server.listen(Config.PORT, () => {
@@ -39,7 +39,7 @@ const startRestify = () => {
   //     { execute, subscribe, schema },
   //     { server, path: '/subscriptions' },
   //   );
-    // getLogger().info(`Bodhi API is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
+    console.log(`Bodhi Restify is running at http://${Config.HOSTNAME}:${Config.PORT}.`);
   });
 
   // Host static files
@@ -61,7 +61,6 @@ const createWindow = () => {
   });
 
   uiWin.on('closed', () => {
-    // getLogger().debug('uiWin closed');
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -185,7 +184,7 @@ const showAboutDialog = () => {
 };
 
 const exit = (signal) => {
-  // getLogger().info(`Received ${signal}, exiting`);
+  console.log(`Received ${signal}, exiting`);
   app.quit();
 };
 
@@ -206,7 +205,7 @@ app.on('ready', () => {
 
 // Emitted when the application is activated.
 app.on('activate', () => {
-  // getLogger().debug('activate');
+  console.log('activate');
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (uiWin === null) {
@@ -216,10 +215,10 @@ app.on('activate', () => {
 
 // Emitted when all windows have been closed.
 app.on('window-all-closed', () => {
-  // getLogger().debug('window-all-closed');
+  console.log('window-all-closed');
 });
 
 // Emitted before the application starts closing its windows.
 app.on('before-quit', () => {
-  // getLogger().debug('before-quit');
+  console.log('before-quit');
 });
