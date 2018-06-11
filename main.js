@@ -7,6 +7,7 @@ const os = require('os');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const { Config } = require('./src/config/config');
+const Tracking = require('./src/analytics/tracking');
 
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
@@ -14,83 +15,10 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
+let server;
 
-function createWindow() {
-  // Create the browser window.
-  uiWin = new BrowserWindow({
-    width: 400,
-    height: 400,
-    webPreferences: {
-      nativeWindowOpen: true,
-    },
-  });
-
-  uiWin.on('closed', () => {
-    // getLogger().debug('uiWin closed');
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    uiWin = null
-    app.quit();
-  });
-
-  uiWin.webContents.on('new-window', (event, url) => {
-    event.preventDefault();
-
-    let formattedUrl = url;
-    if (url.includes(EXPLORER_URL_PLACEHOLDER)) {
-      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, getQtumExplorerUrl());
-    }
-    shell.openExternal(formattedUrl);
-  });
-
-  if (_.includes(process.argv, '--devtools')) {
-    uiWin.webContents.openDevTools();
-  }
-
-  // Load intermediary loading page
-  uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
-}
-
-function setupMenu() {
-  const template = [
-    {
-      label: "Application",
-      submenu: [
-        { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
-        { label: "About", click: () => showAboutDialog() },
-        { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-      ]
-    },
-    {
-      label: "Edit",
-      submenu: [
-        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-        { type: "separator" },
-        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" },
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        {role: 'resetzoom'},
-        {role: 'zoomin'},
-        {role: 'zoomout'},
-        {type: 'separator'},
-        {role: 'togglefullscreen'}
-      ]
-    },
-  ];
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-}
-
-function loadUI() {
-  const server = restify.createServer({ title: 'Bodhi Restify' });
+const startRestify = () => {
+  server = restify.createServer({ title: 'Bodhi Restify' });
   server.use(restify.plugins.bodyParser({ mapParams: true }));
   server.use(restify.plugins.queryParser());
 
@@ -120,25 +48,90 @@ function loadUI() {
     default: 'index.html',
     maxAge: 0,
   }));
+};
+
+const createWindow = () => {
+  // Create the browser window.
+  uiWin = new BrowserWindow({
+    width: 1000,
+    height: 1000,
+    webPreferences: {
+      nativeWindowOpen: true,
+    },
+  });
+
+  uiWin.on('closed', () => {
+    // getLogger().debug('uiWin closed');
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    uiWin = null
+    app.quit();
+  });
+
+  uiWin.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+
+    let formattedUrl = url;
+    if (url.includes(EXPLORER_URL_PLACEHOLDER)) {
+      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, getQtumExplorerUrl());
+    }
+    shell.openExternal(formattedUrl);
+  });
+
+  if (_.includes(process.argv, '--devtools')) {
+    uiWin.webContents.openDevTools();
+  }
 
   // Load static website
   uiWin.maximize();
   uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
-}
+};
 
-// Init BrowserWindow with loading page
-function initBrowserWindow() {
-  if (_.includes(process.argv, '--noui')) {
-    return;
-  }
+const setupMenu = () => {
+  const template = [
+    {
+      label: "Application",
+      submenu: [
+        { label: "About", click: () => showAboutDialog() },
+        { type: "separator" },
+        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+      ]
+    },
+    {
+      label: "Edit",
+      submenu: [
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" },
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {role: 'resetzoom'},
+        {role: 'zoomin'},
+        {role: 'zoomout'},
+        {type: 'separator'},
+        {role: 'togglefullscreen'}
+      ]
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+};
 
+const initUi = () => {
+  startRestify();
   createWindow();
   setupMenu();
-  loadUI();
-}
+};
 
 // Show environment selection dialog
-function showSelectEnvDialog() {
+const showSelectEnvDialog = () => {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
@@ -160,14 +153,14 @@ function showSelectEnvDialog() {
           });
           showSelectEnvDialog();
         } else { // Mainnet/Testnet allowed
-          initBrowserWindow();
-          // Tracking.mainnetStart();
+          initUi();
+          Tracking.mainnetStart();
         }
         break;
       }
       case TESTNET: {
-        initBrowserWindow();
-        // Tracking.testnetStart();
+        initUi();
+        Tracking.testnetStart();
         break;
       }
       case QUIT: {
@@ -179,9 +172,9 @@ function showSelectEnvDialog() {
       }
     }
   });
-}
+};
 
-function showAboutDialog() {
+const showAboutDialog = () => {
   app.focus();
   dialog.showMessageBox({
     type: 'question',
@@ -189,12 +182,12 @@ function showAboutDialog() {
     title: i18n.get('aboutDialogTitle'),
     message: `${i18n.get('version')}: ${version}`,
   });
-}
+};
 
-function exit(signal) {
+const exit = (signal) => {
   // getLogger().info(`Received ${signal}, exiting`);
   app.quit();
-}
+};
 
 // Handle exit signals
 process.on('SIGINT', exit);
