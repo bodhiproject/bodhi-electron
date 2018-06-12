@@ -9,7 +9,7 @@ const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getProdQtumExecPath } = require('./src/utils/utils');
 const { initDB } = require('./server/src/db/nedb');
-const { getQtumProcess, killQtumProcess, startServices, startServer, shutdownServer, getServer } = require('./server/src/server');
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
 const { getLogger } = require('./server/src/utils/logger');
@@ -320,7 +320,6 @@ function showAboutDialog() {
 function exit(signal) {
   getLogger().info(`Received ${signal}, exiting`);
   killQtumProcess();
-  shutdownServer();
   app.quit();
 }
 
