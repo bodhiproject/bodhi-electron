@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
-const restify = require('restify');
+const express = require('express');
 const path = require('path');
 const os = require('os');
 
@@ -29,6 +29,7 @@ const Wallet = require('./server/src/api/wallet');
 * 8. Load UI
 */
 
+const UI_PORT = 3000;
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -125,16 +126,14 @@ function loadUI() {
     return;
   }
 
-  // Host static files
-  // getServer().get(/\/?.*/, restify.plugins.serveStatic({
-  //   directory: path.join(__dirname, './ui'),
-  //   default: 'index.html',
-  //   maxAge: 0,
-  // }));
+  // Host React static files
+  const app = express();
+  app.use(express.static(path.join(__dirname, './ui')));
+  app.listen(UI_PORT);
 
-  // Load static website
+  // Load React app
   uiWin.maximize();
-  uiWin.loadURL(`http://${Config.HOSTNAME}:${Config.PORT}`);
+  uiWin.loadURL(`http://localhost:${UI_PORT}`);
 }
 
 async function startBackend(blockchainEnv) {

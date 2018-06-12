@@ -112,6 +112,7 @@
   },
   "dependencies": {
     "electron-prompt": "^0.5.0",
+    "express": "^4.16.3",
     "mixpanel": "^0.9.2",
     "restify": "^6.4.0"
   },
