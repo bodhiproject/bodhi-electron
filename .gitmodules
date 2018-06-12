@@ -1,4 +1,3 @@
 [submodule "server"]
 	path = server
 	url = https://github.com/bodhiproject/bodhi-server
-  branch = 31-server-shutdown

@@ -126,11 +126,11 @@ function loadUI() {
   }
 
   // Host static files
-  getServer().get(/\/?.*/, restify.plugins.serveStatic({
-    directory: path.join(__dirname, './ui'),
-    default: 'index.html',
-    maxAge: 0,
-  }));
+  // getServer().get(/\/?.*/, restify.plugins.serveStatic({
+  //   directory: path.join(__dirname, './ui'),
+  //   default: 'index.html',
+  //   maxAge: 0,
+  // }));
 
   // Load static website
   uiWin.maximize();
