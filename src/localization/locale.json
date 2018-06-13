@@ -9,15 +9,15 @@
   },
   "delete": {
     "en": "Delete",
-    "zh": "Delete"
+    "zh": "删除"
   },
   "deleteDataDialogTitle": {
     "en": "Delete Bodhi data?",
-    "zh": "Delete Bodhi data?"
+    "zh": "删除菩提数据"
   },
   "deleteDataDialogMessage": {
     "en": "Deleting all Bodhi-related data will close the dapp. You will have to resync when you start Bodhi again. Are you sure?",
-    "zh": "Deleting all Bodhi-related data will close the dapp. You will have to resync when you start Bodhi again. Are you sure?"
+    "zh": "在关闭将这个应用的时候，删除所有与菩提相关的数据。当你打开菩提的时候,你必须再次同步这些数据。你确定吗？"
   },
   "enterYourWalletPassphrase": {
     "en": "Enter your wallet passphrase:",

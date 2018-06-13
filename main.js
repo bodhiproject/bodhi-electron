@@ -8,7 +8,7 @@ const os = require('os');
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getProdQtumExecPath } = require('./src/utils/utils');
-const { initDB } = require('./server/src/db/nedb');
+const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
@@ -113,18 +113,20 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      if (getQtumProcess()) {
-        
-      } else {
-        // Show dialog to wait for initializing to finish
-        dialog.showMessageBox({
-          type: 'error',
-          buttons: [i18n.get('ok')],
-          title: i18n.get('error'),
-          message: i18n.get('functionDisabledUntilInitialized'),
-        });
-      }
+      killQtumProcess(false);
+      deleteBodhiData();
+      app.quit();
     }
+  });
+}
+
+function showAboutDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('ok')],
+    title: i18n.get('aboutDialogTitle'),
+    message: `${i18n.get('version')}: ${version}`,
   });
 }
 
@@ -138,7 +140,7 @@ function setupMenu() {
         { type: "separator" },
         { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        { label: "Quit", accelerator: "Command+Q", click: () => exit() },
       ]
     },
     {
@@ -335,16 +337,6 @@ function startQtWallet() {
   }
 
   setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
-}
-
-function showAboutDialog() {
-  app.focus();
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: [i18n.get('ok')],
-    title: i18n.get('aboutDialogTitle'),
-    message: `${i18n.get('version')}: ${version}`,
-  });
 }
 
 function exit(signal) {
