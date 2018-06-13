@@ -74,8 +74,58 @@ function createWindow() {
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 }
 
-function showDeleteDataDialog() {
+function showLaunchQtumWalletDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('cancel'), i18n.get('launch')],
+    title: i18n.get('qtumWalletDialogTitle'),
+    message: i18n.get('qtumWalletDialogMessage'),
+    defaultId: 0,
+    cancelId: 0,
+  }, (response) => {
+    if (response === 1) {
+      if (getQtumProcess()) {
+        killQtumProcess(true);
+      } else {
+        // Show dialog to wait for initializing to finish
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: [i18n.get('ok')],
+          title: i18n.get('error'),
+          message: i18n.get('functionDisabledUntilInitialized'),
+        });
+      }
+    }
+  });
+}
 
+function showDeleteDataDialog() {
+  app.focus();
+
+  const [CANCEL, DELETE] = [0, 1];
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('cancel'), i18n.get('delete')],
+    title: i18n.get('deleteDataDialogTitle'),
+    message: i18n.get('deleteDataDialogMessage'),
+    defaultId: CANCEL,
+    cancelId: CANCEL,
+  }, (response) => {
+    if (response === DELETE) {
+      if (getQtumProcess()) {
+        
+      } else {
+        // Show dialog to wait for initializing to finish
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: [i18n.get('ok')],
+          title: i18n.get('error'),
+          message: i18n.get('functionDisabledUntilInitialized'),
+        });
+      }
+    }
+  });
 }
 
 function setupMenu() {
@@ -270,32 +320,6 @@ function showWalletUnlockPrompt() {
   }).catch((err) => {
     getLogger().error(err.message);
     showWalletErrorDialog(err.message);
-  });
-}
-
-function showLaunchQtumWalletDialog() {
-  app.focus();
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: [i18n.get('cancel'), i18n.get('launch')],
-    title: i18n.get('qtumWalletDialogTitle'),
-    message: i18n.get('qtumWalletDialogMessage'),
-    defaultId: 0,
-    cancelId: 0,
-  }, (response) => {
-    if (response === 1) {
-      if (getQtumProcess()) {
-        killQtumProcess(true);
-      } else {
-        // Show dialog to wait for initializing to finish
-        dialog.showMessageBox({
-          type: 'error',
-          buttons: [i18n.get('ok')],
-          title: i18n.get('error'),
-          message: i18n.get('functionDisabledUntilInitialized'),
-        });
-      }
-    }
   });
 }
 

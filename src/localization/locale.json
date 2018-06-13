@@ -7,6 +7,18 @@
     "en": "Cancel",
     "zh": "取消"
   },
+  "delete": {
+    "en": "Delete",
+    "zh": "Delete"
+  },
+  "deleteDataDialogTitle": {
+    "en": "Delete Bodhi data?",
+    "zh": "Delete Bodhi data?"
+  },
+  "deleteDataDialogMessage": {
+    "en": "Deleting all Bodhi-related data will close the dapp. You will have to resync when you start Bodhi again. Are you sure?",
+    "zh": "Deleting all Bodhi-related data will close the dapp. You will have to resync when you start Bodhi again. Are you sure?"
+  },
   "enterYourWalletPassphrase": {
     "en": "Enter your wallet passphrase:",
     "zh": "输入您的钱包密码:"
