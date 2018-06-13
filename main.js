@@ -128,7 +128,7 @@ function showAboutDialog() {
     type: 'question',
     buttons: [i18n.get('ok')],
     title: i18n.get('aboutDialogTitle'),
-    message: `${i18n.get('version')}: ${version}`,
+    message: `${i18n.get('version')}: ${version}\n${os.hostname()}`,
   });
 }
 
