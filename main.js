@@ -74,12 +74,18 @@ function createWindow() {
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 }
 
+function showDeleteDataDialog() {
+
+}
+
 function setupMenu() {
   const template = [
     {
       label: "Application",
       submenu: [
         { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
+        { label: "Delete Bodhi Data", click: () => showDeleteDataDialog() },
+        { type: "separator" },
         { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
         { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
