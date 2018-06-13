@@ -76,15 +76,17 @@ function createWindow() {
 
 function showLaunchQtumWalletDialog() {
   app.focus();
+
+  const [CANCEL, LAUNCH] = [0, 1];
   dialog.showMessageBox({
     type: 'question',
     buttons: [i18n.get('cancel'), i18n.get('launch')],
     title: i18n.get('qtumWalletDialogTitle'),
     message: i18n.get('qtumWalletDialogMessage'),
-    defaultId: 0,
-    cancelId: 0,
+    defaultId: CANCEL,
+    cancelId: CANCEL,
   }, (response) => {
-    if (response === 1) {
+    if (response === LAUNCH) {
       if (getQtumProcess()) {
         killQtumProcess(true);
       } else {
@@ -217,15 +219,16 @@ async function startBackend(blockchainEnv) {
 // Show environment selection dialog
 function showSelectEnvDialog() {
   app.focus();
+
+  const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
   dialog.showMessageBox({
     type: 'question',
     buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
     title: i18n.get('selectQtumEnvironment'),
     message: i18n.get('selectQtumEnvironment'),
-    defaultId: 2,
-    cancelId: 2,
+    defaultId: QUIT,
+    cancelId: QUIT,
   }, (response) => {
-    const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
     switch (response) {
       case MAINNET: {
         if (testnetOnly) { // Testnet-only flag found
