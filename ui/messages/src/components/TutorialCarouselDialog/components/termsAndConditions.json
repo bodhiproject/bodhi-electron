@@ -1,17 +1,5 @@
 [
   {
-    "id": "language.select",
-    "defaultMessage": "中文"
-  },
-  {
-    "id": "tnc.acceptCheckboxText",
-    "defaultMessage": "I accept the Terms and Conditions"
-  },
-  {
-    "id": "tnc.accept",
-    "defaultMessage": "Accept"
-  },
-  {
     "id": "tnc.title",
     "defaultMessage": "Bodhi Terms and Conditions"
   },
@@ -234,5 +222,9 @@
   {
     "id": "tnc.misc7",
     "defaultMessage": "If any provision of these Terms and Conditions is held by a court of competent jurisdiction to be unenforceable under applicable law, then such provision shall be excluded from these Terms and Conditions and the remainder of these Terms and Conditions shall be interpreted as if such provision was so excluded and shall be enforceable in accordance with its terms; provided, however, that in such event these Terms and Conditions shall be interpreted so as to give effect, to the greatest extent consistent with and permitted by applicable law, to the meaning and intention of the excluded provision as determined by such court of competent jurisdiction."
+  },
+  {
+    "id": "tnc.iAgree",
+    "defaultMessage": "By clicking the Accept button, I am explicitly agreeing to the Terms and Conditions."
   }
 ]
