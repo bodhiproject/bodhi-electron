@@ -8,7 +8,7 @@ const os = require('os');
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getProdQtumExecPath } = require('./src/utils/utils');
-const { initDB } = require('./server/src/db/nedb');
+const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
@@ -74,15 +74,75 @@ function createWindow() {
   uiWin.loadURL(`file://${__dirname}/ui/html/loading/index.html`);
 }
 
+function showLaunchQtumWalletDialog() {
+  app.focus();
+
+  const [CANCEL, LAUNCH] = [0, 1];
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('cancel'), i18n.get('launch')],
+    title: i18n.get('qtumWalletDialogTitle'),
+    message: i18n.get('qtumWalletDialogMessage'),
+    defaultId: CANCEL,
+    cancelId: CANCEL,
+  }, (response) => {
+    if (response === LAUNCH) {
+      if (getQtumProcess()) {
+        killQtumProcess(true);
+      } else {
+        // Show dialog to wait for initializing to finish
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: [i18n.get('ok')],
+          title: i18n.get('error'),
+          message: i18n.get('functionDisabledUntilInitialized'),
+        });
+      }
+    }
+  });
+}
+
+function showDeleteDataDialog() {
+  app.focus();
+
+  const [CANCEL, DELETE] = [0, 1];
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('cancel'), i18n.get('delete')],
+    title: i18n.get('deleteDataDialogTitle'),
+    message: i18n.get('deleteDataDialogMessage'),
+    defaultId: CANCEL,
+    cancelId: CANCEL,
+  }, (response) => {
+    if (response === DELETE) {
+      killQtumProcess(false);
+      deleteBodhiData();
+      app.quit();
+    }
+  });
+}
+
+function showAboutDialog() {
+  app.focus();
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: [i18n.get('ok')],
+    title: i18n.get('aboutDialogTitle'),
+    message: `${i18n.get('version')}: ${version}\n${os.hostname()}`,
+  });
+}
+
 function setupMenu() {
   const template = [
     {
       label: "Application",
       submenu: [
         { label: "Launch Qtum Wallet", click: () => showLaunchQtumWalletDialog() },
+        { label: "Delete Bodhi Data", click: () => showDeleteDataDialog() },
+        { type: "separator" },
         { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        { label: "Quit", accelerator: "Command+Q", click: () => exit() },
       ]
     },
     {
@@ -159,15 +219,16 @@ async function startBackend(blockchainEnv) {
 // Show environment selection dialog
 function showSelectEnvDialog() {
   app.focus();
+
+  const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
   dialog.showMessageBox({
     type: 'question',
     buttons: [i18n.get('mainnet'), i18n.get('testnet'), i18n.get('quit')],
     title: i18n.get('selectQtumEnvironment'),
     message: i18n.get('selectQtumEnvironment'),
-    defaultId: 2,
-    cancelId: 2,
+    defaultId: QUIT,
+    cancelId: QUIT,
   }, (response) => {
-    const [MAINNET, TESTNET, QUIT] = [0, 1, 2];
     switch (response) {
       case MAINNET: {
         if (testnetOnly) { // Testnet-only flag found
@@ -267,32 +328,6 @@ function showWalletUnlockPrompt() {
   });
 }
 
-function showLaunchQtumWalletDialog() {
-  app.focus();
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: [i18n.get('cancel'), i18n.get('launch')],
-    title: i18n.get('qtumWalletDialogTitle'),
-    message: i18n.get('qtumWalletDialogMessage'),
-    defaultId: 0,
-    cancelId: 0,
-  }, (response) => {
-    if (response === 1) {
-      if (getQtumProcess()) {
-        killQtumProcess(true);
-      } else {
-        // Show dialog to wait for initializing to finish
-        dialog.showMessageBox({
-          type: 'error',
-          buttons: [i18n.get('ok')],
-          title: i18n.get('error'),
-          message: i18n.get('functionDisabledUntilInitialized'),
-        });
-      }
-    }
-  });
-}
-
 function startQtWallet() {
   let qtumqtPath;
   if (isDevEnv()) {
@@ -305,16 +340,6 @@ function startQtWallet() {
   }
 
   setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
-}
-
-function showAboutDialog() {
-  app.focus();
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: [i18n.get('ok')],
-    title: i18n.get('aboutDialogTitle'),
-    message: `${i18n.get('version')}: ${version}`,
-  });
 }
 
 function exit(signal) {
