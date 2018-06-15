@@ -38,6 +38,20 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 let uiWin;
 let i18n;
 
+function killQtum(emitEvent) {
+  let qtumcliPath;
+  if (isDevEnv()) {
+    qtumcliPath = getDevQtumExecPath(execFile.QTUM_CLI);
+  } else {
+    qtumcliPath = getProdQtumExecPath(execFile.QTUM_CLI);
+  }
+  if (_.isEmpty(qtumcliPath)) {
+    throw Error(`qtumcliPath cannot be empty.`);
+  }
+
+  killQtumProcess(qtumcliPath, emitEvent);  
+}
+
 function createWindow() {
   // Create the browser window.
   uiWin = new BrowserWindow({
@@ -89,7 +103,7 @@ function showLaunchQtumWalletDialog() {
   }, (response) => {
     if (response === LAUNCH) {
       if (getQtumProcess()) {
-        killQtumProcess(true);
+        killQtum(true);
       } else {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
@@ -116,7 +130,7 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      killQtumProcess(false);
+      killQtum(false);
       deleteBodhiData();
       app.quit();
     }
@@ -386,7 +400,7 @@ function startQtWallet() {
   } else {
     qtumqtPath = getProdQtumExecPath(execFile.QTUM_QT);
   }
-  if (_.isEmpty(blockchainEnv)) {
+  if (_.isEmpty(qtumqtPath)) {
     throw Error(`qtumqtPath cannot be empty.`);
   }
 
@@ -400,7 +414,7 @@ function exit(signal) {
     console.log(`Received ${signal}, exiting`);
   }
 
-  killQtumProcess();
+  killQtum(false);
   app.quit();
 }
 
@@ -437,7 +451,7 @@ app.on('window-all-closed', () => {
 // Emitted before the application starts closing its windows.
 app.on('before-quit', () => {
   getLogger().debug('before-quit');
-  killQtumProcess();
+  killQtum(false);
 });
 
 /* Emitter Events */

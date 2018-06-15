@@ -6,7 +6,7 @@ const { execFile } = require('../../server/src/constants');
 * return {String} The full prod path for qtumd or qtum-qt.
 */
 function getProdQtumExecPath(exec) {
-  if (exec !== execFile.QTUMD && exec !== execFile.QTUM_QT) {
+  if (exec !== execFile.QTUMD && exec !== execFile.QTUM_QT && exec !== execFile.QTUM_CLI) {
     throw Error(`Invalid execFile type: ${exec}`);
   }
 
