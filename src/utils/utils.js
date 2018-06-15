@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const { execFile } = require('../../server/src/constants');
 const { isDevEnv, getDevQtumExecPath } = require('../../server/src/utils/utils');
 
