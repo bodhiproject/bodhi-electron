@@ -8,14 +8,13 @@ const os = require('os');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
-const { getProdQtumExecPath } = require('./src/utils/utils');
+const { getQtumExecPath } = require('./src/utils/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
-const { isDevEnv, getDevQtumExecPath } = require('./server/src/utils/utils');
 const Wallet = require('./server/src/api/wallet');
 
 /*
@@ -39,17 +38,7 @@ let uiWin;
 let i18n;
 
 function killQtum(emitEvent) {
-  let qtumcliPath;
-  if (isDevEnv()) {
-    qtumcliPath = getDevQtumExecPath(execFile.QTUM_CLI);
-  } else {
-    qtumcliPath = getProdQtumExecPath(execFile.QTUM_CLI);
-  }
-  if (_.isEmpty(qtumcliPath)) {
-    throw Error(`qtumcliPath cannot be empty.`);
-  }
-
-  killQtumProcess(qtumcliPath, emitEvent);  
+  killQtumProcess(getQtumExecPath(execFile.QTUM_CLI), emitEvent);  
 }
 
 function createWindow() {
@@ -216,18 +205,7 @@ async function startBackend(blockchainEnv) {
     throw Error(`blockchainEnv cannot be empty.`);
   }
 
-  // Get qtumd path
-  let qtumdPath;
-  if (isDevEnv()) {
-    qtumdPath = getDevQtumExecPath(execFile.QTUMD);
-  } else {
-    qtumdPath = getProdQtumExecPath(execFile.QTUMD);
-  }
-  if (_.isEmpty(qtumdPath)) {
-    throw Error(`qtumdPath cannot be empty.`);
-  }
-  
-  await startServer(blockchainEnv, qtumdPath, encryptOk);
+  await startServer(blockchainEnv, getQtumExecPath(execFile.QTUMD), encryptOk);
   initBrowserWindow();
 }
 
@@ -394,16 +372,7 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  let qtumqtPath;
-  if (isDevEnv()) {
-    qtumqtPath = getDevQtumExecPath(execFile.QTUM_QT);
-  } else {
-    qtumqtPath = getProdQtumExecPath(execFile.QTUM_QT);
-  }
-  if (_.isEmpty(qtumqtPath)) {
-    throw Error(`qtumqtPath cannot be empty.`);
-  }
-
+  const qtumqtPath = getQtumExecPath(execFile.QTUM_QT);
   setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
 }
 
