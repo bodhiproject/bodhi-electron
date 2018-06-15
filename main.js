@@ -409,9 +409,9 @@ function startQtWallet() {
 
 function exit(signal) {
   try {
-    getLogger().info(`Received ${signal}, exiting`);
+    getLogger().info(`Received ${signal}, exiting...`);
   } catch (err) {
-    console.log(`Received ${signal}, exiting`);
+    console.log(`Received ${signal}, exiting...`);
   }
 
   killQtum(false);
