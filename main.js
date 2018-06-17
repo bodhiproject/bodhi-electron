@@ -216,6 +216,10 @@ async function startBackend(blockchainEnv) {
   initBrowserWindow();
 }
 
+function checkLatestVersion() {
+  
+}
+
 // Show environment selection dialog
 function showSelectEnvDialog() {
   app.focus();
