@@ -41,7 +41,7 @@
   },
   "go": {
     "en": "Go",
-    "zh": ""
+    "zh": "来吧"
   },
   "launch": {
     "en": "Launch",
@@ -85,11 +85,11 @@
   },
   "updateDialogTitle": {
     "en": "New Version Available",
-    "zh": ""
+    "zh": "新版本全面上线"
   },
   "updateDialogMessage": {
-    "en": "There is a new version available for download on our website. Do you want to go there now?",
-    "zh": ""
+    "en": "There is a new version available for download on our website. It is advised to update to the latest version. Do you want to go there now?",
+    "zh": "全新版本现已上线官网并开放下载，希望广大用户自行更新至最新版本，您还在等什么？"
   },
   "version": {
     "en": "Version",
