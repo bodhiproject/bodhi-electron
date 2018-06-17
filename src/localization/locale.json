@@ -39,6 +39,10 @@
     "en": "This function is disabled until initializing is finished.",
     "zh": "初始化完成后方能使用次功能"
   },
+  "go": {
+    "en": "Go",
+    "zh": ""
+  },
   "launch": {
     "en": "Launch",
     "zh": "启动"
@@ -78,6 +82,14 @@
   "unlockWallet": {
     "en": "Unlock Wallet",
     "zh": "解锁钱包"
+  },
+  "updateDialogTitle": {
+    "en": "New Version Available",
+    "zh": ""
+  },
+  "updateDialogMessage": {
+    "en": "There is a new version available for donwload on our website. Do you want to go there now?",
+    "zh": ""
   },
   "version": {
     "en": "Version",

@@ -218,18 +218,22 @@ async function startBackend(blockchainEnv) {
 }
 
 function showUpdateDialog() {
+  app.focus();
+
+  const [CANCEL, DELETE] = [0, 1];
   dialog.showMessageBox({
     type: 'info',
-    title: i18n.get('error'),
-    message,
-    buttons,
-    defaultId: 0,
-    cancelId: 0,
+    title: i18n.get('updateDialogTitle'),
+    message: i18n.get('updateDialogMessage'),
+    buttons: [i18n.get('cancel'), i18n.get('go')],
+    defaultId: CANCEL,
+    cancelId: CANCEL,
   }, (response) => {
-    if (response === 0) {
-      app.quit();
+    if (response === CANCEL) {
+      showSelectEnvDialog();
     } else {
-      showWalletUnlockPrompt();
+      // TODO: open website
+      console.log('opening website');
     }
   });
 }
@@ -239,18 +243,27 @@ async function checkLatestVersion() {
   try {
     const res = await axios.get('https://api.github.com/repos/bodhiproject/bodhi-app/releases');
     if (!_.isEmpty(res)) {
-      const tagName = res.data[0].tag_name;
-
+      // Parse package.json version
       const regex = RegExp(/(\d+.\d+.\d+)-(c\d+)-(d\d+)/g);
       const regexGroups = regex.exec(version);
-      if (regexGroups !== null && regexGroups[1] !== tagName) {
-        
+      if (regexGroups === null) {
+        throw Error('Error parsing version regex.');
+      }
+
+      const tagName = res.data[0].tag_name;
+      if (regexGroups[1] !== tagName) {
+        // New version available
+        showUpdateDialog();
+      } else {
+        // Already on latest version
+        showSelectEnvDialog();
       }
     } else {
-
+      throw Error('Error fetching latest Github version.');
     }
   } catch (err) {
     console.error(err);
+    showSelectEnvDialog();
   } 
 }
 
@@ -399,7 +412,6 @@ app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
   checkLatestVersion();
-  // showSelectEnvDialog();
 });
 
 // Emitted when the application is activated.
