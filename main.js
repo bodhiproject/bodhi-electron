@@ -232,8 +232,8 @@ function showUpdateDialog() {
     if (response === CANCEL) {
       showSelectEnvDialog();
     } else {
-      // TODO: open website
-      console.log('opening website');
+      shell.openExternal('https://bodhi.network');
+      exit();
     }
   });
 }
