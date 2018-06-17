@@ -394,7 +394,12 @@ function startQtWallet() {
 }
 
 function exit(signal) {
-  getLogger().info(`Received ${signal}, exiting`);
+  try {
+    getLogger().info(`Received ${signal}, exiting`);
+  } catch (err) {
+    console.log(`Received ${signal}, exiting`);
+  }
+
   killQtumProcess();
   app.quit();
 }
