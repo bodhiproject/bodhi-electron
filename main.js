@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
+const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const os = require('os');
@@ -11,7 +12,7 @@ const { getProdQtumExecPath } = require('./src/utils/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
+const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
 const { isDevEnv, getDevQtumExecPath } = require('./server/src/utils/utils');
@@ -216,8 +217,41 @@ async function startBackend(blockchainEnv) {
   initBrowserWindow();
 }
 
-function checkLatestVersion() {
-  
+function showUpdateDialog() {
+  dialog.showMessageBox({
+    type: 'info',
+    title: i18n.get('error'),
+    message,
+    buttons,
+    defaultId: 0,
+    cancelId: 0,
+  }, (response) => {
+    if (response === 0) {
+      app.quit();
+    } else {
+      showWalletUnlockPrompt();
+    }
+  });
+}
+
+// Check latest Github version to see if they should show the update dialog
+async function checkLatestVersion() {
+  try {
+    const res = await axios.get('https://api.github.com/repos/bodhiproject/bodhi-app/releases');
+    if (!_.isEmpty(res)) {
+      const tagName = res.data[0].tag_name;
+
+      const regex = RegExp(/(\d+.\d+.\d+)-(c\d+)-(d\d+)/g);
+      const regexGroups = regex.exec(version);
+      if (regexGroups !== null && regexGroups[1] !== tagName) {
+        
+      }
+    } else {
+
+    }
+  } catch (err) {
+    console.error(err);
+  } 
 }
 
 // Show environment selection dialog
@@ -364,7 +398,8 @@ process.on('SIGHUP', exit);
 app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
-  showSelectEnvDialog();
+  checkLatestVersion();
+  // showSelectEnvDialog();
 });
 
 // Emitted when the application is activated.
