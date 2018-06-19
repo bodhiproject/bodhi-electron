@@ -8,7 +8,7 @@ const os = require('os');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
-const { getQtumExecPath } = require('./src/utils/utils');
+const { getQtumExecPath } = require('./src/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
