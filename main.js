@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const prompt = require('electron-prompt');
+const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const os = require('os');
@@ -11,7 +12,7 @@ const { getProdQtumExecPath } = require('./src/utils/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config/config');
+const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
 const { isDevEnv, getDevQtumExecPath } = require('./server/src/utils/utils');
@@ -216,6 +217,56 @@ async function startBackend(blockchainEnv) {
   initBrowserWindow();
 }
 
+function showUpdateDialog() {
+  app.focus();
+
+  const [CANCEL, DELETE] = [0, 1];
+  dialog.showMessageBox({
+    type: 'info',
+    title: i18n.get('updateDialogTitle'),
+    message: i18n.get('updateDialogMessage'),
+    buttons: [i18n.get('cancel'), i18n.get('go')],
+    defaultId: CANCEL,
+    cancelId: CANCEL,
+  }, (response) => {
+    if (response === CANCEL) {
+      showSelectEnvDialog();
+    } else {
+      shell.openExternal('https://bodhi.network');
+      exit();
+    }
+  });
+}
+
+// Check latest Github version to see if they should show the update dialog
+async function checkLatestVersion() {
+  try {
+    const res = await axios.get('https://api.github.com/repos/bodhiproject/bodhi-app/releases');
+    if (!_.isEmpty(res)) {
+      // Parse package.json version
+      const regex = RegExp(/(\d+.\d+.\d+)-(c\d+)-(d\d+)/g);
+      const regexGroups = regex.exec(version);
+      if (regexGroups === null) {
+        throw Error('Error parsing version regex.');
+      }
+
+      const tagName = res.data[0].tag_name;
+      if (regexGroups[1] !== tagName) {
+        // New version available
+        showUpdateDialog();
+      } else {
+        // Already on latest version
+        showSelectEnvDialog();
+      }
+    } else {
+      throw Error('Error fetching latest Github version.');
+    }
+  } catch (err) {
+    console.error(err);
+    showSelectEnvDialog();
+  } 
+}
+
 // Show environment selection dialog
 function showSelectEnvDialog() {
   app.focus();
@@ -343,7 +394,12 @@ function startQtWallet() {
 }
 
 function exit(signal) {
-  getLogger().info(`Received ${signal}, exiting`);
+  try {
+    getLogger().info(`Received ${signal}, exiting`);
+  } catch (err) {
+    console.log(`Received ${signal}, exiting`);
+  }
+
   killQtumProcess();
   app.quit();
 }
@@ -360,7 +416,7 @@ process.on('SIGHUP', exit);
 app.on('ready', () => {
   // Must wait for app ready before app.getLocale() on Windows
   i18n = require('./src/localization/i18n');
-  showSelectEnvDialog();
+  checkLatestVersion();
 });
 
 // Emitted when the application is activated.
