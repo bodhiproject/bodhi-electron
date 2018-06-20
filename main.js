@@ -38,7 +38,11 @@ let uiWin;
 let i18n;
 
 function killQtum(emitEvent) {
-  killQtumProcess(getQtumExecPath(execFile.QTUM_CLI), emitEvent);  
+  try {
+    killQtumProcess(getQtumExecPath(execFile.QTUM_CLI), emitEvent);  
+  } catch (err) {
+    app.quit();
+  }
 }
 
 function createWindow() {
