@@ -8,14 +8,13 @@ const os = require('os');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
-const { getProdQtumExecPath } = require('./src/utils/utils');
+const { getQtumExecPath } = require('./src/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
 const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
 const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
-const { isDevEnv, getDevQtumExecPath } = require('./server/src/utils/utils');
 const Wallet = require('./server/src/api/wallet');
 
 /*
@@ -37,6 +36,10 @@ const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
+
+function killQtum(emitEvent) {
+  killQtumProcess(getQtumExecPath(execFile.QTUM_CLI), emitEvent);  
+}
 
 function createWindow() {
   // Create the browser window.
@@ -89,7 +92,7 @@ function showLaunchQtumWalletDialog() {
   }, (response) => {
     if (response === LAUNCH) {
       if (getQtumProcess()) {
-        killQtumProcess(true);
+        killQtum(true);
       } else {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
@@ -116,7 +119,7 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      killQtumProcess(false);
+      killQtum(false);
       deleteBodhiData();
       app.quit();
     }
@@ -202,18 +205,7 @@ async function startBackend(blockchainEnv) {
     throw Error(`blockchainEnv cannot be empty.`);
   }
 
-  // Get qtumd path
-  let qtumdPath;
-  if (isDevEnv()) {
-    qtumdPath = getDevQtumExecPath(execFile.QTUMD);
-  } else {
-    qtumdPath = getProdQtumExecPath(execFile.QTUMD);
-  }
-  if (_.isEmpty(qtumdPath)) {
-    throw Error(`qtumdPath cannot be empty.`);
-  }
-  
-  await startServer(blockchainEnv, qtumdPath, encryptOk);
+  await startServer(blockchainEnv, getQtumExecPath(execFile.QTUMD), encryptOk);
   initBrowserWindow();
 }
 
@@ -380,27 +372,18 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  let qtumqtPath;
-  if (isDevEnv()) {
-    qtumqtPath = getDevQtumExecPath(execFile.QTUM_QT);
-  } else {
-    qtumqtPath = getProdQtumExecPath(execFile.QTUM_QT);
-  }
-  if (_.isEmpty(blockchainEnv)) {
-    throw Error(`qtumqtPath cannot be empty.`);
-  }
-
+  const qtumqtPath = getQtumExecPath(execFile.QTUM_QT);
   setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
 }
 
 function exit(signal) {
   try {
-    getLogger().info(`Received ${signal}, exiting`);
+    getLogger().info(`Received ${signal}, exiting...`);
   } catch (err) {
-    console.log(`Received ${signal}, exiting`);
+    console.log(`Received ${signal}, exiting...`);
   }
 
-  killQtumProcess();
+  killQtum(false);
   app.quit();
 }
 
@@ -437,7 +420,7 @@ app.on('window-all-closed', () => {
 // Emitted before the application starts closing its windows.
 app.on('before-quit', () => {
   getLogger().debug('before-quit');
-  killQtumProcess();
+  killQtum(false);
 });
 
 /* Emitter Events */

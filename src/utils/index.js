@@ -1,12 +1,15 @@
+const _ = require('lodash');
+
 const { execFile } = require('../../server/src/constants');
+const { isDevEnv, getDevQtumExecPath } = require('../../server/src/utils');
 
 /*
-* Gets the prod env qtum path for either qtumd or qtum-qt.
+* Gets the prod env qtum exec path.
 * @param execFile {String} The exec file type needed to be returned.
-* return {String} The full prod path for qtumd or qtum-qt.
+* return {String} The full prod path for the exec file.
 */
-function getProdQtumExecPath(exec) {
-  if (exec !== execFile.QTUMD && exec !== execFile.QTUM_QT) {
+const getProdQtumExecPath = (exec) => {
+  if (exec !== execFile.QTUMD && exec !== execFile.QTUM_QT && exec !== execFile.QTUM_CLI) {
     throw Error(`Invalid execFile type: ${exec}`);
   }
 
@@ -47,8 +50,22 @@ function getProdQtumExecPath(exec) {
   }
 
   return path.replace('app.asar', 'app.asar.unpacked');
-}
+};
+
+const getQtumExecPath = (exec) => {
+  let qtumExecPath;
+  if (isDevEnv()) {
+    qtumExecPath = getDevQtumExecPath(exec);
+  } else {
+    qtumExecPath = getProdQtumExecPath(exec);
+  }
+  if (_.isEmpty(qtumExecPath)) {
+    throw Error(`qtumExecPath cannot be empty.`);
+  }
+
+  return qtumExecPath;
+};
 
 module.exports = {
-  getProdQtumExecPath,
+  getQtumExecPath,
 };
