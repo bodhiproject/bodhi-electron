@@ -32,14 +32,23 @@ const Wallet = require('./server/src/api/wallet');
 const UI_PORT = 3000;
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
+/*
+* Codes for type of event when killing the Qtum process
+* NORMAL = regular shutdown
+* QT_WALLET = shutdown qtumd before starting QT wallet
+*/
+const [NORMAL, QT_WALLET] = [0, 1];
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
+let killType;
 
-function killQtum(emitEvent) {
+function killQtum(type) {
   try {
-    killQtumProcess(emitEvent);  
+    killType = type;
+    killQtumProcess(true);
   } catch (err) {
     app.quit();
   }
@@ -96,7 +105,7 @@ function showLaunchQtumWalletDialog() {
   }, (response) => {
     if (response === LAUNCH) {
       if (getQtumProcess()) {
-        killQtum(true);
+        killQtum(QT_WALLET);
       } else {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
@@ -123,7 +132,6 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      killQtum(false);
       deleteBodhiData();
       app.quit();
     }
@@ -379,7 +387,7 @@ function startQtWallet() {
   setTimeout(() => startQtumWallet(), 4000);
 }
 
-function exit(signal) {
+function handleExitSignal(signal) {
   try {
     getLogger().info(`Received ${signal}, exiting...`);
   } catch (err) {
@@ -390,9 +398,9 @@ function exit(signal) {
 }
 
 // Handle exit signals
-process.on('SIGINT', exit);
-process.on('SIGTERM', exit);
-process.on('SIGHUP', exit);
+process.on('SIGINT', handleExitSignal);
+process.on('SIGTERM', handleExitSignal);
+process.on('SIGHUP', handleExitSignal);
 
 /* Electron Events */
 
@@ -432,9 +440,9 @@ app.on('will-quit', (event) => {
     type: 'info',
     title: '',
     message: 'Please wait until Bodhi fully shuts down before closing this window.',
+  }, () => {
+    killQtum(NORMAL);
   });
-
-  killQtum(false);
 });
 
 /* Emitter Events */
@@ -450,7 +458,19 @@ EmitterHelper.emitter.on(ipcEvent.QTUMD_ERROR, (errMessage) => {
 
 // Delay, then start qtum-qt
 EmitterHelper.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  startQtWallet();
+  switch (killType) {
+    case NORMAL: {
+      app.exit();
+      break;
+    }
+    case QT_WALLET: {
+      startQtWallet();
+      break;
+    }
+    default: {
+      break;
+    }
+  }
 });
 
 // Load UI when services are running
