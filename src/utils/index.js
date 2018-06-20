@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const { execFile } = require('../../server/src/constants');
-const { isDevEnv, getDevQtumExecPath } = require('../../server/src/utils/utils');
+const { isDevEnv, getDevQtumExecPath } = require('../../server/src/utils');
 
 /*
 * Gets the prod env qtum exec path.
