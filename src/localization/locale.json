@@ -41,7 +41,7 @@
   },
   "shutdownDialogMessage": {
     "en": "Bodhi will now shutdown. Please wait a little before shutting your computer off.",
-    "zh": "菩提将关闭。请在关闭您的电脑前等待一段时间。"
+    "zh": "菩提即将关闭。请在关闭您的电脑前等待一段时间。"
   },
   "functionDisabledUntilInitialized": {
     "en": "This function is disabled until initializing is finished.",
