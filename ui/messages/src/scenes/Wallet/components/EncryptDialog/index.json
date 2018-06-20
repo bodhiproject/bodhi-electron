@@ -16,6 +16,10 @@
     "defaultMessage": "Please enter passphrase to encrypt your wallet"
   },
   {
+    "id": "wallet.changePassphrase",
+    "defaultMessage": "Change Passphrase"
+  },
+  {
     "id": "str.close",
     "defaultMessage": "Close"
   },

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "str.oldPassphrase",
+    "defaultMessage": "OLD PASSPHRASE"
+  },
+  {
+    "id": "str.newPassphrase",
+    "defaultMessage": "NEW PASSPHRASE"
+  },
+  {
+    "id": "str.changePassphrase",
+    "defaultMessage": "Change your passphrase"
+  },
+  {
+    "id": "str.close",
+    "defaultMessage": "Close"
+  },
+  {
+    "id": "str.ok",
+    "defaultMessage": "Ok"
+  }
+]

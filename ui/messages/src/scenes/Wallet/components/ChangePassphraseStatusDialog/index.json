@@ -1,0 +1,14 @@
+[
+  {
+    "id": "changePassphrase.success",
+    "defaultMessage": "Passphrase Change Successful"
+  },
+  {
+    "id": "changePassphrase.fail",
+    "defaultMessage": "Passphrase Change Failed"
+  },
+  {
+    "id": "str.close",
+    "defaultMessage": "Close"
+  }
+]
