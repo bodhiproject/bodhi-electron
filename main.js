@@ -438,8 +438,9 @@ app.on('will-quit', (event) => {
 
   dialog.showMessageBox({
     type: 'info',
-    title: '',
-    message: 'Please wait until Bodhi fully shuts down before closing this window.',
+    title: i18n.get('shutdownDialogTitle'),
+    message: i18n.get('shutdownDialogMessage'),
+    buttons: [i18n.get('ok')],
   }, () => {
     killQtum(NORMAL);
   });
