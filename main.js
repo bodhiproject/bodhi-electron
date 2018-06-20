@@ -10,11 +10,11 @@ const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getQtumExecPath } = require('./src/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
-const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
-const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
+const { blockchainEnv, ipcEvent } = require('./server/src/constants');
 const Wallet = require('./server/src/api/wallet');
 
 /*
@@ -32,13 +32,26 @@ const Wallet = require('./server/src/api/wallet');
 const UI_PORT = 3000;
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
 
+/*
+* Codes for type of event when killing the Qtum process
+* NORMAL = regular shutdown
+* QT_WALLET = shutdown qtumd before starting QT wallet
+*/
+const [NORMAL, QT_WALLET] = [0, 1];
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let uiWin;
 let i18n;
+let killType;
 
-function killQtum(emitEvent) {
-  killQtumProcess(getQtumExecPath(execFile.QTUM_CLI), emitEvent);  
+function killQtum(type) {
+  try {
+    killType = type;
+    killQtumProcess(true);
+  } catch (err) {
+    app.quit();
+  }
 }
 
 function createWindow() {
@@ -92,7 +105,7 @@ function showLaunchQtumWalletDialog() {
   }, (response) => {
     if (response === LAUNCH) {
       if (getQtumProcess()) {
-        killQtum(true);
+        killQtum(QT_WALLET);
       } else {
         // Show dialog to wait for initializing to finish
         dialog.showMessageBox({
@@ -119,7 +132,6 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      killQtum(false);
       deleteBodhiData();
       app.quit();
     }
@@ -146,7 +158,7 @@ function setupMenu() {
         { type: "separator" },
         { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: () => exit() },
+        { label: "Quit", accelerator: "Command+Q", click: () => app.quit() },
       ]
     },
     {
@@ -205,7 +217,7 @@ async function startBackend(blockchainEnv) {
     throw Error(`blockchainEnv cannot be empty.`);
   }
 
-  await startServer(blockchainEnv, getQtumExecPath(execFile.QTUMD), encryptOk);
+  await startServer(blockchainEnv, getQtumExecPath(), encryptOk);
   initBrowserWindow();
 }
 
@@ -225,7 +237,7 @@ function showUpdateDialog() {
       showSelectEnvDialog();
     } else {
       shell.openExternal('https://bodhi.network');
-      exit();
+      app.quit();
     }
   });
 }
@@ -311,7 +323,7 @@ function showErrorDialog(errMessage) {
     title: i18n.get('error'),
     message: errMessage,
   }, (response) => {
-    exit();
+    app.quit();
   });
 }
 
@@ -372,25 +384,23 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  const qtumqtPath = getQtumExecPath(execFile.QTUM_QT);
-  setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
+  setTimeout(() => startQtumWallet(), 4000);
 }
 
-function exit(signal) {
+function handleExitSignal(signal) {
   try {
     getLogger().info(`Received ${signal}, exiting...`);
   } catch (err) {
     console.log(`Received ${signal}, exiting...`);
   }
 
-  killQtum(false);
   app.quit();
 }
 
 // Handle exit signals
-process.on('SIGINT', exit);
-process.on('SIGTERM', exit);
-process.on('SIGHUP', exit);
+process.on('SIGINT', handleExitSignal);
+process.on('SIGTERM', handleExitSignal);
+process.on('SIGHUP', handleExitSignal);
 
 /* Electron Events */
 
@@ -404,7 +414,6 @@ app.on('ready', () => {
 
 // Emitted when the application is activated.
 app.on('activate', () => {
-  getLogger().debug('activate');
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (uiWin === null) {
@@ -414,13 +423,31 @@ app.on('activate', () => {
 
 // Emitted when all windows have been closed.
 app.on('window-all-closed', () => {
-  getLogger().debug('window-all-closed');
+  console.log('window-all-closed');
 });
 
 // Emitted before the application starts closing its windows.
-app.on('before-quit', () => {
-  getLogger().debug('before-quit');
-  killQtum(false);
+app.on('before-quit', (event) => {
+  console.log('before-quit');
+});
+
+// Emitted when all windows have been closed and the application will quit. 
+app.on('will-quit', (event) => {
+  console.log('will-quit');
+  event.preventDefault();
+
+  if (getQtumProcess()) {
+    dialog.showMessageBox({
+      type: 'info',
+      title: i18n.get('shutdownDialogTitle'),
+      message: i18n.get('shutdownDialogMessage'),
+      buttons: [i18n.get('ok')],
+    }, () => {
+      killQtum(NORMAL);
+    });
+  } else {
+    app.exit();
+  }
 });
 
 /* Emitter Events */
@@ -436,7 +463,19 @@ EmitterHelper.emitter.on(ipcEvent.QTUMD_ERROR, (errMessage) => {
 
 // Delay, then start qtum-qt
 EmitterHelper.emitter.on(ipcEvent.QTUMD_KILLED, () => {
-  startQtWallet();
+  switch (killType) {
+    case NORMAL: {
+      app.exit();
+      break;
+    }
+    case QT_WALLET: {
+      startQtWallet();
+      break;
+    }
+    default: {
+      break;
+    }
+  }
 });
 
 // Load UI when services are running

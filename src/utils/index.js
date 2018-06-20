@@ -5,14 +5,9 @@ const { isDevEnv, getDevQtumExecPath } = require('../../server/src/utils');
 
 /*
 * Gets the prod env qtum exec path.
-* @param execFile {String} The exec file type needed to be returned.
 * return {String} The full prod path for the exec file.
 */
-const getProdQtumExecPath = (exec) => {
-  if (exec !== execFile.QTUMD && exec !== execFile.QTUM_QT && exec !== execFile.QTUM_CLI) {
-    throw Error(`Invalid execFile type: ${exec}`);
-  }
-
+const getProdQtumExecPath = () => {
   const platform = process.platform;
   const arch = process.arch;
   let osFolder;
@@ -42,27 +37,24 @@ const getProdQtumExecPath = (exec) => {
   }
 
   const { app } = require('electron');
-  let path;
-  if (platform === 'win32') {
-    path = `${app.getAppPath()}/server/qtum/${osFolder}/bin/${exec}.exe`;
-  } else {
-    path = `${app.getAppPath()}/server/qtum/${osFolder}/bin/${exec}`;
-  }
-
+  const path = `${app.getAppPath()}/server/qtum/${osFolder}/bin`;
   return path.replace('app.asar', 'app.asar.unpacked');
 };
 
-const getQtumExecPath = (exec) => {
+/*
+* Returns the path for the Qtum binaries folder.
+*/
+const getQtumExecPath = () => {
   let qtumExecPath;
   if (isDevEnv()) {
-    qtumExecPath = getDevQtumExecPath(exec);
+    qtumExecPath = getDevQtumExecPath();
   } else {
-    qtumExecPath = getProdQtumExecPath(exec);
-  }
-  if (_.isEmpty(qtumExecPath)) {
-    throw Error(`qtumExecPath cannot be empty.`);
+    qtumExecPath = getProdQtumExecPath();
   }
 
+  if (_.isEmpty(qtumExecPath)) {
+    throw Error('qtumExecPath cannot be empty.');
+  }
   return qtumExecPath;
 };
 
