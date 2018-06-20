@@ -10,7 +10,7 @@ const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getQtumExecPath } = require('./src/utils');
 const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
-const { getQtumProcess, killQtumProcess, startServices, startServer, getServer } = require('./server/src/server');
+const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server/src/server');
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
@@ -376,7 +376,7 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  setTimeout(() => require('./server/src/start_wallet').startQtumWallet(), 4000);
+  setTimeout(() => startQtumWallet(), 4000);
 }
 
 function exit(signal) {
