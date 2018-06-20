@@ -53,7 +53,7 @@ const getQtumExecPath = () => {
   }
 
   if (_.isEmpty(qtumExecPath)) {
-    throw Error(`qtumExecPath cannot be empty.`);
+    throw Error('qtumExecPath cannot be empty.');
   }
   return qtumExecPath;
 };
