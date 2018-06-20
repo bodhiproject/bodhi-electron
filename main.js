@@ -14,7 +14,7 @@ const { getQtumProcess, killQtumProcess, startServices, startServer, getServer }
 const EmitterHelper = require('./server/src/utils/emitterHelper');
 const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
 const { getLogger } = require('./server/src/utils/logger');
-const { blockchainEnv, ipcEvent, execFile } = require('./server/src/constants');
+const { blockchainEnv, ipcEvent } = require('./server/src/constants');
 const Wallet = require('./server/src/api/wallet');
 
 /*
@@ -39,7 +39,7 @@ let i18n;
 
 function killQtum(emitEvent) {
   try {
-    killQtumProcess(getQtumExecPath(execFile.QTUM_CLI), emitEvent);  
+    killQtumProcess(emitEvent);  
   } catch (err) {
     app.quit();
   }
@@ -209,7 +209,7 @@ async function startBackend(blockchainEnv) {
     throw Error(`blockchainEnv cannot be empty.`);
   }
 
-  await startServer(blockchainEnv, getQtumExecPath(execFile.QTUMD), encryptOk);
+  await startServer(blockchainEnv, getQtumExecPath(), encryptOk);
   initBrowserWindow();
 }
 
@@ -376,8 +376,7 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  const qtumqtPath = getQtumExecPath(execFile.QTUM_QT);
-  setTimeout(() => require('./server/src/start_wallet').startQtumWallet(qtumqtPath), 4000);
+  setTimeout(() => require('./server/src/start_wallet').startQtumWallet(), 4000);
 }
 
 function exit(signal) {
