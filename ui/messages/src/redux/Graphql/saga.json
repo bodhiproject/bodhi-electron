@@ -12,6 +12,10 @@
     "defaultMessage": "Arbitrate"
   },
   {
+    "id": "str.pending",
+    "defaultMessage": "Pending"
+  },
+  {
     "id": "str.finalizeResult",
     "defaultMessage": "Finalize Result"
   },

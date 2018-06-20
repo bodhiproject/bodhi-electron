@@ -4,6 +4,10 @@
     "defaultMessage": "Help"
   },
   {
+    "id": "navbar.allEvents",
+    "defaultMessage": "All Events"
+  },
+  {
     "id": "navbar.qtumPrediction",
     "defaultMessage": "QTUM Prediction"
   },
