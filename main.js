@@ -150,7 +150,7 @@ function setupMenu() {
         { type: "separator" },
         { label: "About", click: () => showAboutDialog() },
         { type: "separator" },
-        { label: "Quit", accelerator: "Command+Q", click: () => exit() },
+        { label: "Quit", accelerator: "Command+Q", click: () => app.quit() },
       ]
     },
     {
@@ -229,7 +229,7 @@ function showUpdateDialog() {
       showSelectEnvDialog();
     } else {
       shell.openExternal('https://bodhi.network');
-      exit();
+      app.quit();
     }
   });
 }
@@ -315,7 +315,7 @@ function showErrorDialog(errMessage) {
     title: i18n.get('error'),
     message: errMessage,
   }, (response) => {
-    exit();
+    app.quit();
   });
 }
 
@@ -386,7 +386,6 @@ function exit(signal) {
     console.log(`Received ${signal}, exiting...`);
   }
 
-  killQtum(false);
   app.quit();
 }
 
@@ -407,7 +406,6 @@ app.on('ready', () => {
 
 // Emitted when the application is activated.
 app.on('activate', () => {
-  getLogger().debug('activate');
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (uiWin === null) {
@@ -417,12 +415,25 @@ app.on('activate', () => {
 
 // Emitted when all windows have been closed.
 app.on('window-all-closed', () => {
-  getLogger().debug('window-all-closed');
+  console.log('window-all-closed');
 });
 
 // Emitted before the application starts closing its windows.
-app.on('before-quit', () => {
-  getLogger().debug('before-quit');
+app.on('before-quit', (event) => {
+  console.log('before-quit');
+});
+
+// Emitted when all windows have been closed and the application will quit. 
+app.on('will-quit', (event) => {
+  console.log('will-quit');
+  event.preventDefault();
+
+  dialog.showMessageBox({
+    type: 'info',
+    title: '',
+    message: 'Please wait until Bodhi fully shuts down before closing this window.',
+  });
+
   killQtum(false);
 });
 
