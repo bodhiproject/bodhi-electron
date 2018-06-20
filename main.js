@@ -436,14 +436,18 @@ app.on('will-quit', (event) => {
   console.log('will-quit');
   event.preventDefault();
 
-  dialog.showMessageBox({
-    type: 'info',
-    title: i18n.get('shutdownDialogTitle'),
-    message: i18n.get('shutdownDialogMessage'),
-    buttons: [i18n.get('ok')],
-  }, () => {
-    killQtum(NORMAL);
-  });
+  if (getQtumProcess()) {
+    dialog.showMessageBox({
+      type: 'info',
+      title: i18n.get('shutdownDialogTitle'),
+      message: i18n.get('shutdownDialogMessage'),
+      buttons: [i18n.get('ok')],
+    }, () => {
+      killQtum(NORMAL);
+    });
+  } else {
+    app.exit();
+  }
 });
 
 /* Emitter Events */
