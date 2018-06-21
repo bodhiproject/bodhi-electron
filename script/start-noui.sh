@@ -1,5 +1,5 @@
 # set vars
-QTUM_PATH='./server/qtum/mac/bin'
+QTUM_PATH='./node_modules/bodhi-server/qtum/mac/bin'
 RPC_PW='bodhi'
 
 # start dev with no Electron windows
