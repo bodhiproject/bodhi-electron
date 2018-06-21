@@ -3,7 +3,7 @@
   "description": "Bodhi Prediction Market app",
   "author": "bodhi.network",
   "license": "ISC",
-  "version": "0.8.2-c0-d3",
+  "version": "0.8.3-c0-d3",
   "repository": "git@github.com:bodhiproject/bodhi-graphql.git",
   "main": "main.js",
   "keywords": [
@@ -112,7 +112,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "bodhi-server": "file:../bodhi-server/bodhi-server-0.8.3-c0-d3.tgz",
+    "bodhi-server": "0.8.3-c0-d3.tgz",
     "electron-prompt": "^0.5.0",
     "express": "^4.16.3",
     "lodash": "^4.17.10",
