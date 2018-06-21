@@ -5,7 +5,7 @@ const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const os = require('os');
-const { BodhiServer, BodhiDb, EmitterHelper, ServerConfig, getLogger, Constants, Wallet } = require('bodhi-server');
+const { BodhiServer, BodhiConfig, BodhiDb, Constants, EmitterHelper, getLogger, Wallet } = require('bodhi-server');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
@@ -73,7 +73,7 @@ function createWindow() {
 
     let formattedUrl = url;
     if (url.includes(EXPLORER_URL_PLACEHOLDER)) {
-      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, ServerConfig.getQtumExplorerUrl());
+      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, BodhiConfig.getQtumExplorerUrl());
     }
     shell.openExternal(formattedUrl);
   });
@@ -362,7 +362,7 @@ function showWalletUnlockPrompt() {
       }
 
       // Unlock wallet
-      await Wallet.walletPassphrase({ passphrase: res, timeout: ServerConfig.Config.UNLOCK_SECONDS });
+      await Wallet.walletPassphrase({ passphrase: res, timeout: BodhiConfig.Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
       if (info.unlocked_until > 0) {
         getLogger().info('Wallet unlocked');
