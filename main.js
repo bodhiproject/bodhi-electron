@@ -5,23 +5,7 @@ const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const os = require('os');
-const {
-  getQtumProcess,
-  killQtumProcess,
-  startServices,
-  startServer,
-  getServer,
-  startQtumWallet,
-  initDB,
-  deleteBodhiData,
-  EmitterHelper,
-  Config,
-  setQtumEnv,
-  getQtumExplorerUrl,
-  getLogger,
-  Constants,
-  Wallet,
-} = require('bodhi-server');
+const { BodhiServer, BodhiDb, EmitterHelper, ServerConfig, getLogger, Constants, Wallet } = require('bodhi-server');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
@@ -59,7 +43,7 @@ let killType;
 function killQtum(type) {
   try {
     killType = type;
-    killQtumProcess(true);
+    BodhiServer.killQtumProcess(true);
   } catch (err) {
     app.quit();
   }
@@ -89,7 +73,7 @@ function createWindow() {
 
     let formattedUrl = url;
     if (url.includes(EXPLORER_URL_PLACEHOLDER)) {
-      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, getQtumExplorerUrl());
+      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, ServerConfig.getQtumExplorerUrl());
     }
     shell.openExternal(formattedUrl);
   });
@@ -115,7 +99,7 @@ function showLaunchQtumWalletDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === LAUNCH) {
-      if (getQtumProcess()) {
+      if (BodhiServer.getQtumProcess()) {
         killQtum(QT_WALLET);
       } else {
         // Show dialog to wait for initializing to finish
@@ -143,7 +127,7 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      deleteBodhiData();
+      BodhiDb.deleteBodhiData();
       app.quit();
     }
   });
@@ -228,7 +212,7 @@ async function startBackend(blockchainEnv) {
     throw Error(`blockchainEnv cannot be empty.`);
   }
 
-  await startServer(blockchainEnv, getQtumExecPath(), encryptOk);
+  await BodhiServer.startServer(blockchainEnv, getQtumExecPath(), encryptOk);
   initBrowserWindow();
 }
 
@@ -378,11 +362,11 @@ function showWalletUnlockPrompt() {
       }
 
       // Unlock wallet
-      await Wallet.walletPassphrase({ passphrase: res, timeout: Config.UNLOCK_SECONDS });
+      await Wallet.walletPassphrase({ passphrase: res, timeout: ServerConfig.Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
       if (info.unlocked_until > 0) {
         getLogger().info('Wallet unlocked');
-        startServices();
+        BodhiServer.startServices();
       } else {
         getLogger().error('Wallet unlock failed');
         throw Error(i18n.get('walletUnlockFailed'));
@@ -395,7 +379,7 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  setTimeout(() => require('bodhi-server').startQtumWallet(), 4000);
+  setTimeout(() => require('bodhi-server').BodhiServer.startQtumWallet(), 4000);
 }
 
 function handleExitSignal(signal) {
@@ -447,7 +431,7 @@ app.on('will-quit', (event) => {
   console.log('will-quit');
   event.preventDefault();
 
-  if (getQtumProcess()) {
+  if (BodhiServer.getQtumProcess()) {
     dialog.showMessageBox({
       type: 'info',
       title: i18n.get('shutdownDialogTitle'),
