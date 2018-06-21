@@ -1,7 +1,7 @@
 const Mixpanel = require('mixpanel');
 const _ = require('lodash');
 const os = require('os');
-const Utils = require('bodhi-server');
+const { Utils } = require('bodhi-server');
 
 const MIXPANEL_TOKEN = '5c13e6b02fc222c0adae2f1f8cd923b0';
 
