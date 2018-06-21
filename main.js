@@ -5,17 +5,27 @@ const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const os = require('os');
+const {
+  getQtumProcess,
+  killQtumProcess,
+  startServices,
+  startServer,
+  getServer,
+  startQtumWallet,
+  initDB,
+  deleteBodhiData,
+  EmitterHelper,
+  Config,
+  setQtumEnv,
+  getQtumExplorerUrl,
+  getLogger,
+  Constants,
+  Wallet,
+} = require('bodhi-server');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getQtumExecPath } = require('./src/utils');
-const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
-const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server/src/server');
-const EmitterHelper = require('./server/src/utils/emitterHelper');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
-const { getLogger } = require('./server/src/utils/logger');
-const { blockchainEnv, ipcEvent } = require('./server/src/constants');
-const Wallet = require('./server/src/api/wallet');
 
 /*
 * Order of Operations
@@ -31,6 +41,7 @@ const Wallet = require('./server/src/api/wallet');
 
 const UI_PORT = 3000;
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
+const { blockchainEnv, ipcEvent, execFile } = Constants;
 
 /*
 * Codes for type of event when killing the Qtum process
@@ -384,7 +395,7 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  setTimeout(() => startQtumWallet(), 4000);
+  setTimeout(() => require('bodhi-server').startQtumWallet(), 4000);
 }
 
 function handleExitSignal(signal) {
@@ -499,7 +510,7 @@ EmitterHelper.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   dialog.showSaveDialog(options, async (path) => {
     try {
       if (!_.isUndefined(path)) {
-        await require('./server/src/api/wallet').backupWallet({ destination: path });
+        await require('bodhi-server').Wallet.backupWallet({ destination: path });
         const options = {
           type: 'info',
           title: 'Information',
@@ -527,7 +538,7 @@ EmitterHelper.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   }, async (files) => {
     try {
       if (!_.isEmpty(files)) {
-        await require('./server/src/api/wallet').importWallet({ filename: files[0] });
+        await require('bodhi-server').Wallet.importWallet({ filename: files[0] });
 
         dialog.showMessageBox({
           type: 'info',
