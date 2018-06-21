@@ -45,7 +45,7 @@ const getProdQtumExecPath = () => {
 const getQtumExecPath = () => {
   let qtumExecPath;
   if (Utils.isDevEnv()) {
-    qtumExecPath = Utils.getDevQtumExecPath(exec);
+    qtumExecPath = Utils.getDevQtumExecPath();
   } else {
     qtumExecPath = getProdQtumExecPath();
   }
