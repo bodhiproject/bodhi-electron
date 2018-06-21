@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { Constants, Utils } = require('bodhi-server');
+const { Utils } = require('bodhi-server');
 
 /*
 * Gets the prod env qtum exec path.
@@ -34,7 +34,7 @@ const getProdQtumExecPath = () => {
     }
   }
 
-  const { app } = require('electron');
+  const { app } = require('electron'); // eslint-disable-line global-require
   const path = `${app.getAppPath()}/node_modules/bodhi-server/qtum/${osFolder}/bin`;
   return path.replace('app.asar', 'app.asar.unpacked');
 };
