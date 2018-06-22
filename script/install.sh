@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# update submodule with remote
-echo 'Updating submodules...'
-git submodule update --init --recursive --remote
-
 # install dependencies
 echo 'Installing dependencies...'
 npm install
