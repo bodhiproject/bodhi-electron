@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const { app } = require('electron');
 
-const { getLogger } = require('../../server/src/utils/logger');
 const locale = require('./locale.json');
 
 class i18n {
@@ -31,6 +30,6 @@ class i18n {
   }
 }
 
-const instance = new i18n();
+const instance = new i18n(); // eslint-disable-line new-cap
 Object.freeze(instance);
 module.exports = instance;

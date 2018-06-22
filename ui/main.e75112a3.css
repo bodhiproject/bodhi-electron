@@ -15,6 +15,10 @@ a:hover {
 #tooltip-icon {
   width: 300px;
 }
+#tooltip-reward {
+  padding: 8px;
+  background: #f9f9f9;
+}
 .create-topic-container {
   padding-left: 64px;
   padding-right: 64px;

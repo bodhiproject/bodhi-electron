@@ -5,17 +5,11 @@ const axios = require('axios');
 const express = require('express');
 const path = require('path');
 const os = require('os');
+const { BodhiServer, BodhiConfig, BodhiDb, Constants, EmitterHelper, getLogger, Wallet } = require('bodhi-server');
 
 const { version, testnetOnly, encryptOk } = require('./package.json');
 const Tracking = require('./src/analytics/tracking');
 const { getQtumExecPath } = require('./src/utils');
-const { initDB, deleteBodhiData } = require('./server/src/db/nedb');
-const { getQtumProcess, killQtumProcess, startServices, startServer, getServer, startQtumWallet } = require('./server/src/server');
-const EmitterHelper = require('./server/src/utils/emitterHelper');
-const { Config, setQtumEnv, getQtumExplorerUrl } = require('./server/src/config');
-const { getLogger } = require('./server/src/utils/logger');
-const { blockchainEnv, ipcEvent } = require('./server/src/constants');
-const Wallet = require('./server/src/api/wallet');
 
 /*
 * Order of Operations
@@ -31,6 +25,7 @@ const Wallet = require('./server/src/api/wallet');
 
 const UI_PORT = 3000;
 const EXPLORER_URL_PLACEHOLDER = 'https://qtumhost';
+const { blockchainEnv, ipcEvent, execFile } = Constants;
 
 /*
 * Codes for type of event when killing the Qtum process
@@ -48,7 +43,7 @@ let killType;
 function killQtum(type) {
   try {
     killType = type;
-    killQtumProcess(true);
+    BodhiServer.killQtumProcess(true);
   } catch (err) {
     app.quit();
   }
@@ -78,7 +73,7 @@ function createWindow() {
 
     let formattedUrl = url;
     if (url.includes(EXPLORER_URL_PLACEHOLDER)) {
-      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, getQtumExplorerUrl());
+      formattedUrl = url.replace(EXPLORER_URL_PLACEHOLDER, BodhiConfig.getQtumExplorerUrl());
     }
     shell.openExternal(formattedUrl);
   });
@@ -104,7 +99,7 @@ function showLaunchQtumWalletDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === LAUNCH) {
-      if (getQtumProcess()) {
+      if (BodhiServer.getQtumProcess()) {
         killQtum(QT_WALLET);
       } else {
         // Show dialog to wait for initializing to finish
@@ -132,7 +127,7 @@ function showDeleteDataDialog() {
     cancelId: CANCEL,
   }, (response) => {
     if (response === DELETE) {
-      deleteBodhiData();
+      BodhiDb.deleteBodhiData();
       app.quit();
     }
   });
@@ -217,7 +212,7 @@ async function startBackend(blockchainEnv) {
     throw Error(`blockchainEnv cannot be empty.`);
   }
 
-  await startServer(blockchainEnv, getQtumExecPath(), encryptOk);
+  await BodhiServer.startServer(blockchainEnv, getQtumExecPath(), encryptOk);
   initBrowserWindow();
 }
 
@@ -367,11 +362,11 @@ function showWalletUnlockPrompt() {
       }
 
       // Unlock wallet
-      await Wallet.walletPassphrase({ passphrase: res, timeout: Config.UNLOCK_SECONDS });
+      await Wallet.walletPassphrase({ passphrase: res, timeout: BodhiConfig.Config.UNLOCK_SECONDS });
       const info = await Wallet.getWalletInfo();
       if (info.unlocked_until > 0) {
         getLogger().info('Wallet unlocked');
-        startServices();
+        BodhiServer.startServices();
       } else {
         getLogger().error('Wallet unlock failed');
         throw Error(i18n.get('walletUnlockFailed'));
@@ -384,7 +379,7 @@ function showWalletUnlockPrompt() {
 }
 
 function startQtWallet() {
-  setTimeout(() => startQtumWallet(), 4000);
+  setTimeout(() => require('bodhi-server').BodhiServer.startQtumWallet(), 4000);
 }
 
 function handleExitSignal(signal) {
@@ -436,7 +431,7 @@ app.on('will-quit', (event) => {
   console.log('will-quit');
   event.preventDefault();
 
-  if (getQtumProcess()) {
+  if (BodhiServer.getQtumProcess()) {
     dialog.showMessageBox({
       type: 'info',
       title: i18n.get('shutdownDialogTitle'),
@@ -499,7 +494,7 @@ EmitterHelper.emitter.on(ipcEvent.WALLET_BACKUP, (event) => {
   dialog.showSaveDialog(options, async (path) => {
     try {
       if (!_.isUndefined(path)) {
-        await require('./server/src/api/wallet').backupWallet({ destination: path });
+        await require('bodhi-server').Wallet.backupWallet({ destination: path });
         const options = {
           type: 'info',
           title: 'Information',
@@ -527,7 +522,7 @@ EmitterHelper.emitter.on(ipcEvent.WALLET_IMPORT, (event) => {
   }, async (files) => {
     try {
       if (!_.isEmpty(files)) {
-        await require('./server/src/api/wallet').importWallet({ filename: files[0] });
+        await require('bodhi-server').Wallet.importWallet({ filename: files[0] });
 
         dialog.showMessageBox({
           type: 'info',

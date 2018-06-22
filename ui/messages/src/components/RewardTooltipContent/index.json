@@ -1,0 +1,26 @@
+[
+  {
+    "id": "tooltip.tokenInvestment",
+    "defaultMessage": "Total {token} Investment"
+  },
+  {
+    "id": "tooltip.tokenProfit",
+    "defaultMessage": "Total {token} Profit"
+  },
+  {
+    "id": "tooltip.qtumWon",
+    "defaultMessage": "{token} Won"
+  },
+  {
+    "id": "tooltip.botQtumWon",
+    "defaultMessage": "{token} Reward"
+  },
+  {
+    "id": "tooltip.tokenLosing",
+    "defaultMessage": "Total {token} Losing"
+  },
+  {
+    "id": "tooltip.tokenReward",
+    "defaultMessage": "Total {token} Reward"
+  }
+]

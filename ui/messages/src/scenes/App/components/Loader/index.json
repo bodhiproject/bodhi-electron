@@ -1,7 +1,7 @@
 [
   {
     "id": "str.blockSync",
-    "defaultMessage": "Blockchain syncing."
+    "defaultMessage": "Blockchain syncing..."
   },
   {
     "id": "str.wait",

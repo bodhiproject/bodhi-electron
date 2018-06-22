@@ -1,7 +1,5 @@
 const _ = require('lodash');
-
-const { execFile } = require('../../server/src/constants');
-const { isDevEnv, getDevQtumExecPath } = require('../../server/src/utils');
+const { Utils } = require('bodhi-server');
 
 /*
 * Gets the prod env qtum exec path.
@@ -36,8 +34,8 @@ const getProdQtumExecPath = () => {
     }
   }
 
-  const { app } = require('electron');
-  const path = `${app.getAppPath()}/server/qtum/${osFolder}/bin`;
+  const { app } = require('electron'); // eslint-disable-line global-require
+  const path = `${app.getAppPath()}/node_modules/bodhi-server/qtum/${osFolder}/bin`;
   return path.replace('app.asar', 'app.asar.unpacked');
 };
 
@@ -46,8 +44,8 @@ const getProdQtumExecPath = () => {
 */
 const getQtumExecPath = () => {
   let qtumExecPath;
-  if (isDevEnv()) {
-    qtumExecPath = getDevQtumExecPath();
+  if (Utils.isDevEnv()) {
+    qtumExecPath = Utils.getDevQtumExecPath();
   } else {
     qtumExecPath = getProdQtumExecPath();
   }
