@@ -1,0 +1,10 @@
+[
+  {
+    "id": "withdrawDetail.returnRate",
+    "defaultMessage": "Return rate:"
+  },
+  {
+    "id": "withdrawDetail.reward",
+    "defaultMessage": "REWARD"
+  }
+]

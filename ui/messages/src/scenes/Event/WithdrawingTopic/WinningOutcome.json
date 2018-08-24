@@ -1,0 +1,14 @@
+[
+  {
+    "id": "withdrawDetail.youBetYouVote",
+    "defaultMessage": "You bet {qtum} QTUM. You voted {bot} BOT."
+  },
+  {
+    "id": "topic.didNotBetOrVote",
+    "defaultMessage": "You did not bet or vote on the winning outcome."
+  },
+  {
+    "id": "str.winningOutcome",
+    "defaultMessage": "Wining Outcome"
+  }
+]

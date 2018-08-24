@@ -1,0 +1,14 @@
+[
+  {
+    "id": "eventInfo.predictionFund",
+    "defaultMessage": "Prediction Fund"
+  },
+  {
+    "id": "eventInfo.voteVolume",
+    "defaultMessage": "Voting Volume"
+  },
+  {
+    "id": "str.resultSetter",
+    "defaultMessage": "Result Setter"
+  }
+]

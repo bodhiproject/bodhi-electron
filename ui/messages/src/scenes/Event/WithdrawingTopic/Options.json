@@ -1,0 +1,10 @@
+[
+  {
+    "id": "withdrawDetail.totalBetTotalVote",
+    "defaultMessage": "Total bet amount {qtum} QTUM. Total voted amount {bot} BOT."
+  },
+  {
+    "id": "withdrawDetail.youBetYouVote",
+    "defaultMessage": "You bet {qtum} QTUM. You voted {bot} BOT."
+  }
+]

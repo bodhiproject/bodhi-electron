@@ -12,6 +12,10 @@
     "defaultMessage": "Online"
   },
   {
+    "id": "bottomBar.peers",
+    "defaultMessage": "peers"
+  },
+  {
     "id": "bottomBar.offline",
     "defaultMessage": "Offline"
   }

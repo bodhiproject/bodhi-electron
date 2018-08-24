@@ -1,0 +1,14 @@
+[
+  {
+    "id": "create.addOutcome",
+    "defaultMessage": "Add Outcome"
+  },
+  {
+    "id": "create.outcomeName",
+    "defaultMessage": "Outcome Name"
+  },
+  {
+    "id": "str.outcomes",
+    "defaultMessage": "Outcomes"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "encrypt.success",
+    "defaultMessage": "Encrypt Wallet Successful."
+  },
+  {
+    "id": "encrypt.restart",
+    "defaultMessage": "You need to restart Bodhi applciation after successfully encrypt the wallet"
+  },
+  {
+    "id": "str.close",
+    "defaultMessage": "Close"
+  }
+]

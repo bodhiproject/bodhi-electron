@@ -1,11 +1,7 @@
 [
   {
     "id": "str.blockSync",
-    "defaultMessage": "Blockchain syncing..."
-  },
-  {
-    "id": "str.wait",
-    "defaultMessage": "Please wait."
+    "defaultMessage": "Blockchain syncing with {peers} peers..."
   },
   {
     "id": "loader.blockNum",

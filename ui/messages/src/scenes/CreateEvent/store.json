@@ -1,0 +1,46 @@
+[
+  {
+    "id": "create.datePast",
+    "defaultMessage": "Cannot be in the past"
+  },
+  {
+    "id": "create.validBetEnd",
+    "defaultMessage": "Must be at least 30 minutes after Prediction Start Time"
+  },
+  {
+    "id": "create.validResultSetStart",
+    "defaultMessage": "Must be greater than or equal to Prediction End Time"
+  },
+  {
+    "id": "create.validResultSetEnd",
+    "defaultMessage": "Must be at least 30 minutes after Result Setting Start Time"
+  },
+  {
+    "id": "str.notEnoughBot",
+    "defaultMessage": "You don't have enough BOT"
+  },
+  {
+    "id": "create.required",
+    "defaultMessage": "Required"
+  },
+  {
+    "id": "create.resultTooLong",
+    "defaultMessage": "Result name is too long."
+  },
+  {
+    "id": "create.invalidName",
+    "defaultMessage": "Cannot name the outcome 'Invalid'"
+  },
+  {
+    "id": "create.duplicateOutcome",
+    "defaultMessage": "Duplicate outcomes are not allowed."
+  },
+  {
+    "id": "create.nameLong",
+    "defaultMessage": "Event name is too long."
+  },
+  {
+    "id": "create.invalidAddress",
+    "defaultMessage": "Invalid address"
+  }
+]
