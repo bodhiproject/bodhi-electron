@@ -1,5 +1,25 @@
 [
   {
+    "id": "tutorial5.content0",
+    "defaultMessage": "The blockchain is like a huge, global, decentralized spreadsheet."
+  },
+  {
+    "id": "tutorial5.content1",
+    "defaultMessage": "It keeps track of who sent how many tokens to whom, and what the balance of every account is."
+  },
+  {
+    "id": "tutorial5.content2",
+    "defaultMessage": "It is stored and maintained by thousands of people (miners) across the globe who have special computers."
+  },
+  {
+    "id": "tutorial5.content3",
+    "defaultMessage": "The blocks in the blockchain are made up of all the individual transactions sent from users who interact with the blockchain."
+  },
+  {
+    "id": "tutorial5.content4",
+    "defaultMessage": "When you see your balance on Bodhi Dapp, the Qtum Wallet, or view your transactions on the Qtum Explorer, you are seeing data on the blockchain, not in our personal systems."
+  },
+  {
     "id": "tutorial5.title",
     "defaultMessage": "What Is Blockchain"
   }

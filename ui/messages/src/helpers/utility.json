@@ -16,6 +16,10 @@
     "defaultMessage": "m"
   },
   {
+    "id": "str.s",
+    "defaultMessage": "s"
+  },
+  {
     "id": "str.left",
     "defaultMessage": "Left"
   }

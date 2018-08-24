@@ -1,0 +1,18 @@
+[
+  {
+    "id": "withdrawDialog.invalidAddress",
+    "defaultMessage": "Invalid address"
+  },
+  {
+    "id": "withdrawDialog.amountLargerThanZero",
+    "defaultMessage": "Amount should be larger than 0"
+  },
+  {
+    "id": "withdrawDialog.amountExceedLimit",
+    "defaultMessage": "Amount exceed the limit"
+  },
+  {
+    "id": "withdrawDialog.required",
+    "defaultMessage": "Required"
+  }
+]

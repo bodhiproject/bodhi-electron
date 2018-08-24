@@ -1,0 +1,14 @@
+[
+  {
+    "id": "create.namePlaceholder",
+    "defaultMessage": "e.g. Who will be the next president of the United States?"
+  },
+  {
+    "id": "oracle.eventUnconfirmed",
+    "defaultMessage": "This created Event is unconfirmed. You cannot interact with it until it is confirmed by the blockchain."
+  },
+  {
+    "id": "create.title",
+    "defaultMessage": "Title"
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "withdrawDetail.withdrawTo",
+    "defaultMessage": "WITHDRAW TO"
+  },
+  {
+    "id": "str.address",
+    "defaultMessage": "Address"
+  },
+  {
+    "id": "str.type",
+    "defaultMessage": "Type"
+  },
+  {
+    "id": "str.amount",
+    "defaultMessage": "Amount"
+  },
+  {
+    "id": "str.actions",
+    "defaultMessage": "Actions"
+  },
+  {
+    "id": "str.escrow",
+    "defaultMessage": "Escrow"
+  },
+  {
+    "id": "str.winnings",
+    "defaultMessage": "Winnings"
+  },
+  {
+    "id": "str.withdraw",
+    "defaultMessage": "Withdraw"
+  }
+]

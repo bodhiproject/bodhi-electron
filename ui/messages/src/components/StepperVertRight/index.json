@@ -1,15 +1,15 @@
 [
   {
-    "id": "str.block",
-    "defaultMessage": "Block"
-  },
-  {
     "id": "cardInfo.to",
     "defaultMessage": "To"
   },
   {
     "id": "str.anytime",
     "defaultMessage": "anytime"
+  },
+  {
+    "id": "str.block",
+    "defaultMessage": "Block"
   },
   {
     "id": "cardInfo.topic",

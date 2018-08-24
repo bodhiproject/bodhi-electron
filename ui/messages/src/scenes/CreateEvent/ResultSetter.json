@@ -1,0 +1,14 @@
+[
+  {
+    "id": "create.resultSetterPlaceholder",
+    "defaultMessage": "Enter the address of the result setter or select your own address"
+  },
+  {
+    "id": "create.selectMyAddress",
+    "defaultMessage": "Select My Address"
+  },
+  {
+    "id": "str.resultSetter",
+    "defaultMessage": "Result Setter"
+  }
+]

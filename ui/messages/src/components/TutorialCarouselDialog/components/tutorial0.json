@@ -1,5 +1,21 @@
 [
   {
+    "id": "tutorial0.content0",
+    "defaultMessage": "Bodhi Dapp is a free, open-source, client-side interface."
+  },
+  {
+    "id": "tutorial0.content1",
+    "defaultMessage": "It allows you to interact directly with the blockchain while remaining in full control of your keys & your funds."
+  },
+  {
+    "id": "tutorial0.content2",
+    "defaultMessage": "Bodhi Dapp is NOT a standalone wallet. We use the Qtum Core Wallet to handle all transactions and interactions with the Qtum blockchain."
+  },
+  {
+    "id": "tutorial0.content3",
+    "defaultMessage": "YOU and ONLY YOU are responsible for your security. This saying is applicable for all things related to blockchain and cryptocurrency."
+  },
+  {
     "id": "tutorial0.title",
     "defaultMessage": "What Is The Bodhi App"
   }

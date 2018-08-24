@@ -1,0 +1,14 @@
+[
+  {
+    "id": "str.pending",
+    "defaultMessage": "Pending"
+  },
+  {
+    "id": "str.success",
+    "defaultMessage": "Success"
+  },
+  {
+    "id": "str.fail",
+    "defaultMessage": "Fail"
+  }
+]

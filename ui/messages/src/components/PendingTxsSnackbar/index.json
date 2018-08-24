@@ -1,0 +1,10 @@
+[
+  {
+    "id": "pendingTxsSnackbar.youHaveXPendingTransactions",
+    "defaultMessage": "You have {numOfTxs} pending transaction(s)."
+  },
+  {
+    "id": "pendingTxsSnackbar.balanceExplanation",
+    "defaultMessage": "Pending transactions will affect your wallet balances."
+  }
+]

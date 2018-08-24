@@ -1,0 +1,10 @@
+[
+  {
+    "id": "txConfirmMsg.set",
+    "defaultMessage": "set the result as {option}"
+  },
+  {
+    "id": "str.finalizeResult",
+    "defaultMessage": "Finalize Result"
+  }
+]

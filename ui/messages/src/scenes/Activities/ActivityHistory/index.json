@@ -1,0 +1,10 @@
+[
+  {
+    "id": "str.emptyTxHistory",
+    "defaultMessage": "You do not have any transactions right now."
+  },
+  {
+    "id": "str.sort",
+    "defaultMessage": "Sort"
+  }
+]

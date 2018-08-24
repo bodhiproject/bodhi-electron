@@ -1,11 +1,19 @@
 [
   {
+    "id": "navBar.allEvents",
+    "defaultMessage": "All Events"
+  },
+  {
+    "id": "navBar.settings",
+    "defaultMessage": "Settings"
+  },
+  {
     "id": "help",
     "defaultMessage": "Help"
   },
   {
-    "id": "navbar.allEvents",
-    "defaultMessage": "All Events"
+    "id": "navBar.activities",
+    "defaultMessage": "My Activities"
   },
   {
     "id": "navbar.qtumPrediction",
@@ -14,9 +22,5 @@
   {
     "id": "navbar.botCourt",
     "defaultMessage": "BOT Court"
-  },
-  {
-    "id": "navBar.activities",
-    "defaultMessage": "My Activities"
   }
 ]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "create.dialogTitle",
+    "defaultMessage": "Create an event"
+  },
+  {
+    "id": "sort.label",
+    "defaultMessage": "Sort By"
+  },
+  {
+    "id": "sort.byEndTime",
+    "defaultMessage": "End Time"
+  }
+]

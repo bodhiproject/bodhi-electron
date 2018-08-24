@@ -1,0 +1,14 @@
+[
+  {
+    "id": "eventInfo.endDate",
+    "defaultMessage": "Ending Date"
+  },
+  {
+    "id": "eventInfo.fund",
+    "defaultMessage": "Funding"
+  },
+  {
+    "id": "str.resultSetter",
+    "defaultMessage": "Result Setter"
+  }
+]

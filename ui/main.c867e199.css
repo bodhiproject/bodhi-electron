@@ -1,0 +1,87 @@
+@import url(/fonts/lato.css);@import url(/iconfont/iconfont.css);#nprogress{pointer-events:none}#nprogress .bar{background:#29d;position:fixed;z-index:1031;top:0;left:0;width:100%;height:2px}#nprogress .peg{display:block;position:absolute;right:0;width:100px;height:100%;-webkit-box-shadow:0 0 10px #29d,0 0 5px #29d;box-shadow:0 0 10px #29d,0 0 5px #29d;opacity:1;-webkit-transform:rotate(3deg) translateY(-4px);-ms-transform:rotate(3deg) translateY(-4px);transform:rotate(3deg) translateY(-4px)}#nprogress .spinner{display:block;position:fixed;z-index:1031;top:15px;right:15px}#nprogress .spinner-icon{width:18px;height:18px;-webkit-box-sizing:border-box;box-sizing:border-box;border:2px solid transparent;border-top-color:#29d;border-left-color:#29d;border-radius:50%;-webkit-animation:nprogress-spinner .4s linear infinite;animation:nprogress-spinner .4s linear infinite}.nprogress-custom-parent{overflow:hidden;position:relative}.nprogress-custom-parent #nprogress .bar,.nprogress-custom-parent #nprogress .spinner{position:absolute}@-webkit-keyframes nprogress-spinner{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(1turn)}}@keyframes nprogress-spinner{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}.show-loading-animation.rect-shape,.show-loading-animation .rect-shape,.show-loading-animation.round-shape,.show-loading-animation .round-shape,.show-loading-animation.text-row,.show-loading-animation .text-row{-webkit-animation:react-placeholder-pulse 1.5s infinite;animation:react-placeholder-pulse 1.5s infinite}@-webkit-keyframes react-placeholder-pulse{0%{opacity:.6}50%{opacity:1}to{opacity:.6}}@keyframes react-placeholder-pulse{0%{opacity:.6}50%{opacity:1}to{opacity:.6}}/* * * * * * * * * * * * * * * * * * * * *
+ALL LESS FILES
+* * * * * * * * * * * * * * * * * * * * */
+/** Base contains variable definition and has to be imported first */
+/****** Basic global styles *****/
+body {
+  font-family: 'Lato', 'Helvetica', sans-serif;
+  font-size: 16px;
+}
+a,
+a:hover {
+  color: #666666;
+  text-decoration: none;
+}
+#tooltip-icon {
+  width: 300px;
+}
+#tooltip-reward {
+  padding: 8px;
+  background: #f9f9f9;
+}
+.create-topic-container {
+  padding-left: 64px;
+  padding-right: 64px;
+}
+.create-topic-container h3 {
+  font-size: 30px;
+  margin-bottom: 48px;
+}
+.create-topic-container button {
+  border-radius: 42px;
+  font-size: 14px;
+  width: 90px;
+}
+.create-topic-container .submit-controller {
+  padding-top: 24px;
+}
+.create-topic-container .submit-controller button {
+  width: 150px;
+}
+.create-topic-container .submit-controller .ant-btn-primary {
+  margin-right: 24px;
+}
+.create-topic-container .submit-controller .ant-btn-primary:enabled {
+  background-color: #585AFA;
+}
+.create-topic-container .submit-controller .ant-btn-primary:disabled {
+  background-color: none;
+}
+.create-topic-container .ant-input {
+  height: 48px;
+}
+.create-topic-container .ant-btn {
+  height: 48px;
+}
+.create-topic-container .ant-form-item-label {
+  text-transform: uppercase;
+  text-align: left;
+  line-height: 48px;
+}
+.create-topic-container .ant-input-number {
+  height: calc(48px  - 4px);
+  width: 100%;
+}
+.create-topic-container .ant-input-number .ant-input-number-input {
+  height: calc(48px  - 6px);
+}
+.create-topic-container .options-container .options-item {
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 16px;
+}
+.create-topic-container .options-container .options-item button {
+  margin-left: 24px;
+  margin-right: 24px;
+}
+.create-topic-container .alert-container {
+  margin-bottom: 24px;
+}
+.create-topic-container .ant-form-item > .ant-form-item:last-child,
+.create-topic-container .ant-form-item :not(.ant-form) > .ant-form-item {
+  margin-bottom: 24px;
+}
+.create-topic-container .ant-form-item > .ant-form-item:last-child,
+.create-topic-container .ant-form-item :not(.ant-form) > .ant-form-item.ant-form-item-with-help {
+  margin-bottom: 6px;
+}
